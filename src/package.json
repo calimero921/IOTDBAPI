@@ -1,0 +1,41 @@
+{
+	"name": "iotdbapi",
+	"version": "0.0.1",
+	"description": "IOT Management platform API",
+	"private": true,
+	"license": "Apache-2.0",
+	"bugs": {
+		"url": "https://github.com/calimero921/IOTDBPAI/issues",
+		"email": "calimero921@gmail.com"
+	},
+	"author": {
+		"name": "Emmanuel David",
+		"email": "calimero921@gmail.com"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/calimero921/IOTDB.git"
+	},
+	"scripts": {
+		"start": "node app.js"
+	},
+	"dependencies": {
+		"body-parser": "~1.18.2",
+		"cookie-parser": "~1.4.3",
+		"express": "~4.15.5",
+		"express-session": "^1.15.6",
+		"basic-auth": "^2.0.0",
+		"ejs": "~2.5.7",
+		"morgan": "~1.9.0",
+		"serve-favicon": "^2.4.5",
+		"mongodb": "^3.0.1",
+		"uuid": "^3.2.1",
+		"moment": "^2.20.1",
+		"ajv": "^6.1.1",
+		"ajv-async": "^1.0.1"
+	},
+	"engines": {
+		"node": ">=8.9.1",
+		"npm": ">=4.6.1"
+	}
+}
