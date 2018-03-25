@@ -7,7 +7,7 @@ module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/patch');
     // log4n.object(req.params.account_id,'id');
 
-    var id = req.params.account_id;
+    let id = req.params.account_id;
 
     decodePost(req, res)
         .then(datas => {
