@@ -10,9 +10,9 @@ const accountPost = require('./api/account/post.js');
 const accountPatch = require('./api/account/patch.js');
 const accountGetByEmail = require('./api/account/getByEmail.js');
 const accountGet = require('./api/account/get.js');
+const accountCheck = require('./api/account/check');
 //const accountDelete = require('./api/account/delete.js');
 //const accountRecover = require('./api/account/recover');
-//const accountCheck = require('./api/account/check');
 //const accountGetBySession = require('../models/api/account/getBySession.js');
 //const accountSetPassword = require('./api/account/setPassword');
 
@@ -30,7 +30,7 @@ module.exports = function (app) {
     app.get('/v1/account/email/:email', checkAuth, (req, res) => {accountGetByEmail(req, res)});
     app.patch('/v1/account/:account_id', checkAuth, (req, res) => {accountPatch(req, res)});
     app.get('/v1/account/id/:account_id', checkAuth, (req, res) => {accountGet(req, res)});
-    //app.get('/v1/account/check/:email/:password', (req, res) => {accountCheck(req, res)});
+    app.get('/v1/account/check/:login/:password/:session', (req, res) => {accountCheck(req, res)});
     //app.post('/v1/account/password', (req, res) => {accountSetPassword(req, res);});
     //app.delete('/v1/account/:id', checkAuth, (req, res) => {accountDelete(req, res)});
 

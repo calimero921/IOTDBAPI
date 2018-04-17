@@ -4,16 +4,16 @@ const accountCheck = require('../../../models/api/account/check.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/check');
-    log4n.object(req.params.email, 'email');
+    log4n.object(req.params.login, 'login');
     log4n.object(req.params.password, 'password');
-    log4n.object(req.sessionID, 'session_id');
+    log4n.object(req.params.session, 'session');
 
-    if (typeof req.params.email === 'undefined' || typeof req.params.password === 'undefined' || typeof req.sessionID === 'undefined') {
+    if (typeof req.params.login === 'undefined' || typeof req.params.password === 'undefined' || typeof req.params.session === 'undefined') {
         responseError({error_code: 400, error_message: 'Missing parameters'}, res, log4n);
         log4n.debug('done - global catch');
     }
 
-    accountCheck(req.params.email, req.params.password, req.sessionID)
+    accountCheck(req.params.login, req.params.password, req.params.session)
         .then(result => {
             log4n.object(result, 'result');
             let value = {};

@@ -25,8 +25,9 @@ Converter.prototype.json2db = function (data) {
                     "email": {"type": "string"},
                     "login": {"type": "string"},
                     "password": {"type": "string"},
+	                "admin": {"type": "boolean"},
+                    "active": {"type": "boolean"},
                     "session_id": {"type": "string"},
-                    "admin": {"type": "boolean"},
                     "creation_date": {"type": "integer"},
                     "current_connexion_date": {"type": "integer"},
                     "last_connexion_date": {"type": "integer"},
@@ -50,6 +51,7 @@ Converter.prototype.json2db = function (data) {
                         result.password = valid.password;
                         if (typeof valid.session_id !== 'undefined') result.session_id = valid.session_id;
                         if (typeof valid.admin !== 'undefined') result.admin = valid.admin;
+	                    if (typeof valid.active !== 'undefined') result.active= valid.active;
                         if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
                         if (typeof valid.current_connexion_date !== 'undefined') result.current_connexion_date = valid.current_connexion_date;
                         if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
@@ -97,13 +99,14 @@ Converter.prototype.db2json = function (data) {
                     "login": {"type": "string"},
                     "password": {"type": "string"},
                     "admin" : {"type":"boolean"},
+	                "active": {"type": "boolean"},
                     "session_id": {"type": "string"},
                     "creation_date": {"type": "integer"},
                     "current_connexion_date": {"type": "integer"},
                     "last_connexion_date": {"type": "integer"},
                     "token": {"type": "string"}
                 },
-                "required": ["id", "firstname", "lastname", "email", "login", "password", "session_id", "admin", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
+                "required": ["id", "firstname", "lastname", "email", "login", "password", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
             };
             // log4n.object(dbSchema, 'dbSchema');
             let validate = ajv.compile(dbSchema);
@@ -120,6 +123,7 @@ Converter.prototype.db2json = function (data) {
                     result.password = valid.password;
                     result.session_id = valid.session_id;
                     result.admin = valid.admin;
+	                result.active = valid.active;
                     result.creation_date = valid.creation_date;
                     result.current_connexion_date = valid.current_connexion_date;
                     result.last_connexion_date = valid.last_connexion_date;
