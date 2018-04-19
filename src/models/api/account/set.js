@@ -25,12 +25,13 @@ module.exports = function (account) {
                     .then(datas => {
                         query = datas;
                         query.id = generator.idgen();
+                        query.active = true;
+                        query.admin = false;
                         query.current_connexion_date = parseInt(moment().format('x'));
                         query.last_connexion_date = parseInt(moment().format('x'));
                         query.creation_date = parseInt(moment().format('x'));
                         query.session_id = "no session";
                         query.token = generator.keygen();
-                        query.admin = false;
                         log4n.object(query, 'query');
 
                         //recherche d'un compte pré-existant

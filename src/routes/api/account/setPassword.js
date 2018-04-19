@@ -2,7 +2,7 @@ const Log4n = require('../../../utils/log4n.js');
 const decodePost = require('../../../utils/decodePost.js');
 const responseError = require('../../../utils/responseError.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const accountGetByEmail = require('../../../models/api/account/getByEmail.js');
+const accountGetByID = require('../../../models/api/account/getByID.js');
 const accountSetPassword = require('../../../models/api/account/setPassword.js');
 
 module.exports = function (req, res) {
@@ -15,12 +15,12 @@ module.exports = function (req, res) {
                 error_code: 400,
                 error_message: 'missing parameters'
             });
-            if (typeof data.email === 'undefined' || typeof data.token === 'undefined') return errorparsing({
+            if (typeof data.id === 'undefined' || typeof data.token === 'undefined' || typeof data.password === 'undefined') return errorparsing({
                 error_code: 400,
                 error_message: 'missing parameters'
             });
             form = data;
-            return accountGetByEmail(data.email);
+            return accountGetByID(form.id, false);
         })
         .then(data => {
             // log4n.object(data, 'user');
@@ -33,7 +33,7 @@ module.exports = function (req, res) {
             // log4n.object(user.token, 'user.token');
             // log4n.object(form.token, 'form.token');
             if (user.token !== form.token) return errorparsing({error_code: 403, error_message: 'wrong token'});
-            return accountSetPassword(form.email, form.password);
+            return accountSetPassword(form.id, form.password);
         })
         .then(data => {
             // log4n.object(data, 'result');

@@ -51,7 +51,7 @@ Converter.prototype.json2db = function (data) {
                         result.password = valid.password;
                         if (typeof valid.session_id !== 'undefined') result.session_id = valid.session_id;
                         if (typeof valid.admin !== 'undefined') result.admin = valid.admin;
-	                    if (typeof valid.active !== 'undefined') result.active= valid.active;
+	                    if (typeof valid.active !== 'undefined') result.active = valid.active;
                         if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
                         if (typeof valid.current_connexion_date !== 'undefined') result.current_connexion_date = valid.current_connexion_date;
                         if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
