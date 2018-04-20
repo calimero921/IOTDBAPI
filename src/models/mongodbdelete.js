@@ -4,8 +4,8 @@ const connexion = require('./mongoconnexion.js')
 
 module.exports = function (collection, query) {
 	const log4n = new Log4n('/models/mongodbdelete')
-	// log4n.object(collection, 'collection');
-	// log4n.object(query, 'query');
+	log4n.object(collection, 'collection');
+	log4n.object(query, 'query');
 	
 	return new Promise(function (resolve, reject) {
 		connexion()

@@ -1,6 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
 const responseError = require('../../../utils/responseError.js');
-const accountGetByEmail = require('../../../models/api/account/getByEmail.js');
 const accountDelete = require('../../../models/api/account/delete.js');
 
 module.exports = function (req, res) {
@@ -8,11 +7,11 @@ module.exports = function (req, res) {
     // log4n.object(req.params.id,'id');
 
     //traitement de recherche dans la base
-    if (typeof req.params.id === 'undefined') {
+    if (typeof req.params.id === 'undefined' || typeof req.params.token === 'undefined') {
         responseError({error_code: 400}, res, log4n);
     } else {
         //traitement de suppression dans la base
-        accountDelete(req.params.id)
+        accountDelete(req.params.id, req.params.token)
             .then(data => {
                 // log4n.object(datas, 'datas');
                 res.status(204).send();

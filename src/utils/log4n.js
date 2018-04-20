@@ -24,7 +24,7 @@ function log(path, level, message) {
 
 	level = level.toUpperCase();
 	
-	var display = false;
+	let display = false;
 
 //	console.log('log4n/loglevel:' + log4nConf.logLevel);
 	switch (log4nConf.logLevel.toUpperCase()) {
@@ -55,7 +55,7 @@ function logMessage(path, level, message) {
 function readObject(path, object, name) {
 	switch (typeof object) {
 		case 'object':
-			for(var key in object) {
+			for(let key in object) {
 				readObject(path, object[key], name + '.' + key);
 			}
 			break;
@@ -88,7 +88,7 @@ function writeInFile(message) {
 }
 
 function getFirstDate(filepath) {
-	var result = '';
+	let result = '';
 	if(fs.existsSync(filepath)) {
 		fs.readFileSync(filepath)
 			.toString()
@@ -126,7 +126,7 @@ function getTimeNow() {
 }
 
 function complete(value, size, char, before) {
-	var result;
+	let result;
 	
 	if(before === true) {
 		result = value + char.repeat(size);

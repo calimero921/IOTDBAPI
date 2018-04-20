@@ -6,12 +6,12 @@ module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/device/delete');
     // log4n.object(req.params.device_id,'id');
 
-    var id = req.params.device_id;
+    let id = req.params.device_id;
 
     //traitement de recherche dans la base
     if (typeof id === 'undefined') {
         //aucun id
-        var error = {error: {code: 400}};
+        let error = {error: {code: 400}};
         responseError(error, res, log4n);
     } else {
         //traitement de suppression dans la base

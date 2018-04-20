@@ -8,7 +8,7 @@ module.exports = function (device_id) {
 
     //traitement de suppression dans la base
     return new Promise(function (resolve, reject) {
-        var query = {};
+        let query = {};
         if(typeof device_id === 'undefined') {
             reject(errorparsing({error_code:400}));
             log4n.debug('done - missing paramater');

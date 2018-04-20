@@ -7,7 +7,7 @@ module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/device/patch');
     // log4n.object(req.params.device_id,'id');
 
-    var id = req.params.device_id;
+    let id = req.params.device_id;
 
     decodePost(req, res)
         .then(datas => {

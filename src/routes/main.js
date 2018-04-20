@@ -12,7 +12,7 @@ const accountGetByEmail = require('./api/account/getByEmail.js');
 const accountGet = require('./api/account/get.js');
 const accountCheck = require('./api/account/check');
 const accountSetPassword = require('./api/account/setPassword');
-//const accountDelete = require('./api/account/delete.js');
+const accountDelete = require('./api/account/delete.js');
 //const accountRecover = require('./api/account/recover');
 //const accountGetBySession = require('../models/api/account/getBySession.js');
 
@@ -32,7 +32,7 @@ module.exports = function (app) {
     app.get('/v1/account/id/:id', checkAuth, (req, res) => {accountGet(req, res)});
     app.get('/v1/account/check/:login/:password/:session', (req, res) => {accountCheck(req, res)});
     app.post('/v1/account/password', (req, res) => {accountSetPassword(req, res);});
-    //app.delete('/v1/account/:id', checkAuth, (req, res) => {accountDelete(req, res)});
+    app.delete('/v1/account/:id/:token', checkAuth, (req, res) => {accountDelete(req, res)});
 
     //app.post('/v1/device', checkAuth, (req, res) => {devicePost(req, res)});
     //app.get('/v1/device/:device_id', checkAuth, (req, res) => {deviceGet(req, res)});

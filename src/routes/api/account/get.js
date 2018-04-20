@@ -5,7 +5,7 @@ const accountGetByID = require('../../../models/api/account/getByID.js');
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/get');
     // log4n.object(req.params.id,'id');
-    var id = req.params.id;
+    let id = req.params.id;
 
     //traitement de recherche dans la base
     if (typeof id === 'undefined') {

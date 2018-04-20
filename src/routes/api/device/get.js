@@ -15,7 +15,7 @@ module.exports = function (req, res) {
         log4n.debug('done - missing parameter(device_id)');
     } else {
         //traitement de recherche dans la base
-        var query = {id: id};
+        let query = {id: id};
         get(query, 0, 0)
             .then(datas => {
                 if (typeof datas === 'undefined') {
