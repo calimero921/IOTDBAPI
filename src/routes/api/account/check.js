@@ -7,21 +7,25 @@ module.exports = function (req, res) {
     log4n.object(req.params.login, 'login');
     log4n.object(req.params.password, 'password');
     log4n.object(req.params.session, 'session');
+    
+    let login = req.params.login;
+    let password = req.params.password;
+    let session = req.params.session;
 
-    if (typeof req.params.login === 'undefined' || typeof req.params.password === 'undefined' || typeof req.params.session === 'undefined') {
+    if (typeof login === 'undefined' || typeof password === 'undefined' || typeof session === 'undefined') {
         responseError({error_code: 400, error_message: 'Missing parameters'}, res, log4n);
-        log4n.debug('done - global catch');
+        log4n.debug('done - error missing parameters');
+    } else {
+	    accountCheck(login, password, session)
+		    .then(result => {
+			    log4n.object(result, 'result');
+			    let value = {};
+			    value.checked = result;
+			
+			    res.send(value);
+		    })
+		    .catch(error => {
+			    responseError(error, res, log4n)
+		    });
     }
-
-    accountCheck(req.params.login, req.params.password, req.params.session)
-        .then(result => {
-            log4n.object(result, 'result');
-            let value = {};
-            value.checked = result;
-
-            res.send(value);
-        })
-        .catch(error => {
-            responseError(error, res, log4n)
-        });
 };

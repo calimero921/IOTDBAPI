@@ -2,7 +2,7 @@ const Log4n = require('../../../utils/log4n.js')
 const errorparsing = require('../../../utils/errorparsing.js')
 const patch = require('./patch.js')
 const accountGetByID = require('./getByID.js')
-const accountSetToken = require('./setToken.js')
+const setToken = require('./setToken.js')
 
 module.exports = function (id, password) {
 	const log4n = new Log4n('/models/api/account/setPassword')
@@ -26,7 +26,7 @@ module.exports = function (id, password) {
 					.then(datas => {
 						// log4n.object(datas, 'datas');
 						if (typeof datas.error_code === 'undefined') {
-							return accountSetToken(id)
+							return setToken(id)
 						}
 						return datas
 					})

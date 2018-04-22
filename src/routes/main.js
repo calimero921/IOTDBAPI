@@ -28,7 +28,7 @@ module.exports = function (app) {
 
     app.post('/v1/account', (req, res) => {accountPost(req, res)});
     app.get('/v1/account/email/:email', checkAuth, (req, res) => {accountGetByEmail(req, res)});
-    app.patch('/v1/account/:id', checkAuth, (req, res) => {accountPatch(req, res)});
+    app.patch('/v1/account/:id/:token', checkAuth, (req, res) => {accountPatch(req, res)});
     app.get('/v1/account/id/:id', checkAuth, (req, res) => {accountGet(req, res)});
     app.get('/v1/account/check/:login/:password/:session', (req, res) => {accountCheck(req, res)});
     app.post('/v1/account/password', (req, res) => {accountSetPassword(req, res);});

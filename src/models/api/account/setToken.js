@@ -4,6 +4,7 @@ const errorparsing = require('../../../utils/errorparsing.js');
 const patch = require('./patch.js');
 const accountGetByID = require('./getByID.js');
 const accountGet = require('./get.js');
+const mongoClient = require('../../mongodbupdate.js')
 const Generator = require('../generator.js');
 
 module.exports = function (id) {
@@ -17,21 +18,22 @@ module.exports = function (id) {
 				reject(errorparsing({error_code: '400'}));
 				log4n.debug('done - missing parameter');
 			} else {
-				let query
+				let parameters
+				let query = {id: id}
 				accountGetByID(id, false)
 					.then(account => {
 						log4n.object(account, 'account');
-						query = account[0];
-						query.last_connexion_date = query.current_connexion_date;
-						query.current_connexion_date = parseInt(moment().format('x'));
+						parameters = account[0];
+						parameters.last_connexion_date = parameters.current_connexion_date;
+						parameters.current_connexion_date = parseInt(moment().format('x'));
 						//log4n.object(query, 'query');
 						return createToken();
 					})
 					.then(token => {
 						// log4n.object(token, 'token');
-						query.token = token;
+						parameters.token = token;
 						//log4n.object(query, 'query');
-						return patch(query.id, query);
+						return mongoClient('account', query, parameters);
 					})
 					.then(datas => {
 						// log4n.object(datas, 'datas');
