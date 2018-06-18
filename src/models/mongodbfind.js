@@ -16,15 +16,15 @@ module.exports = function (collection, query, parameter, overtake) {
             .then(() => {
                 try {
                     //initialisation des parametres offset et limit
-                    let offset = 0;
+                    let skip = 0;
                     let limit = 0;
                     if (typeof parameter !== 'undefined') {
-                        if (typeof parameter.offset !== 'undefined') offset = parseInt(parameter.offset);
+                        if (typeof parameter.skip !== 'undefined') skip = parseInt(parameter.skip);
                         if (typeof parameter.limit !== 'undefined') limit = parseInt(parameter.limit);
                     }
                     let mdbcollection = mongodbConnexion.collection(collection);
                     mdbcollection.find(query)
-                        .skip(offset)
+                        .skip(skip)
                         .limit(limit)
                         .toArray()
                         .then(datas => {

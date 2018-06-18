@@ -3,11 +3,13 @@ const errorparsing = require('../../../utils/errorparsing.js');
 const mongoClient = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
 
-module.exports = function (query, offset, limit, overtake) {
+module.exports = function (query, skip, limit, overtake) {
     const log4n = new Log4n('/models/api/account/get');
     log4n.object(query, 'query');
-    log4n.object(offset, 'offset');
+    log4n.object(skip, 'skip');
+    if (typeof limit === 'undefined') limit = 0;
     log4n.object(limit, 'limit');
+    if (typeof skip === 'undefined') skip = 0;
     log4n.object(overtake, 'overtake');
 
     if (typeof overtake === 'undefined') overtake = false;
@@ -15,9 +17,7 @@ module.exports = function (query, offset, limit, overtake) {
     //traitement de recherche dans la base
     return new Promise(function (resolve, reject) {
         const converter = new Converter();
-        let parameter = {};
-        if (typeof limit !== 'undefined') parameter.limit = limit;
-        if (typeof offset !== 'undefined') parameter.offset = offset;
+        let parameter = {"skip" : skip, "limit" : limit};
         mongoClient('account', query, parameter, overtake)
             .then(datas => {
                 let result = [];

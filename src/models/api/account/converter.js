@@ -33,7 +33,7 @@ Converter.prototype.json2db = function (data) {
                     "last_connexion_date": {"type": "integer"},
                     "token": {"type": "string"}
                 },
-                "required": ["firstname", "lastname", "email", "password"]
+                "required": ["firstname", "lastname", "email", "login", "password"]
             };
 
             // log4n.object(jsonSchema, 'jsonSchema');

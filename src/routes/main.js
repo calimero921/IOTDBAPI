@@ -8,8 +8,9 @@ const accountGetModels = require('../models/api/account/get.js');
 
 const accountPost = require('./api/account/post.js');
 const accountPatch = require('./api/account/patch.js');
-const accountGetByEmail = require('./api/account/getByEmail.js');
 const accountGet = require('./api/account/get.js');
+const accountGetByID = require('./api/account/getByID.js');
+const accountGetByEmail = require('./api/account/getByEmail.js');
 const accountCheck = require('./api/account/check');
 const accountSetPassword = require('./api/account/setPassword');
 const accountDelete = require('./api/account/delete.js');
@@ -26,18 +27,19 @@ module.exports = function (app) {
 
     app.get('/status', (req, res) => {res.status(200).send({'swagger_version':server.swagger, 'last_update':server.date})});
 
-    app.post('/v1/account', (req, res) => {accountPost(req, res)});
-    app.get('/v1/account/email/:email', checkAuth, (req, res) => {accountGetByEmail(req, res)});
-    app.patch('/v1/account/:id/:token', checkAuth, (req, res) => {accountPatch(req, res)});
-    app.get('/v1/account/id/:id', checkAuth, (req, res) => {accountGet(req, res)});
-    app.get('/v1/account/check/:login/:password/:session', (req, res) => {accountCheck(req, res)});
-    app.post('/v1/account/password', (req, res) => {accountSetPassword(req, res);});
-    app.delete('/v1/account/:id/:token', checkAuth, (req, res) => {accountDelete(req, res)});
+    app.get('/1.0.0/account', checkAuth, (req, res) => {accountGet(req, res)});
+    app.get('/1.0.0/account/id/:id', checkAuth, (req, res) => {accountGetByID(req, res)});
+    app.get('/1.0.0/account/email/:email', checkAuth, (req, res) => {accountGetByEmail(req, res)});
+    app.post('/1.0.0/account', (req, res) => {accountPost(req, res)});
+    app.patch('/1.0.0/account/:id/:token', checkAuth, (req, res) => {accountPatch(req, res)});
+    // app.get('/1.0.0/account/check/:login/:password/:session', (req, res) => {accountCheck(req, res)});
+    // app.post('/1.0.0/account/password', (req, res) => {accountSetPassword(req, res);});
+    app.delete('/1.0.0/account/:id/:token', checkAuth, (req, res) => {accountDelete(req, res)});
 
-    //app.post('/v1/device', checkAuth, (req, res) => {devicePost(req, res)});
-    //app.get('/v1/device/:device_id', checkAuth, (req, res) => {deviceGet(req, res)});
-    //app.delete('/v1/device/:device_id', checkAuth, (req, res) => {deviceDelete(req, res)});
-    //app.patch('/v1/device/:device_id', checkAuth, (req, res) => {devicePatch(req, res)});
+    //app.post('/1.0.0/device', checkAuth, (req, res) => {devicePost(req, res)});
+    //app.get('/1.0.0/device/:device_id', checkAuth, (req, res) => {deviceGet(req, res)});
+    //app.delete('/1.0.0/device/:device_id', checkAuth, (req, res) => {deviceDelete(req, res)});
+    //app.patch('/1.0.0/device/:device_id', checkAuth, (req, res) => {devicePatch(req, res)});
 
     log4n.debug('done');
 };

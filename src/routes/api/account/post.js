@@ -10,7 +10,7 @@ module.exports = function (req, res) {
     //lecture des données postées
     decodePost(req, res)
         .then(datas => {
-            log4n.object(datas, 'datas');
+            // log4n.object(datas, 'datas');
             if (typeof datas === 'undefined') {
                 //aucune donnée postée
                 return errorparsing({error_code: 400});
