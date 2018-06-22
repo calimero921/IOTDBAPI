@@ -2,7 +2,6 @@ const moment = require('moment');
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 const patch = require('./patch.js');
-const accountGetByID = require('./getByID.js');
 const accountGet = require('./get.js');
 const mongoClient = require('../../mongodbupdate.js')
 const Generator = require('../generator.js');
@@ -18,9 +17,8 @@ module.exports = function (id) {
 				reject(errorparsing({error_code: '400'}));
 				log4n.debug('done - missing parameter');
 			} else {
-				let parameters
-				let query = {id: id}
-				accountGetByID(id, false)
+				let parameters;
+				accountGet({id: id},0 ,0 , false)
 					.then(account => {
 						log4n.object(account, 'account');
 						parameters = account[0];

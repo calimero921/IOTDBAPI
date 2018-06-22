@@ -1,7 +1,6 @@
 const Log4n = require('../../../utils/log4n.js');
-const setUserSession = require('./setSession.js');
-// const cleanUserSession = require('./cleanSession.js');
-const getUserByLoginPassword = require('./getByLoginPassword');
+const setSession = require('./setSession.js');
+const accountGet = require('./get');
 
 module.exports = function (login, password, session) {
     const log4n = new Log4n('/models/api/account/check');
@@ -10,10 +9,10 @@ module.exports = function (login, password, session) {
     log4n.object(session, 'session');
 
     return new Promise((resolve, reject) => {
-        getUserByLoginPassword(login, password)
+        accountGet({login: login, password: password}, 0, 0, false)
             .then(result => {
-                log4n.object(result[0], 'get user by login/password result');
-                return setUserSession(result[0].email, session);
+                log4n.object(result[0], 'result');
+                return setSession(result[0].id, session);
             })
             .then(result => {
                 log4n.object(result, 'set Session');

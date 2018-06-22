@@ -1,18 +1,18 @@
-const Log4n = require('../../../utils/log4n.js')
-const responseError = require('../../../utils/responseError.js')
-const decodePost = require('../../../utils/decodePost.js')
-const patch = require('../../../models/api/account/patch.js')
-const getById = require('../../../models/api/account/getByID.js')
+const Log4n = require('../../../utils/log4n.js');
+const responseError = require('../../../utils/responseError.js');
+const decodePost = require('../../../utils/decodePost.js');
+const patch = require('../../../models/api/account/patch.js');
+const accountGet = require('../../../models/api/account/get.js');
 
 module.exports = function (req, res) {
-	const log4n = new Log4n('/routes/api/account/patch')
+	const log4n = new Log4n('/routes/api/account/patch');
 	// log4n.object(req.params.id,'id');
 	
-	let id = req.params.id
-	let token = req.params.token
+	let id = req.params.id;
+	let token = req.params.token;
 	
 	if (typeof id === 'undefined' || typeof token === 'undefined') {
-		responseError({error_code: 400}, res, log4n)
+		responseError({error_code: 400}, res, log4n);
 		log4n.debug('done - missing arguments')
 	} else {
 		let updatedata;
@@ -20,7 +20,7 @@ module.exports = function (req, res) {
 			.then(datas => {
 				//log4n.object(datas, 'datas');
 				updatedata = datas;
-				return getById(id, false)
+				return accountGet({id:id},0 ,0 , false)
 			})
 			.then(datas => {
 				log4n.object(datas, 'datas');
@@ -40,16 +40,16 @@ module.exports = function (req, res) {
 			.then(datas => {
 				// log4n.object(datas, 'datas');
 				if (typeof datas.error_code === 'undefined') {
-					res.status(200).send(datas)
-					log4n.debug('done - ok')
+					res.status(200).send(datas);
+					log4n.debug('done - ok');
 				} else {
-					responseError(datas, res, log4n)
-					log4n.debug('done - response error')
+					responseError(datas, res, log4n);
+					log4n.debug('done - response error');
 				}
 			})
 			.catch(error => {
-				responseError(error, res, log4n)
-				log4n.debug('done - global catch')
+				responseError(error, res, log4n);
+				log4n.debug('done - global catch');
 			})
 	}
 }

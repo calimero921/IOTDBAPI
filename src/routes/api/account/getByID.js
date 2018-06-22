@@ -1,6 +1,6 @@
 const Log4n = require('../../../utils/log4n.js');
 const responseError = require('../../../utils/responseError.js');
-const accountGetByID = require('../../../models/api/account/getByID.js');
+const accountGet = require('../../../models/api/account/get.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/get');
@@ -20,7 +20,7 @@ module.exports = function (req, res) {
         log4n.debug('done - missing parameter');
     } else {
         //traitement de recherche dans la base
-        accountGetByID(id, skip, limit, false)
+        accountGet({id:id}, skip, limit, false)
             .then(datas => {
                 if (typeof datas === 'undefined') {
                     responseError({error_code: 404}, res, log4n);

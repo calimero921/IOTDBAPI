@@ -2,8 +2,8 @@ const Log4n = require('../../../utils/log4n.js');
 const decodePost = require('../../../utils/decodePost.js');
 const responseError = require('../../../utils/responseError.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const accountGetByID = require('../../../models/api/account/getByID.js');
-const accountSetPassword = require('../../../models/api/account/setPassword.js');
+const accountGet = require('../../../models/api/account/get.js');
+const accountPatch = require('../../../models/api/account/patch.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/router/api/account/setPassword');
@@ -15,25 +15,27 @@ module.exports = function (req, res) {
                 error_code: 400,
                 error_message: 'missing parameters'
             });
-            if (typeof data.id === 'undefined' || typeof data.token === 'undefined' || typeof data.password === 'undefined') return errorparsing({
-                error_code: 400,
-                error_message: 'missing parameters'
-            });
+            if (typeof data.id === 'undefined' || typeof data.token === 'undefined' || typeof data.password === 'undefined')
+                return errorparsing({
+                    error_code: 400,
+                    error_message: 'missing parameters'
+                });
             form = data;
-            return accountGetByID(form.id, false);
+            return accountGet({id:form.id},0 ,0 , false);
         })
         .then(data => {
             // log4n.object(data, 'user');
             if (typeof data.error_code !== 'undefined') return data;
             if (data.length === 0) return errorparsing({
                 error_code: 404,
-                error_message: 'unknown user in database (' + form.email + ')'
+                error_message: 'unknown user in database'
             });
-            let user = data[0];
+            let newdata = data[0];
             // log4n.object(user.token, 'user.token');
             // log4n.object(form.token, 'form.token');
-            if (user.token !== form.token) return errorparsing({error_code: 403, error_message: 'wrong token'});
-            return accountSetPassword(form.id, form.password);
+            if (newdata.token !== form.token) return errorparsing({error_code: 403, error_message: 'wrong token'});
+            newdata.password = form.password;
+            return accountPatch(form.id, form.token, newdata);
         })
         .then(data => {
             // log4n.object(data, 'result');

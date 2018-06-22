@@ -5,9 +5,9 @@ const patch = require('../../../models/api/device/patch.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/device/patch');
-    // log4n.object(req.params.device_id,'id');
+    // log4n.object(req.params.id,'id');
 
-    let id = req.params.device_id;
+    let id = req.params.id;
 
     decodePost(req, res)
         .then(datas => {

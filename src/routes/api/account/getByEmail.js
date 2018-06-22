@@ -1,6 +1,6 @@
 const Log4n = require('../../../utils/log4n.js');
 const responseError = require('../../../utils/responseError.js');
-const getByEmail = require('../../../models/api/account/getByEmail.js');
+const accountGet = require('../../../models/api/account/get.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/getByEmail');
@@ -19,7 +19,7 @@ module.exports = function (req, res) {
         log4n.debug('done - missing parameter');
     } else {
         //traitement de recherche dans la base
-        getByEmail(email, skip, limit, false)
+        accountGet({email: email}, skip, limit, false)
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 res.status(200).send(datas);

@@ -5,8 +5,8 @@ const get = require('../../../models/api/device/get.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/device/get');
-    log4n.object(req.params.device_id,'id');
-    let id = req.params.device_id;
+    log4n.object(req.params.id,'id');
+    let id = req.params.id;
 
     //traitement de recherche dans la base
     if (typeof id === 'undefined') {
