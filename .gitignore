@@ -60,4 +60,3 @@ typings/
 .idea/
 IOTDBAPI.iml
 src/node_modules/
-src/package-lock.json
