@@ -3,8 +3,8 @@ const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 const patch = require('./patch.js');
 const accountGet = require('./get.js');
-const mongoClient = require('../../mongodbupdate.js');
-const createToken = require('./createToken.js');
+const mongoClient = require('../../mongodbupdate.js')
+const Generator = require('../generator.js');
 
 module.exports = function (id) {
 	const log4n = new Log4n('/models/api/account/setToken');
@@ -17,22 +17,21 @@ module.exports = function (id) {
 				reject(errorparsing({error_code: '400'}));
 				log4n.debug('done - missing parameter');
 			} else {
-				let updateDatas;
+				let parameters;
 				accountGet({id: id},0 ,0 , false)
 					.then(account => {
 						log4n.object(account, 'account');
-						updateDatas = account[0];
-						updateDatas.last_connexion_date = updateDatas.current_connexion_date;
-						updateDatas.current_connexion_date = parseInt(moment().format('x'));
+						parameters = account[0];
+						parameters.last_connexion_date = parameters.current_connexion_date;
+						parameters.current_connexion_date = parseInt(moment().format('x'));
 						//log4n.object(query, 'query');
 						return createToken();
 					})
 					.then(token => {
 						// log4n.object(token, 'token');
-						updateDatas.token = token;
-						let query = {id:id};
-						log4n.object(query, 'query');
-						return mongoClient('account', query, updateDatas);
+						parameters.token = token;
+						//log4n.object(query, 'query');
+						return mongoClient('account', query, parameters);
 					})
 					.then(datas => {
 						// log4n.object(datas, 'datas');
@@ -56,4 +55,29 @@ module.exports = function (id) {
 			reject(errorparsing(error));
 		}
 	})
-};
+}
+
+function createToken () {
+	const log4n = new Log4n('/models/account/setToken/createToken')
+	
+	return new Promise((resolve, reject) => {
+		let generator = new Generator();
+		let token = generator.keygen();
+		log4n.object(token, 'token');
+		let action = accountGet({token: token}, 0, 0, false)
+			.then(data => {
+				// log4n.object(data, 'data');
+				if (data.length > 0) {
+					token = generator.keygen();
+					log4n.object(token, 'token');
+					return action();
+				}
+			})
+			.catch(error => {
+				log4n.object(error, 'Error');
+				// log4n.object(value, 'value');
+				resolve(token);
+				log4n.debug('done - promise catch');
+			})
+	})
+}

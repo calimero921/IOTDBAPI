@@ -12,7 +12,7 @@ module.exports = function (req, res) {
     let password = req.params.password;
     let session = req.params.session;
 
-    if (typeof login === 'undefined' || typeof password === 'undefined') {
+    if (typeof login === 'undefined' || typeof password === 'undefined' || typeof session === 'undefined') {
         responseError({error_code: 400, error_message: 'Missing parameters'}, res, log4n);
         log4n.debug('done - error missing parameters');
     } else {

@@ -12,7 +12,6 @@ module.exports = function (login, password, session) {
         accountGet({login: login, password: password}, 0, 0, false)
             .then(result => {
                 log4n.object(result[0], 'result');
-                if(typeof session === 'undefined') {session = result[0].session_id}
                 return setSession(result[0].id, session);
             })
             .then(result => {

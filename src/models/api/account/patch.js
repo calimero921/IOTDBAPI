@@ -21,20 +21,20 @@ module.exports = function (id, token, new_account) {
                 log4n.debug('done - missing paramater')
             } else {
                 let query = {id: id, token: token};
-                let updateDatas = {};
+                let parameter = {};
                 log4n.debug('preparing datas');
                 //au cas ou on usurperait le account
                 converter.json2db(new_account)
                     .then(datas => {
                         // log4n.object(datas,'datas');
-                        updateDatas = datas;
+                        parameter = datas;
 
                         //recherche d'un compte pré-existant
                         return mongoClientFind('account', query, {offset: 0, limit: 0}, true)
                     })
                     .then(datas => {
                         if (datas.length > 0) {
-                            return mongoClientUpdate('account', query, updateDatas)
+                            return mongoClientUpdate('account', query, parameter)
                         } else {
                             log4n.debug('account doesn\'t exist');
                             return errorparsing({error_code: '404'});

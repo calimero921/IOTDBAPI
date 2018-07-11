@@ -42,8 +42,8 @@ app.set('port', port);
  */
 log4n.debug('HTTPS server setup');
 let options = {
-    key: fs.readFileSync('localhost.key'),
-    cert: fs.readFileSync('localhost.crt')
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt')
 };
 let server = https.createServer(options, app);
 
