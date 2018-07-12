@@ -22,6 +22,7 @@ Converter.prototype.json2db = function (data) {
                 "properties": {
                     "manufacturer": {"type": "string"},
                     "serial_number": {"type": "string"},
+                    "secret": {"type": "string"},
                     "name": {"type": "string"},
                     "creation_date": {"type": "integer"},
                     "class": {"type": "string"},
@@ -41,7 +42,7 @@ Converter.prototype.json2db = function (data) {
                         }
                     },
                 },
-                "required": ["manufacturer", "serial_number", "name", "class", "software_version", "capabilities"]
+                "required": ["manufacturer", "serial_number", "secret"]
             };
 
             // log4n.object(jsonSchema, 'jsonSchema');
@@ -53,6 +54,7 @@ Converter.prototype.json2db = function (data) {
                     // log4n.object(valid, 'valid');
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
                     if (typeof valid.serial_number !== 'undefined') result.serial_number = valid.serial_number;
+                    if (typeof valid.secret !== 'undefined') result.secret = valid.secret;
                     if (typeof valid.name !== 'undefined') result.name = valid.name;
                     if (typeof valid.class !== 'undefined') result.class = valid.class;
                     if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
@@ -121,6 +123,7 @@ Converter.prototype.db2json = function (data) {
                     "id": {"type": "string", "format": "uuid"},
                     "manufacturer": {"type": "string"},
                     "serial_number": {"type": "string"},
+                    "secret": {"type": "string"},
                     "name": {"type": "string"},
                     "creation_date": {"type": "integer"},
                     "class": {"type": "string"},
@@ -142,7 +145,7 @@ Converter.prototype.db2json = function (data) {
                     "key": {"type": "string"},
                     "last_connexion_date": {"type": "integer"}
                 },
-                "required": ["id", "manufacturer", "serial_number", "name", "creation_date", "class", "software_version", "capabilities", "key", "last_connexion_date"]
+                "required": ["id", "manufacturer", "serial_number", "secret", "creation_date", "key", "last_connexion_date"]
             };
             // log4n.object(dbSchema, 'dbSchema');
             let validate = ajv.compile(dbSchema);
@@ -154,6 +157,7 @@ Converter.prototype.db2json = function (data) {
                     if (typeof valid.id !== 'undefined') result.id = valid.id;
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
                     if (typeof valid.serial_number !== 'undefined') result.serial_number = valid.serial_number;
+                    if (typeof valid.secret !== 'undefined') result.secret = valid.secret;
                     if (typeof valid.name !== 'undefined') result.name = valid.name;
                     if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
                     if (typeof valid.class !== 'undefined') result.class = valid.class;
