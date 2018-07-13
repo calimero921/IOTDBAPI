@@ -21,12 +21,14 @@ Converter.prototype.json2db = function (data) {
                 "type": "object",
                 "properties": {
                     "manufacturer": {"type": "string"},
-                    "serial_number": {"type": "string"},
+                    "model": {"type": "string"},
+                    "serial": {"type": "string"},
                     "secret": {"type": "string"},
                     "name": {"type": "string"},
                     "creation_date": {"type": "integer"},
                     "class": {"type": "string"},
                     "software_version": {"type": "string"},
+                    "local_ip": {"type": "string"},
                     "capabilities": {
                         "type": "array",
                         "items": {
@@ -42,7 +44,7 @@ Converter.prototype.json2db = function (data) {
                         }
                     },
                 },
-                "required": ["manufacturer", "serial_number", "secret"]
+                "required": ["manufacturer", "model", "serial", "secret"]
             };
 
             // log4n.object(jsonSchema, 'jsonSchema');
@@ -53,11 +55,13 @@ Converter.prototype.json2db = function (data) {
                 .then(valid => {
                     // log4n.object(valid, 'valid');
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
-                    if (typeof valid.serial_number !== 'undefined') result.serial_number = valid.serial_number;
+                    if (typeof valid.model!== 'undefined') result.model = valid.model;
+                    if (typeof valid.serial!== 'undefined') result.serial = valid.serial;
                     if (typeof valid.secret !== 'undefined') result.secret = valid.secret;
                     if (typeof valid.name !== 'undefined') result.name = valid.name;
                     if (typeof valid.class !== 'undefined') result.class = valid.class;
                     if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
+                    if (typeof valid.local_ip !== 'undefined') result.local_ip = valid.local_ip;
                     if (typeof valid.capabilities !== 'undefined') {
                         result.capabilities = [];
                         for (let i in valid.capabilities) {
@@ -122,12 +126,14 @@ Converter.prototype.db2json = function (data) {
                 "properties": {
                     "id": {"type": "string", "format": "uuid"},
                     "manufacturer": {"type": "string"},
-                    "serial_number": {"type": "string"},
+                    "model": {"type": "string"},
+                    "serial": {"type": "string"},
                     "secret": {"type": "string"},
                     "name": {"type": "string"},
                     "creation_date": {"type": "integer"},
                     "class": {"type": "string"},
                     "software_version": {"type": "string"},
+                    "local_ip": {"type": "string"},
                     "capabilities": {
                         "type": "array",
                         "items": {
@@ -145,7 +151,7 @@ Converter.prototype.db2json = function (data) {
                     "key": {"type": "string"},
                     "last_connexion_date": {"type": "integer"}
                 },
-                "required": ["id", "manufacturer", "serial_number", "secret", "creation_date", "key", "last_connexion_date"]
+                "required": ["id", "manufacturer", "model", "serial", "secret", "creation_date", "key", "last_connexion_date"]
             };
             // log4n.object(dbSchema, 'dbSchema');
             let validate = ajv.compile(dbSchema);
@@ -156,15 +162,17 @@ Converter.prototype.db2json = function (data) {
                     // log4n.object(valid, 'valid');
                     if (typeof valid.id !== 'undefined') result.id = valid.id;
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
-                    if (typeof valid.serial_number !== 'undefined') result.serial_number = valid.serial_number;
+                    if (typeof valid.model!== 'undefined') result.model = valid.model;
+                    if (typeof valid.serial!== 'undefined') result.serial = valid.serial;
                     if (typeof valid.secret !== 'undefined') result.secret = valid.secret;
                     if (typeof valid.name !== 'undefined') result.name = valid.name;
                     if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
                     if (typeof valid.class !== 'undefined') result.class = valid.class;
                     if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
-                    if (typeof valid.capabilities !== 'undefined') result.capabilities = valid.capabilities;
+                    if (typeof valid.local_ip !== 'undefined') result.local_ip = valid.local_ip;
                     if (typeof valid.key !== 'undefined') result.key = valid.key;
                     if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
+                    if (typeof valid.capabilities !== 'undefined') result.capabilities = valid.capabilities;
 
                     log4n.debug('done - ok');
                     // log4n.object(result,'result');

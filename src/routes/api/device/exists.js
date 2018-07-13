@@ -4,19 +4,25 @@ const responseError = require('../../../utils/responseError.js');
 const get = require('../../../models/api/device/get.js');
 
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/device/get');
-    log4n.object(req.params.id,'id');
-    let id = req.params.id;
+    const log4n = new Log4n('/routes/api/device/exists');
+    log4n.object(req.params.manufacturer,'manufacturer');
+    let manufacturer = req.params.manufacturer;
+    log4n.object(req.params.model,'model');
+    let model = req.params.model;
+    log4n.object(req.params.serial,'serial');
+    let serial = req.params.serial;
+    log4n.object(req.params.secret,'secret');
+    let secret = req.params.secret;
 
     //traitement de recherche dans la base
-    if (typeof id === 'undefined') {
-        //aucun device_id
+    if (typeof manufacturer === 'undefined' || typeof model === 'undefined' || typeof serial === 'undefined' || typeof secret === 'undefined') {
+        //informations manquantes
         responseError(errorparsing({error_code: 400}), res, log4n);
-        log4n.debug('done - missing parameter(device_id)');
+        log4n.debug('done - missing parameter');
     } else {
         //traitement de recherche dans la base
-        let query = {id: id};
-        get(query, 0, 0)
+        let query = {manufacturer:manufacturer, model:model, serial:serial, secret:secret};
+        get(query, 0, 0, false)
             .then(datas => {
                 if (typeof datas === 'undefined') {
                     responseError(errorparsing({error_code: 404}), res, log4n);
