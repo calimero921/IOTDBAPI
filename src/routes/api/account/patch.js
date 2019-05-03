@@ -1,5 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
-const checkAuth = require('../../checkAuth.js');
+const checkAuth = require('../../../utils/checkAuth.js');
 const decodePost = require('../../../utils/decodePost.js');
 const patch = require('../../../models/api/account/patch.js');
 const accountGet = require('../../../models/api/account/get.js');

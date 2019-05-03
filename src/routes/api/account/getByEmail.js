@@ -1,7 +1,8 @@
 const Log4n = require('../../../utils/log4n.js');
-const checkAuth = require('../../checkAuth.js');
-const responseError = require('../../../utils/responseError.js');
+const checkAuth = require('../../../utils/checkAuth.js');
 const accountGet = require('../../../models/api/account/get.js');
+
+const responseError = require('../../../utils/responseError.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/getByEmail');
@@ -38,7 +39,7 @@ module.exports = function (req, res) {
                     });
             }
         } else {
-            responseError({error_code: 403, error_message:'user must be admin for this action'}, res, log4n);
+            responseError({error_code: 403, error_message:'user must be admin or account owner for this action'}, res, log4n);
         }
     } catch (exception) {
         if (exception.message === "403") {

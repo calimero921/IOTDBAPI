@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const Log4n = require('../utils/log4n.js');
+const Log4n = require('./log4n.js');
 
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/checkauth');

@@ -20,6 +20,7 @@ Converter.prototype.json2db = function (data) {
                 "$async": true,
                 "type": "object",
                 "properties": {
+                    "user_id": {"type": "string", "format": "uuid"},
                     "manufacturer": {"type": "string"},
                     "model": {"type": "string"},
                     "serial": {"type": "string"},
@@ -44,7 +45,7 @@ Converter.prototype.json2db = function (data) {
                         }
                     },
                 },
-                "required": ["manufacturer", "model", "serial", "secret"]
+                "required": ["user_id","manufacturer", "model", "serial", "secret"]
             };
 
             // log4n.object(jsonSchema, 'jsonSchema');
@@ -54,6 +55,7 @@ Converter.prototype.json2db = function (data) {
             validate(data)
                 .then(valid => {
                     // log4n.object(valid, 'valid');
+                    if (typeof valid.user_id !== 'undefined') result.user_id = valid.user_id;
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
                     if (typeof valid.model!== 'undefined') result.model = valid.model;
                     if (typeof valid.serial!== 'undefined') result.serial = valid.serial;
@@ -125,6 +127,8 @@ Converter.prototype.db2json = function (data) {
                 "type": "object",
                 "properties": {
                     "id": {"type": "string", "format": "uuid"},
+                    "key": {"type": "string"},
+                    "user_id": {"type": "string", "format": "uuid"},
                     "manufacturer": {"type": "string"},
                     "model": {"type": "string"},
                     "serial": {"type": "string"},
@@ -148,10 +152,9 @@ Converter.prototype.db2json = function (data) {
                             "required": ["name", "type", "publish", "subscribe", "last_value"]
                         }
                     },
-                    "key": {"type": "string"},
                     "last_connexion_date": {"type": "integer"}
                 },
-                "required": ["id", "manufacturer", "model", "serial", "secret", "creation_date", "key", "last_connexion_date"]
+                "required": ["id", "key", "user_id", "manufacturer", "model", "serial", "secret", "creation_date", "last_connexion_date"]
             };
             // log4n.object(dbSchema, 'dbSchema');
             let validate = ajv.compile(dbSchema);
@@ -161,6 +164,8 @@ Converter.prototype.db2json = function (data) {
                 .then(valid => {
                     // log4n.object(valid, 'valid');
                     if (typeof valid.id !== 'undefined') result.id = valid.id;
+                    if (typeof valid.key !== 'undefined') result.key = valid.key;
+                    if (typeof valid.user_id !== 'undefined') result.user_id = valid.user_id;
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
                     if (typeof valid.model!== 'undefined') result.model = valid.model;
                     if (typeof valid.serial!== 'undefined') result.serial = valid.serial;
@@ -170,7 +175,6 @@ Converter.prototype.db2json = function (data) {
                     if (typeof valid.class !== 'undefined') result.class = valid.class;
                     if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
                     if (typeof valid.local_ip !== 'undefined') result.local_ip = valid.local_ip;
-                    if (typeof valid.key !== 'undefined') result.key = valid.key;
                     if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
                     if (typeof valid.capabilities !== 'undefined') result.capabilities = valid.capabilities;
 

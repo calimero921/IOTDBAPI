@@ -10,6 +10,7 @@ const accountPost = require('./api/account/post.js');
 const accountPatch = require('./api/account/patch.js');
 const accountDelete = require('./api/account/delete.js');
 
+const deviceGetByUser = require('./api/device/getByUser.js');
 const deviceGet = require('./api/device/get.js');
 const deviceExists = require('./api/device/exists.js');
 const devicePost = require('./api/device/post.js');
@@ -29,6 +30,7 @@ module.exports = function (app, keycloak) {
     app.patch('/1.0.0/account/:id/:token', keycloak.protect(), accountPatch);
     app.delete('/1.0.0/account/:id/:token', keycloak.protect(), accountDelete);
 
+    app.get('/1.0.0/device/user/:id', keycloak.protect(), deviceGetByUser);
     app.get('/1.0.0/device/:id', keycloak.protect(), deviceGet);
     app.get('/1.0.0/device/exists/:manufacturer/:model/:serial/:secret', keycloak.protect(), deviceExists);
     app.post('/1.0.0/device', keycloak.protect(), devicePost);
