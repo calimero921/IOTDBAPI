@@ -1,8 +1,7 @@
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const mongoClientFind = require('../../mongodbfind.js');
-const mongoClientUpdate = require('../../mongodbupdate.js');
-const setToken = require('./setToken.js');
+const mongoFind = require('../../mongodbfind.js');
+const mongoUpdate = require('../../mongodbupdate.js');
 const Converter = require('./converter.js');
 
 module.exports = function (id, token, new_account) {
@@ -22,19 +21,18 @@ module.exports = function (id, token, new_account) {
             } else {
                 let query = {id: id, token: token};
                 let parameter = {};
-                log4n.debug('preparing datas');
-                //au cas ou on usurperait le account
+                log4n.debug('converting json data to db');
                 converter.json2db(new_account)
                     .then(datas => {
                         // log4n.object(datas,'datas');
                         parameter = datas;
 
                         //recherche d'un compte pré-existant
-                        return mongoClientFind('account', query, {offset: 0, limit: 0}, true)
+                        return mongoFind('account', query, {offset: 0, limit: 0}, true)
                     })
                     .then(datas => {
                         if (datas.length > 0) {
-                            return mongoClientUpdate('account', query, parameter)
+                            return mongoUpdate('account', query, parameter)
                         } else {
                             log4n.debug('account doesn\'t exist');
                             return errorparsing({error_code: '404'});
@@ -43,17 +41,9 @@ module.exports = function (id, token, new_account) {
                     .then(datas => {
                         // log4n.object(datas, 'datas');
                         if (typeof datas.error_code === 'undefined') {
-                            return setToken(id);
-                        }
-                        return datas
-                    })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
-                            log4n.debug('done - ok');
+                            log4n.debug('converting db data to json');
                             return converter.db2json(datas);
                         } else {
-                            log4n.debug('done - error');
                             return datas;
                         }
                     })
@@ -69,7 +59,7 @@ module.exports = function (id, token, new_account) {
                     .catch(error => {
                         log4n.object(error, 'error');
                         reject(errorparsing(error));
-                        log4n.debug('done - global catch');
+                        log4n.debug('done - promise catch');
                     })
             }
         } catch (error) {

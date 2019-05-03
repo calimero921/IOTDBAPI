@@ -14,25 +14,28 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/calimero921/IOTDB.git"
+		"url": "https://github.com/calimero921/IOTDBAPI.git"
 	},
 	"scripts": {
 		"start": "node app.js"
 	},
 	"dependencies": {
+		"ajv": "^6.5.3",
+		"ajv-async": "^1.0.1",
+		"basic-auth": "^2.0.0",
 		"body-parser": "~1.18.2",
 		"cookie-parser": "~1.4.3",
-		"express": "~4.15.5",
+		"debug": "~2.6.9",
+		"express": "^4.16.3",
 		"express-session": "^1.15.6",
-		"basic-auth": "^2.0.0",
-		"ejs": "~2.5.7",
+		"http-errors": "~1.6.3",
+		"jsonwebtoken": "^8.3.0",
+		"keycloak-connect": "^5.0.0",
+		"moment": "^2.20.1",
+		"mongodb": "^3.1.4",
 		"morgan": "~1.9.0",
 		"serve-favicon": "^2.4.5",
-		"mongodb": "^3.0.1",
-		"uuid": "^3.2.1",
-		"moment": "^2.20.1",
-		"ajv": "^6.1.1",
-		"ajv-async": "^1.0.1"
+		"uuid": "^3.3.2"
 	},
 	"engines": {
 		"node": ">=8.9.1",

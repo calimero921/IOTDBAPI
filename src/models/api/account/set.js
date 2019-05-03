@@ -35,7 +35,7 @@ module.exports = function (account) {
                         log4n.object(query, 'query');
 
                         //recherche d'un compte pré-existant
-                        let search = {$or: [{email: query.email}, {login: query.login}]};
+                        let search = {$or: [{email: query.email}]};
                         return mongoClientFind('account', search, {offset:0, limit: 0}, true);
                     })
                     .then(datas => {

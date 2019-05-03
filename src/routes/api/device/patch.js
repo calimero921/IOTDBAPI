@@ -17,10 +17,10 @@ module.exports = function (req, res) {
         .then(datas => {
             // log4n.object(datas, 'datas');
             if (typeof datas === 'undefined') {
-                responseError({error: {code: 500}}, res, log4n);
+                responseError({error_code: 500}, res, log4n);
                 log4n.debug('done - internal server error');
             } else {
-                if (typeof datas.code === 'undefined') {
+                if (typeof datas.error_code === 'undefined') {
                     res.status(200).send(datas);
                     log4n.debug('done - ok');
                 } else {

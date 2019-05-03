@@ -1,11 +1,19 @@
 /**
  * Module dependencies.
  */
+const debug = require('debug')('mykeycloak:server');
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
+
+const createError = require('http-errors');
 const express = require('express');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+
+const Keycloak = require('keycloak-connect');
+const session = require('express-session');
 
 const config = require('./config/server.js');
 const Log4n = require('./utils/log4n.js');
@@ -17,19 +25,34 @@ global.mongodbConnexion = null;
 
 log4n.debug('Create server');
 let app = express();
+let memoryStore = new session.MemoryStore();
+app.use(session({
+    secret: 'thisShouldBeLongAndSecret',
+    resave: false,
+    saveUninitialized: true,
+    store: memoryStore
+}));
+let keycloak = new Keycloak({store: memoryStore});
+app.use(keycloak.middleware({
+    logout: '/logout',
+    admin: '/'
+}));
 
 log4n.debug('Express server setup');
 app.set('trust proxy', 1);
-require('./routes/main')(app);
+require('./routes/main')(app, keycloak);
 
 // uncomment after placing your favicon in /public
-log4n.debug('View engine setup');
+log4n.debug('Engine setup');
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 log4n.debug('Parser setup');
+app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
-// app.use(cookieParser());
 
 /**
  * Get port from environment and store in Express.
@@ -42,8 +65,8 @@ app.set('port', port);
  */
 log4n.debug('HTTPS server setup');
 let options = {
-    key: fs.readFileSync('server.key'),
-    cert: fs.readFileSync('server.crt')
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
 };
 let server = https.createServer(options, app);
 

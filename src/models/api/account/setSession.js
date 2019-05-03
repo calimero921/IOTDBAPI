@@ -1,12 +1,13 @@
 const moment = require('moment');
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const patch = require('./patch.js');
-const get = require('./get.js');
+const patchAccount = require('./patch.js');
+const getAccount = require('./get.js');
 
-module.exports = function (id, session_id) {
+module.exports = function (id, token, session_id) {
     const log4n = new Log4n('/models/api/account/setSession');
     log4n.object(id, 'id');
+    log4n.object(token, 'token');
     log4n.object(session_id, 'session_id');
 
     return new Promise((resolve, reject) => {
@@ -16,14 +17,14 @@ module.exports = function (id, session_id) {
                 reject(errorparsing({error_code: '400'}));
                 log4n.debug('done - missing parameter');
             } else {
-                get({id: id}, 0, 0, false)
+                getAccount({id: id, token: token}, 0, 0, false)
                     .then(account => {
-                        let query = account[0];
-                        query.session_id = session_id;
-                        query.last_connexion_date = query.current_connexion_date;
-                        query.current_connexion_date = parseInt(moment().format('x'));
+                        let newAccount = account[0];
+                        newAccount.session_id = session_id;
+                        newAccount.last_connexion_date = newAccount.current_connexion_date;
+                        newAccount.current_connexion_date = parseInt(moment().format('x'));
                         // log4n.object(query, 'query');
-                        return patch(query.id, query.token, query);
+                        return patchAccount(id, token, newAccount);
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');

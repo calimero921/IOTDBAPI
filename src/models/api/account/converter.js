@@ -23,8 +23,6 @@ Converter.prototype.json2db = function (data) {
                     "firstname": {"type": "string"},
                     "lastname": {"type": "string"},
                     "email": {"type": "string"},
-                    "login": {"type": "string"},
-                    "password": {"type": "string"},
 	                "admin": {"type": "boolean"},
                     "active": {"type": "boolean"},
                     "session_id": {"type": "string"},
@@ -33,7 +31,7 @@ Converter.prototype.json2db = function (data) {
                     "last_connexion_date": {"type": "integer"},
                     "token": {"type": "string"}
                 },
-                "required": ["firstname", "lastname", "email", "login", "password"]
+                "required": ["firstname", "lastname", "email"]
             };
 
             // log4n.object(jsonSchema, 'jsonSchema');
@@ -47,8 +45,6 @@ Converter.prototype.json2db = function (data) {
                         result.firstname = valid.firstname;
                         result.lastname = valid.lastname;
                         result.email = valid.email;
-                        result.login = valid.login;
-                        result.password = valid.password;
                         if (typeof valid.session_id !== 'undefined') result.session_id = valid.session_id;
                         if (typeof valid.admin !== 'undefined') result.admin = valid.admin;
 	                    if (typeof valid.active !== 'undefined') result.active = valid.active;
@@ -58,7 +54,7 @@ Converter.prototype.json2db = function (data) {
                         if (typeof valid.token !== 'undefined') result.token = valid.token;
                     }
 
-                    log4n.object(result, 'result');
+                    // log4n.object(result, 'result');
                     log4n.debug('done - ok');
                     resolve(result);
                 })
@@ -96,8 +92,6 @@ Converter.prototype.db2json = function (data) {
                     "firstname": {"type": "string"},
                     "lastname": {"type": "string"},
                     "email": {"type": "string"},
-                    "login": {"type": "string"},
-                    "password": {"type": "string"},
                     "admin" : {"type":"boolean"},
 	                "active": {"type": "boolean"},
                     "session_id": {"type": "string"},
@@ -106,7 +100,7 @@ Converter.prototype.db2json = function (data) {
                     "last_connexion_date": {"type": "integer"},
                     "token": {"type": "string"}
                 },
-                "required": ["id", "firstname", "lastname", "email", "login", "password", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
+                "required": ["id", "firstname", "lastname", "email", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
             };
             // log4n.object(dbSchema, 'dbSchema');
             let validate = ajv.compile(dbSchema);
@@ -119,8 +113,6 @@ Converter.prototype.db2json = function (data) {
                     result.firstname = valid.firstname;
                     result.lastname = valid.lastname;
                     result.email = valid.email;
-                    result.login = valid.login;
-                    result.password = valid.password;
                     result.session_id = valid.session_id;
                     result.admin = valid.admin;
 	                result.active = valid.active;
