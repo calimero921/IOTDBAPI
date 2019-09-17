@@ -10,8 +10,11 @@ module.exports = function () {
         if (global.mongodbConnexion === null) {
             let url = mongodbconf.url;
             let mongoClient = mongodb.MongoClient;
+            let mongoOptions = {
+                useNewUrlParser: true
+            };
 
-            mongoClient.connect(url)
+            mongoClient.connect(url, mongoOptions)
                 .then(client => {
                     log4n.debug('Connected successfully to server');
                     global.mongodbConnexion = client.db(mongodbconf.dbName);

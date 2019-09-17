@@ -8,7 +8,7 @@ module.exports = function (req, res) {
     // log4n.object(token, 'token');
 
     let parsedToken = jwt.decode(token);
-    // log4n.object(parsedToken, 'parsedToken');
+    log4n.object(parsedToken, 'parsedToken');
 
     let userInfo = {
         id: parsedToken.sub,
@@ -23,20 +23,39 @@ module.exports = function (req, res) {
         userInfo.email = parsedToken.email;
     }
 
-    if (parsedToken.client.roles.length > 0) {
-        parsedToken.client.roles.forEach(role => {
+    let client = parsedToken.azp;
+    // log4n.object(client, 'client');
+
+    if (parsedToken.realm_access.roles.length > 0) {
+        parsedToken.realm_access.roles.forEach(role => {
             switch (role) {
-                case 'user':
+                case 'users':
                     userInfo.active = true;
                     break;
 
-                case 'admin':
+                case 'admins':
                     userInfo.admin = true;
                     break;
                 default:
                     break;
             }
         })
+    } else {
+        if (parsedToken.resource_access[client].roles.length > 0) {
+            parsedToken.resource_access[client].roles.forEach(role => {
+                switch (role) {
+                    case 'users':
+                        userInfo.active = true;
+                        break;
+
+                    case 'admins':
+                        userInfo.admin = true;
+                        break;
+                    default:
+                        break;
+                }
+            })
+        }
     }
 
     log4n.object(userInfo, 'userInfo');
