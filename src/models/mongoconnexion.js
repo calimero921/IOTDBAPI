@@ -11,7 +11,8 @@ module.exports = function () {
             let url = mongodbconf.url;
             let mongoClient = mongodb.MongoClient;
             let mongoOptions = {
-                useNewUrlParser: true
+                useNewUrlParser: true,
+                useUnifiedTopology: true
             };
 
             mongoClient.connect(url, mongoOptions)

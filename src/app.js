@@ -8,6 +8,8 @@ const path = require('path');
 
 const createError = require('http-errors');
 const express = require('express');
+let app = express();
+const expressSwagger = require('express-swagger-generator')(app);
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -24,7 +26,6 @@ log4n.debug('Database connexion setup');
 global.mongodbConnexion = null;
 
 log4n.debug('Create server');
-let app = express();
 let memoryStore = new session.MemoryStore();
 app.use(session({
     secret: 'thisShouldBeLongAndSecret',
@@ -37,6 +38,39 @@ app.use(keycloak.middleware({
     logout: '/logout',
     admin: '/'
 }));
+
+log4n.debug('Express swagger generator setup');
+let swaggerOptions = {
+    swaggerDefinition: {
+        info: {
+            description: config.description,
+            title: config.name,
+            version: config.swagger,
+        },
+        host: config.server + ':' + config.port,
+        basePath: '/',
+        produces: [
+            "application/json",
+            "application/xml"
+        ],
+        schemes: ['https'],
+        securityDefinitions: {
+            Bearer: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'Authorization',
+                description: ""
+            }
+        },
+        contact: {
+            name: 'Emmanuel David',
+            email: 'emmanuel.david@orange.com'
+        }
+    },
+    basedir: __dirname, //app absolute path
+    files: ['./routes/**/*.js'] //Path to the API handle folder
+};
+expressSwagger(swaggerOptions);
 
 log4n.debug('Express server setup');
 app.set('trust proxy', 1);
@@ -64,11 +98,11 @@ app.set('port', port);
  * Create HTTPS server.
  */
 log4n.debug('HTTPS server setup');
-let options = {
+let httpsOptions = {
     key: fs.readFileSync('key.pem'),
     cert: fs.readFileSync('cert.pem')
 };
-let server = https.createServer(options, app);
+let server = https.createServer(httpsOptions, app);
 
 /**
  * Listen on provided port, on all network interfaces.

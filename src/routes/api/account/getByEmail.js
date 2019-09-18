@@ -4,6 +4,17 @@ const accountGet = require('../../../models/api/account/get.js');
 
 const responseError = require('../../../utils/responseError.js');
 
+/**
+ * This function comment is parsed by doctrine
+ * @route GET /1.0.0/account/email/{email}
+ * @group Account - Operations about account
+ * @param {string} email.path.required - User Email - eg: emmanuel.david@orange.com
+ * @returns {Account.model} 200 - User info
+ * @returns {Error} default - Unexpected error
+ * @returns {Error} 403 - Forbidden
+ * @returns {Error} 404 - Not found
+ * @security Bearer
+ */
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/getByEmail');
 

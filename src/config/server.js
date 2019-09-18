@@ -1,8 +1,10 @@
 module.exports = {
-    name: 'IOTDBAPI',
+    name: 'IOTDB-API',
+    name: 'API to access IOTDB application',
+    swagger: '1.0.0',
+    server: 'localhost',
     port: '3443',
     url: "https://localhost:3443",
     session_timeout: 3600000,
-    swagger: '0.0.1',
-    date: '2018-06-15'
+    date: '2019-09-18'
 };

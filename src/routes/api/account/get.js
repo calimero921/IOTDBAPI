@@ -3,6 +3,15 @@ const checkAuth = require('../../../utils/checkAuth.js');
 const responseError = require('../../../utils/responseError.js');
 const accountGet = require('../../../models/api/account/get.js');
 
+/**
+ * This function comment is parsed by doctrine
+ * @route GET /1.0.0/account
+ * @group Account - Operations about account
+ * @returns {array.<Account>} 200 - An array of user info
+ * @returns {Error} default - Unexpected error
+ * @returns {Error} 403 - Forbidden
+ * @security Bearer
+ */
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/get');
 
