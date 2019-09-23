@@ -20,6 +20,7 @@ Converter.prototype.json2db = function (data) {
                 "$async": true,
                 "type": "object",
                 "properties": {
+                    "key": {"type": "string"},
                     "user_id": {"type": "string", "format": "uuid"},
                     "manufacturer": {"type": "string"},
                     "model": {"type": "string"},
@@ -55,6 +56,7 @@ Converter.prototype.json2db = function (data) {
             validate(data)
                 .then(valid => {
                     // log4n.object(valid, 'valid');
+                    if (typeof valid.key !== 'undefined') result.key = valid.key;
                     if (typeof valid.user_id !== 'undefined') result.user_id = valid.user_id;
                     if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
                     if (typeof valid.model!== 'undefined') result.model = valid.model;

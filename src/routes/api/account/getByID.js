@@ -7,11 +7,11 @@ const accountGet = require('../../../models/api/account/get.js');
  * This function comment is parsed by doctrine
  * @route GET /1.0.0/account/id/{id}
  * @group Account - Operations about account
- * @param {string} id.path.required - User ID - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
+ * @param {string} id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
  * @returns {Account.model} 200 - User info
- * @returns {Error} default - Unexpected error
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
+ * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (req, res) {

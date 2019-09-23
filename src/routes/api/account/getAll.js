@@ -8,8 +8,8 @@ const accountGet = require('../../../models/api/account/get.js');
  * @route GET /1.0.0/account
  * @group Account - Operations about account
  * @returns {array.<Account>} 200 - An array of user info
- * @returns {Error} default - Unexpected error
  * @returns {Error} 403 - Forbidden
+ * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (req, res) {

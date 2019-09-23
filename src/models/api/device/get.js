@@ -1,7 +1,7 @@
 const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
 const mongoClient = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
+const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (query, offset, limit, overtake) {
     const log4n = new Log4n('/models/api/device/get');
@@ -44,7 +44,7 @@ module.exports = function (query, offset, limit, overtake) {
                 } else {
                     if (overtake) {
                         log4n.debug('done - no result but ok');
-                        resolve();
+                        resolve(errorparsing({error_code: 404}));
                     } else {
                         log4n.debug('done - not found');
                         reject(errorparsing({error_code: 404}));

@@ -2,10 +2,17 @@ const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const decodePost = require('../../../utils/decodePost.js');
 const accountSet = require('../../../models/api/account/set.js');
-
-const responseError = require('../../../utils/responseError.js');
 const errorparsing = require('../../../utils/errorparsing.js');
+const responseError = require('../../../utils/responseError.js');
 
+/**
+ * This function comment is parsed by doctrine
+ * @route POST /1.0.0/account
+ * @group Account - Operations about account
+ * @param {Account.model} account.body.required - User details
+ * @returns {Account.model} 201 - User info
+ * @returns {Error} default - Unexpected error
+ */
 module.exports = function (req, res) {
     const log4n = new Log4n('/routes/api/account/post');
 
@@ -46,11 +53,6 @@ module.exports = function (req, res) {
                 log4n.debug('done - promise catch');
             });
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
-        } else {
-            log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
-        }
+        responseError(errorparsing(exception), res, log4n);
     }
 };

@@ -1,9 +1,9 @@
 const Moment = require('moment');
 const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
 const mongoClient = require('../../mongodbinsert.js');
 const Converter = require('./converter.js');
 const Generator = require('../generator.js');
+const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (device) {
     const log4n = new Log4n('/models/api/device/set');
@@ -16,7 +16,7 @@ module.exports = function (device) {
             const generator = new Generator();
             const converter = new Converter();
             if (typeof device === 'undefined') {
-                reject(errorparsing({error_code: '400'}));
+                reject(errorparsing({error_code: '400', error_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
@@ -34,7 +34,7 @@ module.exports = function (device) {
                         // console.log('datas: ', datas);
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return(errorparsing({error_code: '500'}));
+                            return(errorparsing('No datas'));
                         } else {
                             return converter.db2json(datas[0]);
                         }
@@ -43,7 +43,7 @@ module.exports = function (device) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            reject(errorparsing({error_code: '500'}));
+                            reject(errorparsing('No datas'));
                         } else {
                             if(typeof datas.error_code === "undefined") {
                                 resolve(datas);

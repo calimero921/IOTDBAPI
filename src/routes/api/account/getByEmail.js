@@ -8,11 +8,11 @@ const responseError = require('../../../utils/responseError.js');
  * This function comment is parsed by doctrine
  * @route GET /1.0.0/account/email/{email}
  * @group Account - Operations about account
- * @param {string} email.path.required - User Email - eg: emmanuel.david@orange.com
+ * @param {string} email.path.required - eg: emmanuel.david@orange.com
  * @returns {Account.model} 200 - User info
- * @returns {Error} default - Unexpected error
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
+ * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (req, res) {

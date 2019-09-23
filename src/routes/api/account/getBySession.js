@@ -7,11 +7,11 @@ const accountGet = require('../../../models/api/account/get.js');
  * This function comment is parsed by doctrine
  * @route GET /1.0.0/account/session/{session_id}
  * @group Account - Operations about account
- * @param {string} session_id.path.required - Session_id - eg: 2lPe21SQcHJoD_1UY7l3I82NOrS_Hzw9
+ * @param {string} session_id.path.required - eg: 2lPe21SQcHJoD_1UY7l3I82NOrS_Hzw9
  * @returns {Account.model} 200 - User info
- * @returns {Error} default - Unexpected error
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
+ * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (req, res) {
