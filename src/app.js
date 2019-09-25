@@ -20,7 +20,8 @@ const session = require('express-session');
 const config = require('./config/server.js');
 const Log4n = require('./utils/log4n.js');
 
-const log4n = new Log4n('/app.js');
+let context = {httpRequestId: 'Initialize'};
+const log4n = new Log4n(context, '/app.js', 'initialize');
 
 log4n.debug('Database connexion setup');
 global.mongodbConnexion = null;
@@ -74,14 +75,14 @@ expressSwagger(swaggerOptions);
 
 log4n.debug('Express server setup');
 app.set('trust proxy', 1);
-require('./routes/main')(app, keycloak);
+require('./routes/main.js')(app, keycloak);
 
 // uncomment after placing your favicon in /public
 log4n.debug('Engine setup');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 log4n.debug('Parser setup');
 app.use(cookieParser());

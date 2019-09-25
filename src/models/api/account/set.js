@@ -6,18 +6,18 @@ const mongoClientFind = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
 const Generator = require('../generator.js');
 
-module.exports = function (account) {
-    const log4n = new Log4n('/models/api/account/set');
+module.exports = function (context, account) {
+    const log4n = new Log4n(context, '/models/api/account/set');
     // log4n.object(account, 'account');
 
     //traitement d'enregistrement dans la base
-    return new Promise(function (resolve, reject) {
+    return new Promise((resolve, reject) => {
         try {
             log4n.debug('storing account');
-            const generator = new Generator();
-            const converter = new Converter();
+            const generator = new Generator(context);
+            const converter = new Converter(context);
             if (typeof account === 'undefined') {
-                reject(errorparsing({error_code: '400'}));
+                reject(errorparsing(context, {error_code: '400'}));
                 log4n.debug('done - missing parameter');
             } else {
                 let query = {};
@@ -36,14 +36,14 @@ module.exports = function (account) {
 
                         //recherche d'un compte pré-existant
                         let search = {$or: [{email: query.email}]};
-                        return mongoClientFind('account', search, {offset:0, limit: 0}, true);
+                        return mongoClientFind(context, 'account', search, {offset:0, limit: 0}, true);
                     })
                     .then(datas => {
                         if (datas.length > 0) {
                             log4n.debug('account already exists');
-                            return errorparsing({error_code: '409'});
+                            return errorparsing(context, {error_code: '409'});
                         } else {
-                            return mongoClientInsert('account', query);
+                            return mongoClientInsert(context, 'account', query);
                         }
                     })
                     .then(datas => {
@@ -68,14 +68,14 @@ module.exports = function (account) {
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(error));
+                        reject(errorparsing(context, error));
                         log4n.debug('done - promise catch')
                     });
             }
         } catch (error) {
             log4n.debug('done - global catch');
             log4n.object(error, 'error');
-            reject(errorparsing(error));
+            reject(errorparsing(context, error));
         }
     });
 };

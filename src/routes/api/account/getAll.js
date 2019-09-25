@@ -1,7 +1,7 @@
 const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
-const responseError = require('../../../utils/responseError.js');
 const accountGet = require('../../../models/api/account/get.js');
+const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
@@ -13,45 +13,47 @@ const accountGet = require('../../../models/api/account/get.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/account/get');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/account/getAll');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context, req, res);
 
         let query = {};
         if (!userInfo.admin) {
             query = {id: userInfo.id};
         }
 
-        // log4n.object(req.query.skip,'skip');
         let skip = req.query.skip;
         if (typeof skip === 'undefined') skip = 0;
-        // log4n.object(req.query.limit,'limit');
+        // log4n.object(skip,'skip');
         let limit = req.query.limit;
         if (typeof limit === 'undefined') limit = 0;
+        // log4n.object(limit,'limit');
 
         //traitement de recherche dans la base
-        accountGet(query, skip, limit, false)
+        accountGet(context, query, skip, limit, false)
             .then(datas => {
                 if (typeof datas === 'undefined') {
-                    responseError({error_code: 404}, res, log4n);
-                    log4n.debug('done - not found');
+                    responseError(context, '', res, log4n);
+                    log4n.debug('done - unknown error');
                 } else {
-                    // log4n.object(datas, 'datas');
-                    res.status(200).send(datas);
-                    log4n.debug('done - ok');
+                    if(typeof datas.error_code != 'undefined') {
+                        responseError(context, datas, res, log4n);
+                        log4n.debug('done - with error');
+                    } else {
+                        // log4n.object(datas, 'datas');
+                        res.status(200).send(datas);
+                        log4n.debug('done - ok');
+                    }
                 }
             })
             .catch(error => {
-                responseError(error, res, log4n);
+                responseError(context, error, res, log4n);
                 log4n.debug('done - global catch');
             });
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
-        } else {
-            log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
-        }
+        log4n.error(exception.stack);
+        responseError(context, exception, res, log4n);
     }
 };

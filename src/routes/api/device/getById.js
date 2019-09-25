@@ -1,8 +1,6 @@
 const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const deviceGet = require('../../../models/api/device/get.js');
-
-const errorparsing = require('../../../utils/errorparsing.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -17,10 +15,11 @@ const responseError = require('../../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/device/get');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/device/get');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context,req, res);
 
         log4n.object(req.params.id, 'id');
         let id = req.params.id;
@@ -28,7 +27,7 @@ module.exports = function (req, res) {
         //traitement de recherche dans la base
         if (typeof id === 'undefined') {
             //aucun device_id
-            responseError(errorparsing({error_code: 400}), res, log4n);
+            responseError({error_code: 400}, res, log4n);
             log4n.debug('done - missing parameter(device_id)');
         } else {
             let query = {id: id};
@@ -39,7 +38,7 @@ module.exports = function (req, res) {
             deviceGet(query, 0, 0)
                 .then(datas => {
                     if (typeof datas === 'undefined') {
-                        responseError(errorparsing({error_code: 404}), res, log4n);
+                        responseError(context,{error_code: 404}, res, log4n);
                         log4n.debug('done - not found');
                     } else {
                         // log4n.object(datas, 'datas');
@@ -48,16 +47,16 @@ module.exports = function (req, res) {
                     }
                 })
                 .catch(error => {
-                    responseError(error, res, log4n);
+                    responseError(context,error, res, log4n);
                     log4n.debug('done - global catch');
                 });
         }
     } catch (exception) {
         if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
+            responseError(context,{error_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
+            responseError(context,{error_code: 500}, res, log4n);
         }
     }
 };

@@ -5,8 +5,8 @@ const getAccount = require('./get.js');
 const patchAccount = require('./patch.js');
 const Generator = require('../generator.js');
 
-module.exports = function (id, token) {
-    const log4n = new Log4n('/models/api/account/setToken');
+module.exports = function (context, id, token) {
+    const log4n = new Log4n(context, '/models/api/account/setToken');
     log4n.object(id, 'id');
 
     return new Promise((resolve, reject) => {
@@ -17,19 +17,19 @@ module.exports = function (id, token) {
                 log4n.debug('done - missing parameter');
             } else {
                 let newAccount;
-                getAccount({id: id, token: token}, 0, 0, false)
+                getAccount(context, {id: id, token: token}, 0, 0, false)
                     .then(account => {
                         log4n.object(account[0], 'account');
                         newAccount = account[0];
                         newAccount.last_connexion_date = newAccount.current_connexion_date;
                         newAccount.current_connexion_date = parseInt(moment().format('x'));
-                        return createToken();
+                        return createToken(context);
                     })
                     .then(newToken => {
                         log4n.object(newToken, 'token');
                         newAccount.token = newToken;
                         log4n.debug('updating account');
-                        return patchAccount(id, token, newAccount);
+                        return patchAccount(context, id, token, newAccount);
                         // return newAccount;
                     })
                     .then(datas => {
@@ -45,7 +45,7 @@ module.exports = function (id, token) {
                     .catch(error => {
                         log4n.debug('promise catch');
                         log4n.object(error, 'error');
-                        reject(errorparsing(error));
+                        reject(errorparsing(context, error));
                         log4n.debug('done - promise catch');
                     })
             }
@@ -58,19 +58,19 @@ module.exports = function (id, token) {
     })
 };
 
-function createToken() {
-    const log4n = new Log4n('/models/api/account/setToken/createToken');
+function createToken(context) {
+    const log4n = new Log4n(context, '/models/api/account/setToken/createToken');
 
     return new Promise((resolve, reject) => {
         let generator = new Generator();
         let token = generator.keygen();
         log4n.object(token, 'token');
-        getAccount({token: token}, 0, 0, true)
+        getAccount(context, {token: token}, 0, 0, true)
             .then(data => {
                 // log4n.object(data, 'data');
                 if (data.length > 0) {
                     log4n.object(token, 'token');
-                    return createToken();
+                    return createToken(context);
                 } else {
                     log4n.debug('done - no account found for this token');
                     resolve(token);

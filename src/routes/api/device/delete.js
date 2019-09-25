@@ -14,7 +14,8 @@ const responseError = require('../../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/device/delete');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/device/delete');
     // log4n.object(req.params.id,'id');
 
     let id = req.params.id;
@@ -23,10 +24,10 @@ module.exports = function (req, res) {
     if (typeof id === 'undefined') {
         //aucun id
         let error = {error_code: 400};
-        responseError(error, res, log4n);
+        responseError(context, error, res, log4n);
     } else {
         //traitement de suppression dans la base
-        remove(id)
+        remove(context, id)
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 if (typeof datas === 'undefined') {
@@ -36,13 +37,13 @@ module.exports = function (req, res) {
                         res.status(204).send();
                         log4n.debug('done');
                     } else {
-                        responseError(datas.error_code, res, log4n);
+                        responseError(context, datas, res, log4n);
                         log4n.debug('done');
                     }
                 }
             })
             .catch(error => {
-                responseError(error, res, log4n);
+                responseError(context, error, res, log4n);
                 log4n.debug('done');
             });
     }

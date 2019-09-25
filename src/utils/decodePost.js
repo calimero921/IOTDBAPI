@@ -1,8 +1,8 @@
 const Log4n = require('./log4n.js');
 const checkJSON = require('./checkJSON.js');
 
-module.exports = function (req, res) {
-	const log4n = new Log4n('/utils/decodePost');
+module.exports = function (context, req, res) {
+	const log4n = new Log4n(context, '/utils/decodePost');
 
 	return new Promise((resolve, reject) => {
         try {
@@ -12,7 +12,7 @@ module.exports = function (req, res) {
 				// log4n.object(fullBody, 'fullBody');
 			});
 			req.on('end', () => {
-				const decodedBody = checkJSON(fullBody);
+				const decodedBody = checkJSON(context, fullBody);
 				// log4n.object(decodedBody, 'decodedBody');
 				resolve(decodedBody);
                 log4n.debug('done');

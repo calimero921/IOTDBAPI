@@ -1,21 +1,15 @@
 const Log4n = require('./log4n.js');
+const errorParsing = require('./errorparsing.js');
 
-module.exports = function (content, response, logger) {
-    const log4n = new Log4n('/utils/responseError');
+module.exports = function (context, content, response, logger) {
+    const log4n = new Log4n(context, '/utils/responseError');
     log4n.object(content, 'content');
 
-    if (typeof content.error_code === 'undefined') {
-        logger.error(content);
-        response.status(500);
-        response.send(content);
-    } else {
-        let message = 'code: ';
-        message += content.error_code;
-        if (typeof content.error_message !== 'undefined') message += ' / message: ' + content.error_message;
-        logger.error(message);
-        response
-            .status(content.error_code)
-            .send(content.error_message);
-    }
+    let finalContent = errorParsing(context, content);
+    let message = 'code: ';
+    message += finalContent.error_code;
+    if (typeof finalContent.error_message !== 'undefined') message += ' / message: ' + finalContent.error_message;
+    logger.error(message);
+    response.status(finalContent.error_code).send(finalContent.error_message);
     log4n.debug('done');
 };

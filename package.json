@@ -5,7 +5,7 @@
 	"private": true,
 	"license": "Apache-2.0",
 	"bugs": {
-		"url": "https://github.com/calimero921/IOTDBPAI/issues",
+		"url": "https://github.com/calimero921/IOTDBAPI/issues",
 		"email": "calimero921@gmail.com"
 	},
 	"author": {
@@ -41,5 +41,8 @@
 	"engines": {
 		"node": ">=8.9.1",
 		"npm": ">=4.6.1"
+	},
+	"devDependencies": {
+		"jasmine": "^3.5.0"
 	}
 }

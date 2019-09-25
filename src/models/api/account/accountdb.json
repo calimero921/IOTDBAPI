@@ -1,0 +1,18 @@
+{
+  "$async": true,
+  "type": "object",
+  "properties": {
+    "id": {"type": "string", "format": "uuid"},
+    "firstname": {"type": "string"},
+    "lastname": {"type": "string"},
+    "email": {"type": "string"},
+    "admin" : {"type":"boolean"},
+    "active": {"type": "boolean"},
+    "session_id": {"type": "string"},
+    "creation_date": {"type": "integer"},
+    "current_connexion_date": {"type": "integer"},
+    "last_connexion_date": {"type": "integer"},
+    "token": {"type": "string"}
+  },
+  "required": ["id", "firstname", "lastname", "email", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
+}

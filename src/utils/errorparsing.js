@@ -1,22 +1,30 @@
 const Log4n = require('./log4n.js');
 
-module.exports = function (error) {
-    const log4n = new Log4n('/utils/errorparsing');
+module.exports = function (context, error) {
+    const log4n = new Log4n(context, '/utils/errorparsing');
+    // log4n.object(error, 'error in ');
+    let result = {};
 
     if (typeof error === 'undefined') {
+        result.error_code = 500;
         log4n.debug('done unknown');
-        error = {error_code: 500};
     } else {
         if (typeof error.error_code === 'undefined') {
-            log4n.debug('done prefix 500');
-            error = {error_code: 500, error_message: error};
+            result.error_code = 500;
+            if (typeof error.errmsg !== 'undefined') {
+                result.error_message = error.errmsg;
+            } else {
+                result.error_message = error;
+                log4n.debug('done prefix 500');
+            }
+        } else {
+            result = error;
         }
     }
 
-    log4n.debug('done unmodified - conpleted if needed');
-    if (typeof error.error_message === 'undefined') {
+    if (typeof result.error_message === 'undefined') {
         let message;
-        switch (error.error_code) {
+        switch (result.error_code) {
             case 400:
                 message = "Bad Request";
                 break;
@@ -42,10 +50,12 @@ module.exports = function (error) {
                 message = "Internal Server Error";
                 break;
             default:
-                message = 'Unmanaged error';
+                message = 'Unknown error';
                 break;
         }
-        error.error_message = message;
+        result.error_message = message;
     }
-    return error;
+
+    // log4n.object(result, 'error out');
+    return result;
 };

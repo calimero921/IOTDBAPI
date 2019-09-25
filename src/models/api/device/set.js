@@ -5,16 +5,16 @@ const Converter = require('./converter.js');
 const Generator = require('../generator.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
-module.exports = function (device) {
-    const log4n = new Log4n('/models/api/device/set');
+module.exports = function (context, device) {
+    const log4n = new Log4n(context, '/models/api/device/set');
     log4n.object(device, 'device');
 
     //traitement d'enregistrement dans la base
-    return new Promise(function (resolve, reject) {
-        try{
+    return new Promise((resolve, reject) => {
+        try {
             log4n.debug('storing device');
-            const generator = new Generator();
-            const converter = new Converter();
+            const generator = new Generator(context);
+            const converter = new Converter(context);
             if (typeof device === 'undefined') {
                 reject(errorparsing({error_code: '400', error_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
@@ -28,13 +28,13 @@ module.exports = function (device) {
                         query.creation_date = parseInt(Moment().format('x'));
                         query.last_connexion_date = parseInt(Moment().format('x'));
                         log4n.object(query, 'query');
-                        return mongoClient('device', query);
+                        return mongoClient(context, 'device', query);
                     })
                     .then(datas => {
                         // console.log('datas: ', datas);
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return(errorparsing('No datas'));
+                            return (errorparsing(context, 'No datas'));
                         } else {
                             return converter.db2json(datas[0]);
                         }
@@ -42,10 +42,10 @@ module.exports = function (device) {
                     .then(datas => {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
+                            reject(errorparsing(context, 'No datas'));
                             log4n.debug('done - no data');
-                            reject(errorparsing('No datas'));
                         } else {
-                            if(typeof datas.error_code === "undefined") {
+                            if (typeof datas.error_code === "undefined") {
                                 resolve(datas);
                                 log4n.debug('done - ok');
                             } else {
@@ -56,13 +56,13 @@ module.exports = function (device) {
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(error));
+                        reject(errorparsing(context, error));
                         log4n.debug('done - promise catch');
                     });
             }
-        } catch(error) {
+        } catch (error) {
             log4n.object(error, 'error');
-            reject(errorparsing(error));
+            reject(errorparsing(context, error));
             log4n.debug('done - global catch');
         }
     });

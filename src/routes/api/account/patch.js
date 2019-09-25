@@ -19,10 +19,11 @@ const responseError = require('../../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/account/patch');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/account/patch');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context, req, res);
 
         let id = req.params.id;
         log4n.object(id, 'id');
@@ -30,12 +31,12 @@ module.exports = function (req, res) {
         log4n.object(token, 'token');
 
         if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError({error_code: 400}, res, log4n);
+            responseError(context, {error_code: 400, error_message: 'Missing parameters'}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
             if (userInfo.admin || (id === userInfo.id)) {
                 let updatedata;
-                decodePost(req, res)
+                decodePost(context, req, res)
                     .then(datas => {
                         //log4n.object(datas, 'datas');
                         updatedata = datas;
@@ -46,7 +47,7 @@ module.exports = function (req, res) {
                         if (typeof updatedata.token !='undefined') {
                             delete updatedata.token;
                         }
-                        return get({id: id}, 0, 0, false)
+                        return get(context, {id: id}, 0, 0, false)
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
@@ -56,14 +57,13 @@ module.exports = function (req, res) {
                             let newdata = datas[0];
                             if(typeof newdata !='undefined') {
                                 for (let key in updatedata) {
-                                    log4n.object(key, 'key');
+                                    // log4n.object(key, 'key');
                                     newdata[key] = updatedata[key];
                                 }
                                 log4n.object(newdata, 'newdata');
-                                return patch(id, token, newdata)
+                                return patch(context, id, token, newdata)
                             } else {
-                                datas = {error_code:'404', error_message:'Not found'};
-                                return datas
+                                return  {error_code:'404'};
                             }
                         } else {
                             return (datas)
@@ -75,25 +75,21 @@ module.exports = function (req, res) {
                             res.status(200).send(datas);
                             log4n.debug('done - ok');
                         } else {
-                            responseError(datas, res, log4n);
+                            responseError(context, datas, res, log4n);
                             log4n.debug('done - response error');
                         }
                     })
                     .catch(error => {
-                        responseError(error, res, log4n);
+                        responseError(context, error, res, log4n);
                         log4n.debug('done - global catch');
                     })
             } else {
-                log4n.error('user must be admin or account owner for this action');
-                return errorparsing({error_code: 403});
+                responseError(context, {error_code: 403}, res, log4n);
+                log4n.debug('done - Forbidden');
             }
         }
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
-        } else {
             log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
-        }
+            responseError(context, exception, res, log4n);
     }
 };

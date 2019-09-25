@@ -3,8 +3,8 @@ const mongoClient = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
-module.exports = function (query, offset, limit, overtake) {
-    const log4n = new Log4n('/models/api/device/get');
+module.exports = function (context, query, offset, limit, overtake) {
+    const log4n = new Log4n(context, '/models/api/device/get');
     log4n.object(query, 'query');
     log4n.object(offset, 'offset');
     log4n.object(limit, 'limit');
@@ -13,12 +13,12 @@ module.exports = function (query, offset, limit, overtake) {
     if (typeof overtake === 'undefined') overtake = false;
 
     //traitement de recherche dans la base
-    return new Promise(function (resolve, reject) {
-        const converter = new Converter();
+    return new Promise((resolve, reject) => {
+        const converter = new Converter(context);
         let parameter = {};
         if (typeof limit !== 'undefined') parameter.limit = limit;
         if (typeof offset !== 'undefined') parameter.offset = offset;
-        mongoClient('device', query, parameter, overtake)
+        mongoClient(context, 'device', query, parameter, overtake)
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 if (datas.length > 0) {
@@ -34,27 +34,27 @@ module.exports = function (query, offset, limit, overtake) {
                                 resolve(result);
                             } else {
                                 log4n.debug('done - not correct record found');
-                                reject(errorparsing({error_code: 404}));
+                                reject(errorparsing(context, {error_code: 404}));
                             }
                         })
                         .catch(error => {
                             log4n.object(error, 'error reading data');
-                            reject(errorparsing(error));
+                            reject(errorparsing(context, error));
                         });
                 } else {
                     if (overtake) {
                         log4n.debug('done - no result but ok');
-                        resolve(errorparsing({error_code: 404}));
+                        resolve(errorparsing(context, {error_code: 404}));
                     } else {
                         log4n.debug('done - not found');
-                        reject(errorparsing({error_code: 404}));
+                        reject(errorparsing(context, {error_code: 404}));
                     }
                 }
             })
             .catch(error => {
                 log4n.debug('done - global catch');
                 log4n.object(error, 'error');
-                reject(errorparsing(error));
+                reject(errorparsing(context, error));
             });
     });
 };

@@ -1,8 +1,8 @@
 const Log4n = require('../../../utils/log4n.js');
 const mysqlClient = require('../../mysqlclient.js');
 
-module.exports = function () {
-    const log4n = new Log4n('/models/api/users/cleanSession');
+module.exports = function (context) {
+    const log4n = new Log4n(context, '/models/api/users/cleanSession');
     log4n.debug('start');
 
     return new Promise((resolve, reject) => {

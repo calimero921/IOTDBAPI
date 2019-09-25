@@ -1,8 +1,8 @@
 const Log4n = require('./log4n.js');
 const errorparsing = require('./errorparsing.js');
 
-module.exports = function () {
-    const log4n = new Log4n('/utils/password');
+module.exports = function (context) {
+    const log4n = new Log4n(context, '/utils/password',context.httpRequestId);
 
     return new Promise(function (resolve, reject) {
         try {

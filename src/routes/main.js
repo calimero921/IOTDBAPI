@@ -1,5 +1,3 @@
-const server = require('../config/server.js');
-
 const Log4n = require('../utils/log4n.js');
 
 const statusGet = require('./status.js');
@@ -19,8 +17,14 @@ const devicePost = require('./api/device/post.js');
 const devicePatch = require('./api/device/patch.js');
 const deviceDelete = require('./api/device/delete.js');
 
+let context = {httpRequestId: 'Initialize'};
+
 module.exports = function (app, keycloak) {
-    const log4n = new Log4n('/routes/main');
+    const log4n = new Log4n(context, '/routes/main.js', 'initialize');
+    app.use(function (req, res, next) {
+        req.httpRequestId = Date.now().toString();
+        next();
+    });
 
     app.get('/status', statusGet);
 
@@ -43,7 +47,7 @@ module.exports = function (app, keycloak) {
 };
 
 function displayToken(token, request) {
-    const log4n = new Log4n('/routes/main/displayToken');
+    const log4n = new Log4n(context, '/routes/main/displayToken');
     try {
         token.clientId =
         log4n.object(token.clientId, 'token.clientId');

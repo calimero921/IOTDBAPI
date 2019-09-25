@@ -18,20 +18,21 @@ const responseError = require('../../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/device/patch');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/device/patch');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context, req, res);
 
         let id = req.params.id;
         log4n.object(id, 'id');
 
         if (typeof id === 'undefined') {
-            responseError({error_code: 400}, res, log4n);
+            responseError(context, {error_code: 400}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
             let updatedata;
-            decodePost(req, res)
+            decodePost(context, req, res)
                 .then(datas => {
                     //log4n.object(datas, 'datas');
                     updatedata = datas;
@@ -68,12 +69,12 @@ module.exports = function (req, res) {
                                     newdata[key] = updatedata[key];
                                 }
                                 log4n.object(newdata, 'newdata');
-                                return patch(id, newdata)
+                                return patch(context, id, newdata)
                             } else {
-                                return {error_code: '403', error_message: 'Forbidden'};
+                                return {error_code: '403'};
                             }
                         } else {
-                            return {error_code: '404', error_message: 'Not found'};
+                            return {error_code: '404'};
                         }
                     } else {
                         return datas;
@@ -82,29 +83,29 @@ module.exports = function (req, res) {
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas === 'undefined') {
-                        responseError({error_code: 500}, res, log4n);
+                        responseError(context, {error_code: 500}, res, log4n);
                         log4n.debug('done - internal server error');
                     } else {
                         if (typeof datas.error_code === 'undefined') {
                             res.status(200).send(datas);
                             log4n.debug('done - ok');
                         } else {
-                            responseError(datas, res, log4n);
+                            responseError(context, datas, res, log4n);
                             log4n.debug('done - response error');
                         }
                     }
                 })
                 .catch(error => {
-                    responseError(error, res, log4n);
+                    responseError(context, error, res, log4n);
                     log4n.debug('done - global catch');
                 });
         }
     } catch (exception) {
         if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
+            responseError(context, {error_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
+            responseError(context, {error_code: 500}, res, log4n);
         }
     }
 };

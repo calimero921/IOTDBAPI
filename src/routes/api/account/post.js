@@ -2,7 +2,6 @@ const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const decodePost = require('../../../utils/decodePost.js');
 const accountSet = require('../../../models/api/account/set.js');
-const errorparsing = require('../../../utils/errorparsing.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -14,25 +13,26 @@ const responseError = require('../../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/account/post');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/account/post');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context, req, res);
 
         //lecture des données postées
-        decodePost(req, res)
+        decodePost(context, req, res)
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 if (typeof datas === 'undefined') {
                     //aucune donnée postée
-                    return errorparsing({error_code: 400});
+                    return {error_code: 400, error_message: 'Missing parameters'};
                 } else {
                     if (userInfo.admin || ((datas.email === userInfo.email) && (datas.firstname === userInfo.firstname) && (datas.lastname === userInfo.lastname))) {
                         //creation du compte
-                        return accountSet(datas);
+                        return accountSet(context, datas);
                     } else {
                         log4n.error('user must be admin or account owner for this action');
-                        return errorparsing({error_code: 403});
+                        return {error_code: 403};
                     }
                 }
             })
@@ -44,15 +44,15 @@ module.exports = function (req, res) {
                     log4n.debug('done - ok');
                 } else {
                     //erreur dans le processus d'enregistrement de la notification
-                    responseError(datas, res, log4n);
+                    responseError(context, datas, res, log4n);
                     log4n.debug('done - response error');
                 }
             })
             .catch(error => {
-                responseError(error, res, log4n);
+                responseError(context, error, res, log4n);
                 log4n.debug('done - promise catch');
             });
     } catch (exception) {
-        responseError(errorparsing(exception), res, log4n);
+        responseError(context,exception, res, log4n);
     }
 };

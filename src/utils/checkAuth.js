@@ -1,14 +1,14 @@
 const jwt = require('jsonwebtoken');
-
 const Log4n = require('./log4n.js');
 
-module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/checkauth');
+module.exports = function (context, req, res) {
+    const log4n = new Log4n(context, '/routes/checkauth.js');
+
     let token = req.get('authorization').replace('Bearer ', '');
     // log4n.object(token, 'token');
 
     let parsedToken = jwt.decode(token);
-    log4n.object(parsedToken, 'parsedToken');
+    // log4n.object(parsedToken, 'parsedToken');
 
     if(typeof parsedToken !== 'undefined') {
         let userInfo = {
@@ -67,9 +67,10 @@ module.exports = function (req, res) {
         log4n.object(userInfo, 'userInfo');
 
         if (userInfo.active) {
+            log4n.debug('done - ok');
             return userInfo;
         } else {
-            log4n.error('inactive user');
+            log4n.error('done - Unauthorized user');
             throw new Error('403');
         }
     }

@@ -3,7 +3,6 @@ const checkAuth = require('../../../utils/checkAuth.js');
 const decodePost = require('../../../utils/decodePost.js');
 const set = require('../../../models/api/device/set.js');
 const get = require('../../../models/api/device/get.js');
-const errorparsing = require('../../../utils/errorparsing.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -16,39 +15,45 @@ const responseError = require('../../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/api/device/post');
+    let context = {httpRequestId: req.httpRequestId};
+    const log4n = new Log4n(context, '/routes/api/device/post');
 
     try {
         let userInfo = checkAuth(req, res);
 
         let postData;
         //lecture des données postées
-        decodePost(req, res)
+        decodePost(context, req, res)
             .then(datas => {
                 // log4n.object(datas, 'datas');
-                if(typeof datas === 'undefined') {
+                if (typeof datas === 'undefined') {
                     //aucune donnée postée
-                    return errorparsing({error_code:400});
+                    return {error_code: 400};
                 } else {
                     postData = datas;
                     //lecture des données postées
-                    if(userInfo.admin || userInfo.id === postData.user_id) {
-                        let query = {manufacturer:postData.manufacturer, model:postData.model, serial:postData.serial, secret:postData.secret};
-                        return get(query, 0, 0, true);
+                    if (userInfo.admin || userInfo.id === postData.user_id) {
+                        let query = {
+                            manufacturer: postData.manufacturer,
+                            model: postData.model,
+                            serial: postData.serial,
+                            secret: postData.secret
+                        };
+                        return get(context, query, 0, 0, true);
                     } else {
-                        return errorparsing({error_code: '403', error_message: 'Forbidden'});
+                        return {error_code: '403'};
                     }
                 }
             })
             .then(datas => {
                 log4n.object(datas, 'get datas');
-                if(typeof datas === 'undefined') {
+                if (typeof datas === 'undefined') {
                     //aucune données recue du processus d'enregistrement
-                    return errorparsing({error_code: 500, error_message: 'No datas'});
+                    return {error_code: 500, error_message: 'No datas'};
                 } else {
                     if (typeof datas.error_code === "undefined") {
                         //le device est déjà présent
-                        return errorparsing({error_code: 409, error_message: 'Duplicate'});
+                        return {error_code: 409};
                     } else {
                         if (datas.error_code === 404) {
                             return set(postData);
@@ -60,33 +65,33 @@ module.exports = function (req, res) {
             })
             .then(datas => {
                 log4n.object(datas, 'set datas');
-                if(typeof datas === 'undefined') {
+                if (typeof datas === 'undefined') {
                     //aucune données recue du processus d'enregistrement
-                    responseError({error_code: 500}, res, log4n);
+                    responseError(context, {error_code: 500}, res, log4n);
                     log4n.debug('done - no data');
                 } else {
                     //recherche d'un code erreur précédent
-                    if(typeof datas.error_code === 'undefined') {
+                    if (typeof datas.error_code === 'undefined') {
                         //notification enregistrée
                         res.status(201).send(datas);
                         log4n.debug('done - ok');
                     } else {
                         //erreur dans le processus d'enregistrement de la notification
-                        responseError(datas, res, log4n);
+                        responseError(context, datas, res, log4n);
                         log4n.debug('done - response error');
                     }
                 }
             })
             .catch(error => {
-                responseError(error, res, log4n);
+                responseError(context, error, res, log4n);
                 log4n.debug('done - global catch');
             });
     } catch (exception) {
         if (exception.message === "403") {
-            responseError({error_code: 403}, res, log4n);
+            responseError(context, {error_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError({error_code: 500}, res, log4n);
+            responseError(context, {error_code: 500}, res, log4n);
         }
     }
 };

@@ -1,6 +1,5 @@
-const server = require('../config/server.js');
-
 const Log4n = require('../utils/log4n.js');
+const config = require('../config/server.js');
 const responseError = require('../utils/responseError.js');
 
 /**
@@ -11,7 +10,7 @@ const responseError = require('../utils/responseError.js');
  */
 
 module.exports = function (req, res) {
-    const log4n = new Log4n('/routes/status');
+    const log4n = new Log4n(context, '/routes/status.js');
 
     try {
         // log4n.object(req.headers, 'headers');
@@ -21,8 +20,8 @@ module.exports = function (req, res) {
         // log4n.object(req.body, 'body');
 
         let result = {};
-        result.swagger_version = server.swagger;
-        result.last_update = server.date;
+        result.swagger_version = config.swagger;
+        result.last_update = config.date;
         log4n.object(result, 'result');
 
         res.status(200).send(result);

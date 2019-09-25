@@ -1,8 +1,8 @@
 const Log4n = require('../utils/log4n.js');
 const errorparsing = require('../utils/errorparsing.js');
 
-module.exports = function (error) {
-    const log4n = new Log4n('/models/mongodberror');
+module.exports = function (context, error) {
+    const log4n = new Log4n(context, '/models/mongodberror');
     // log4n.object(error, 'error');
 
     try {
@@ -18,10 +18,10 @@ module.exports = function (error) {
                 break;
         }
         log4n.object(result, 'result');
-        return errorparsing(result);
-    } catch (error) {
-        console.log('error:', error);
-        log4n.debug('done - try catch')
-        return errorparsing(error);
+        return errorparsing(context, result);
+    } catch (exception) {
+        console.log('error:', exception);
+        log4n.debug('done - try catch');
+        return errorparsing(context, exception);
     }
 };
