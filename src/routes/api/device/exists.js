@@ -7,11 +7,11 @@ const responseError = require('../../../utils/responseError.js');
  * This function comment is parsed by doctrine
  * @route GET /1.0.0/device/exists/{manufacturer}/{model}/{serial}/{secret}
  * @group Device - Operations about device
- * @param {string} manufacturer.path.required - eg: edavid
- * @param {string} model.path.required - eg: MS001
- * @param {string} serial.path.required - eg: 0123456789
- * @param {string} secret.path.required - eg: 21C823DC4721EAE56D774D4BE99CBA62
- * @returns {Device.model} 200 - Device info
+ * @param {String} manufacturer.path.required - eg: edavid
+ * @param {String} model.path.required - eg: MS001
+ * @param {String} serial.path.required - eg: 0123456789
+ * @param {String} secret.path.required - eg: 21C823DC4721EAE56D774D4BE99CBA62
+ * @returns {Object} 200 - Device info
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
  * @returns {Error} default - Unexpected error
@@ -48,7 +48,7 @@ module.exports = function (req, res) {
                         log4n.debug('done - not found');
                     } else {
                         // log4n.object(datas, 'datas');
-                        res.status(200).send(datas[0]);
+                        res.status(200).send({device_id:datas[0].device_id});
                         log4n.debug('done - ok');
                     }
                 })

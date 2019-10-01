@@ -22,17 +22,17 @@ module.exports = function (req, res) {
         let userInfo = checkAuth(context, req, res);
 
         log4n.object(req.params.id, 'id');
-        let id = req.params.id;
+        let user_id = req.params.id;
 
         //traitement de recherche dans la base
-        if (typeof id === 'undefined') {
+        if (typeof user_id === 'undefined') {
             //aucun user_id
             responseError(context, {error_code: 400}, res, log4n);
             log4n.debug('done - missing parameter(user_id)');
         } else {
-            if (userInfo.admin || id === userInfo.id) {
+            if (userInfo.admin || user_id === userInfo.id) {
                 //traitement de recherche dans la base
-                let query = {user_id: id};
+                let query = {user_id: user_id};
                 deviceGet(context, query, 0, 0)
                     .then(datas => {
                         if (typeof datas === 'undefined') {

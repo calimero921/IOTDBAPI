@@ -2,23 +2,30 @@ const Log4n = require('./log4n.js');
 
 module.exports = function (context, error) {
     const log4n = new Log4n(context, '/utils/errorparsing');
-    // log4n.object(error, 'error in ');
+    log4n.object(error, 'error in ');
     let result = {};
 
     if (typeof error === 'undefined') {
         result.error_code = 500;
         log4n.debug('done unknown');
     } else {
-        if (typeof error.error_code === 'undefined') {
+        if (typeof error.error_code !== 'undefined') {
+            result = error;
+            log4n.debug('done - already formated');
+        } else {
             result.error_code = 500;
             if (typeof error.errmsg !== 'undefined') {
                 result.error_message = error.errmsg;
+                log4n.debug('done - prefix 500, errmsg');
             } else {
-                result.error_message = error;
-                log4n.debug('done prefix 500');
+                if (typeof error.stack !== 'undefined') {
+                    result.error_message = error.toString();
+                    log4n.debug('done - prefix 500, stack');
+                } else {
+                    result.error_message = error;
+                    log4n.debug('done - prefix 500, message');
+                }
             }
-        } else {
-            result = error;
         }
     }
 
@@ -58,4 +65,5 @@ module.exports = function (context, error) {
 
     // log4n.object(result, 'error out');
     return result;
-};
+}
+;

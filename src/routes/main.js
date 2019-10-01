@@ -17,6 +17,10 @@ const devicePost = require('./api/device/post.js');
 const devicePatch = require('./api/device/patch.js');
 const deviceDelete = require('./api/device/delete.js');
 
+const measureGetById = require('./api/measure/getById.js');
+const measurePost = require('./api/measure/post.js');
+const measureDelete = require('./api/measure/delete.js');
+
 let context = {httpRequestId: 'Initialize'};
 
 module.exports = function (app, keycloak) {
@@ -42,6 +46,10 @@ module.exports = function (app, keycloak) {
     app.post('/1.0.0/device', keycloak.protect(), devicePost);
     app.patch('/1.0.0/device/:id', keycloak.protect(), devicePatch);
     app.delete('/1.0.0/device/:id', keycloak.protect(), deviceDelete);
+
+    app.get('/1.0.0/measure/:id', keycloak.protect(), measureGetById);
+    app.post('/1.0.0/measure', keycloak.protect(), measurePost);
+    app.delete('/1.0.0/measure/:id', keycloak.protect(), measureDelete);
 
     log4n.debug('done');
 };

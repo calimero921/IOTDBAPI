@@ -1,10 +1,11 @@
 const Log4n = require('../../../utils/log4n.js');
-const mongoClient = require('../../mongodbupdate.js');
+const mongoUpdate = require('../../mongodbupdate.js');
 const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, device_id, new_device) {
     const log4n = new Log4n(context, '/models/api/device/patch');
+    // log4n.object(context,'context');
     // log4n.object(device_id,'device_id');
     // log4n.object(new_device,'new_device');
 
@@ -19,12 +20,12 @@ module.exports = function (context, device_id, new_device) {
             } else {
                 let query = {};
                 log4n.debug('preparing datas');
-                query.id = device_id;
+                query.device_id = device_id;
                 //au cas ou on usurperait le device
                 converter.json2db(new_device)
                     .then(parameter => {
                         // log4n.object(parameter,'parameter');
-                        return mongoClient(context, 'device', query, parameter);
+                        return mongoUpdate(context, 'device', query, parameter);
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');

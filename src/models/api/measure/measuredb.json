@@ -1,0 +1,20 @@
+{
+  "$async": true,
+  "type": "object",
+  "properties": {
+    "device_id": {"type": "string", "format": "uuid"},
+    "store_date": {"type": "integer"},
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "value": {"type": "string"}
+        },
+        "required": ["name", "value"]
+      }
+    }
+  },
+  "required": ["device_id", "store_date", "capabilities"]
+}

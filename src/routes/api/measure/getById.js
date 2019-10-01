@@ -1,14 +1,15 @@
 const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
+const measureGet = require('../../../models/api/measure/get.js');
 const deviceGet = require('../../../models/api/device/get.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /1.0.0/device/{id}
- * @group Device - Operations about device
- * @param {string} id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
- * @returns {Device.model} 200 - Device info
+ * @route GET /1.0.0/measure/{device_id}
+ * @group Measure - Operations about measure
+ * @param {string} device_id.path.required - eg: 778cdaa0-869c-11e8-a13c-0d1008100710
+ * @returns {array.<Measure>} 200 - Device info
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
  * @returns {Error} default - Unexpected error
@@ -16,7 +17,7 @@ const responseError = require('../../../utils/responseError.js');
  */
 module.exports = function (req, res) {
     let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/device/get');
+    const log4n = new Log4n(context, '/routes/api/measure/get');
 
     try {
         let userInfo = checkAuth(context, req, res);
@@ -27,9 +28,9 @@ module.exports = function (req, res) {
         //traitement de recherche dans la base
         if (typeof device_id === 'undefined') {
             //aucun device_id
-            responseError(context, {error_code: 400}, res, log4n);
-            log4n.debug('done - missing parameter(device_id)');
-        } else {
+            responseError(context,{error_code: 400}, res, log4n);
+            log4n.debug('done - missing parameter(id)');
+        } else  {
             let query = {device_id: device_id};
             if (!userInfo.admin) {
                 query.user_id = userInfo.id;
@@ -37,13 +38,29 @@ module.exports = function (req, res) {
             //traitement de recherche dans la base
             deviceGet(context, query, 0, 0)
                 .then(datas => {
+                    if (typeof datas !== 'undefined') {
+                        if (typeof datas.error_code !== 'undefined') {
+                            return datas;
+                        } else {
+                            return measureGet(context, query, 0, 100);
+                        }
+                    } else {
+                        return {error_code: 404};
+                    }
+                })
+                .then(datas => {
                     if (typeof datas === 'undefined') {
                         responseError(context, {error_code: 404}, res, log4n);
                         log4n.debug('done - not found');
                     } else {
-                        // log4n.object(datas, 'datas');
-                        res.status(200).send(datas[0]);
-                        log4n.debug('done - ok');
+                        if (typeof datas.error_code !== 'undefined') {
+                            responseError(context, datas, res, log4n);
+                            log4n.debug('done - error');
+                        } else {
+                            // log4n.object(datas, 'datas');
+                            res.status(200).send(datas);
+                            log4n.debug('done - ok');
+                        }
                     }
                 })
                 .catch(error => {

@@ -15,7 +15,7 @@
 
 /**
  * @typedef Device
- * @property {string} id
+ * @property {string} device_id
  * @property {string} key.required - Device security key
  * @property {string} user_id.required - Device owner id
  * @property {string} manufacturer.required - Device manufacturer
@@ -27,14 +27,28 @@
  * @property {string} class.required - Device class
  * @property {string} local_ip - Device local IP address
  * @property {number} last_connexion_date - Device last connection date timestamp
- * @property {array.<Capability>} capabilities - List of Device capabilities
+ * @property {array.<CapabilityFull>} capabilities - List of Device capabilities
  */
 
 /**
- * @typedef Capability
+ * @typedef Measure
+ * @property {string} device_id
+ * @property {number} store_date.required - Device creation date timestamp
+ * @property {array.<CapabilityLite>} capabilities - List of Device capabilities
+ */
+
+/**
+ * @typedef CapabilityFull
  * @property {string} name.required - Capability name
  * @property {string} type.required - Capability type
  * @property {string} last_value.required - Capability last value
  * @property {string} publish.required - Capability MQTT publish topic
  * @property {string} subscribe - Capability MQTT subscribe topic
+ */
+
+
+/**
+ * @typedef CapabilityLite
+ * @property {string} name.required - Capability name
+ * @property {string} value.required - Capability last value
  */

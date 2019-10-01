@@ -19,7 +19,7 @@ module.exports = function (req, res) {
     const log4n = new Log4n(context, '/routes/api/device/post');
 
     try {
-        let userInfo = checkAuth(req, res);
+        let userInfo = checkAuth(context, req, res);
 
         let postData;
         //lecture des données postées
@@ -56,7 +56,10 @@ module.exports = function (req, res) {
                         return {error_code: 409};
                     } else {
                         if (datas.error_code === 404) {
-                            return set(postData);
+                            if (typeof postData.user_id === 'undefined') {
+                                postData.user_id = userInfo.id;
+                            }
+                            return set(context, postData);
                         } else {
                             return datas;
                         }

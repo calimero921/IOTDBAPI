@@ -18,14 +18,17 @@ module.exports = function (context, collection, query, parameter, overtake) {
                     //initialisation des parametres offset et limit
                     let skip = 0;
                     let limit = 0;
+                    let sort = {};
                     if (typeof parameter !== 'undefined') {
                         if (typeof parameter.skip !== 'undefined') skip = parseInt(parameter.skip);
                         if (typeof parameter.limit !== 'undefined') limit = parseInt(parameter.limit);
+                        if (typeof parameter.sort !== 'undefined') sort = parameter.sort;
                     }
                     let mdbcollection = mongodbConnexion.collection(collection);
                     mdbcollection.find(query)
                         .skip(skip)
                         .limit(limit)
+                        .sort(sort)
                         .toArray()
                         .then(datas => {
                             // console.log('datas: ', datas);

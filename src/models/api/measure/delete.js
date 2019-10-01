@@ -1,5 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
-const mongoClient = require('../../mongodbdelete.js');
+const mongoDelete = require('../../mongodbdeleteall.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, device_id) {
@@ -14,7 +14,7 @@ module.exports = function (context, device_id) {
             log4n.debug('done - missing paramater');
         } else {
             query.device_id = device_id;
-            mongoClient(context, 'device', query)
+            mongoDelete(context, 'measure', query)
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas === 'undefined') {

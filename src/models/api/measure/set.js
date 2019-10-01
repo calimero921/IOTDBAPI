@@ -2,33 +2,28 @@ const Moment = require('moment');
 const Log4n = require('../../../utils/log4n.js');
 const mongoInsert = require('../../mongodbinsert.js');
 const Converter = require('./converter.js');
-const Generator = require('../generator.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
-module.exports = function (context, device) {
-    const log4n = new Log4n(context, '/models/api/device/set');
-    // log4n.object(device, 'device');
+module.exports = function (context, measure) {
+    const log4n = new Log4n(context, '/models/api/measure/set');
+    log4n.object(measure, 'measure');
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
             log4n.debug('storing device');
-            const generator = new Generator(context);
             const converter = new Converter(context);
-            if (typeof device === 'undefined') {
+            if (typeof measure === 'undefined') {
                 reject(errorparsing({error_code: '400', error_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
-                //ajout des informations générées par le serveur
-                device.device_id = generator.idgen();
-                device.key = generator.keygen();
-                device.creation_date = parseInt(Moment().format('x'));
-                device.last_connexion_date = parseInt(Moment().format('x'));
-                converter.json2db(device)
+                converter.json2db(measure)
                     .then(query => {
+                        //ajout des informations générées par le serveur
+                        query.store_date = parseInt(Moment().format('x'));
                         log4n.object(query, 'query');
-                        return mongoInsert(context, 'device', query);
+                        return mongoInsert(context, 'measure', query);
                     })
                     .then(datas => {
                         // console.log('datas: ', datas);

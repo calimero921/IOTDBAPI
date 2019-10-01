@@ -2,6 +2,7 @@
   "$async": true,
   "type": "object",
   "properties": {
+    "device_id": {"type": "string", "format": "uuid"},
     "key": {"type": "string"},
     "user_id": {"type": "string", "format": "uuid"},
     "manufacturer": {"type": "string"},
@@ -27,6 +28,7 @@
         "required": ["name", "type"]
       }
     },
+    "last_connexion_date": {"type": "integer"}
   },
-  "required": ["user_id", "manufacturer", "model", "serial", "secret"]
+  "required": ["device_id","user_id", "manufacturer", "model", "serial", "secret"]
 }

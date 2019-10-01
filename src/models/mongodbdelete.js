@@ -1,6 +1,6 @@
 const Log4n = require('../utils/log4n.js');
-const errorparsing = require('../utils/errorparsing.js');
 const connexion = require('./mongoconnexion.js');
+const errorparsing = require('../utils/errorparsing.js');
 
 module.exports = function (context, collection, query) {
 	const log4n = new Log4n(context, '/models/mongodbdelete');

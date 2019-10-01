@@ -10,7 +10,7 @@ class Converter {
     }
 
     json2db(data) {
-        const log4n = new Log4n(this.context, '/models/api/sessions/converter/json2db');
+        const log4n = new Log4n(this.context, '/models/api/device/converter/json2db');
         // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
@@ -30,6 +30,7 @@ class Converter {
                 validate(data)
                     .then(valid => {
                         // log4n.object(valid, 'valid');
+                        if (typeof valid.device_id !== 'undefined') result.device_id = valid.device_id;
                         if (typeof valid.key !== 'undefined') result.key = valid.key;
                         if (typeof valid.user_id !== 'undefined') result.user_id = valid.user_id;
                         if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
@@ -40,6 +41,8 @@ class Converter {
                         if (typeof valid.class !== 'undefined') result.class = valid.class;
                         if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
                         if (typeof valid.local_ip !== 'undefined') result.local_ip = valid.local_ip;
+                        if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
+                        if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
                         if (typeof valid.capabilities !== 'undefined') {
                             result.capabilities = [];
                             for (let i in valid.capabilities) {
@@ -57,11 +60,11 @@ class Converter {
                                         break;
                                     case 'SWITCH':
                                         capability.publish = "switch";
-                                        capability.subscribe = "switch/" + valid.id;
+                                        capability.subscribe = "switch/" + valid.device_id;
                                         break;
                                     case 'SLAVE':
                                         capability.publish = "";
-                                        capability.subscribe = "slave/" + valid.id;
+                                        capability.subscribe = "slave/" + valid.device_id;
                                         break;
                                     default:
                                         capability.publish = "";
@@ -78,7 +81,7 @@ class Converter {
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(this.context,{
+                        reject(errorparsing(this.context, {
                             error_code: 500,
                             error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
@@ -86,7 +89,7 @@ class Converter {
                     });
             } catch (error) {
                 log4n.object(error, 'error');
-                reject(errorparsing(this.contexterror));
+                reject(errorparsing(this.context, error));
                 log4n.debug('done - global catch');
             }
         });
@@ -113,7 +116,7 @@ class Converter {
                 validate(data)
                     .then(valid => {
                         // log4n.object(valid, 'valid');
-                        if (typeof valid.id !== 'undefined') result.id = valid.id;
+                        if (typeof valid.device_id !== 'undefined') result.device_id = valid.device_id;
                         if (typeof valid.key !== 'undefined') result.key = valid.key;
                         if (typeof valid.user_id !== 'undefined') result.user_id = valid.user_id;
                         if (typeof valid.manufacturer !== 'undefined') result.manufacturer = valid.manufacturer;
@@ -125,6 +128,7 @@ class Converter {
                         if (typeof valid.class !== 'undefined') result.class = valid.class;
                         if (typeof valid.software_version !== 'undefined') result.software_version = valid.software_version;
                         if (typeof valid.local_ip !== 'undefined') result.local_ip = valid.local_ip;
+                        if (typeof valid.creation_date !== 'undefined') result.creation_date = valid.creation_date;
                         if (typeof valid.last_connexion_date !== 'undefined') result.last_connexion_date = valid.last_connexion_date;
                         if (typeof valid.capabilities !== 'undefined') result.capabilities = valid.capabilities;
 
@@ -133,7 +137,7 @@ class Converter {
                         resolve(result);
                     })
                     .catch(error => {
-                        reject(errorparsing(this.context,{
+                        reject(errorparsing(this.context, {
                             error_code: 500,
                             error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));

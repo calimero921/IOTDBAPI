@@ -24,10 +24,10 @@ module.exports = function (req, res) {
     try {
         let userInfo = checkAuth(context, req, res);
 
-        let id = req.params.id;
-        log4n.object(id, 'id');
+        let device_id = req.params.id;
+        // log4n.object(device_id, 'id');
 
-        if (typeof id === 'undefined') {
+        if (typeof device_id === 'undefined') {
             responseError(context, {error_code: 400}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
@@ -37,8 +37,8 @@ module.exports = function (req, res) {
                     //log4n.object(datas, 'datas');
                     updatedata = datas;
                     //supprime les champs id, user_id, manufacturer, model, secrial et secret des données pouvant être mise à jour
-                    if (typeof updatedata.id != 'undefined') {
-                        delete updatedata.id;
+                    if (typeof updatedata.device_id != 'undefined') {
+                        delete updatedata.device_id;
                     }
                     if (typeof updatedata.user_id != 'undefined') {
                         delete updatedata.user_id;
@@ -55,21 +55,24 @@ module.exports = function (req, res) {
                     if (typeof updatedata.secret != 'undefined') {
                         delete updatedata.secret;
                     }
-                    return get({id: id}, 0, 0, false)
+                    if (typeof updatedata.creation_date != 'undefined') {
+                        delete updatedata.creation_date;
+                    }
+                    return get(context, {device_id: device_id}, 0, 0, false)
                 })
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas.error_code === 'undefined') {
                         if (userInfo.admin || (datas.user_id === userInfo.id)) {
-                            log4n.object(updatedata, 'updatedata');
+                            // log4n.object(updatedata, 'updatedata');
                             let newdata = datas[0];
                             if (typeof newdata != 'undefined') {
                                 for (let key in updatedata) {
-                                    log4n.object(key, 'key');
+                                    // log4n.object(key, 'key');
                                     newdata[key] = updatedata[key];
                                 }
-                                log4n.object(newdata, 'newdata');
-                                return patch(context, id, newdata)
+                                // log4n.object(newdata, 'newdata');
+                                return patch(context, device_id, newdata)
                             } else {
                                 return {error_code: '403'};
                             }
