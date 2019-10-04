@@ -10,6 +10,7 @@ const responseError = require('../utils/responseError.js');
  */
 
 module.exports = function (req, res) {
+    let context = {httpRequestId: req.httpRequestId};
     const log4n = new Log4n(context, '/routes/status.js');
 
     try {

@@ -7,7 +7,7 @@ module.exports = function (context, req, res) {
 	return new Promise((resolve, reject) => {
         try {
 			let fullBody = '';
-			req.on('data', (chunk) => {
+			req.on('data', chunk => {
 				fullBody += chunk.toString();
 				// log4n.object(fullBody, 'fullBody');
 			});

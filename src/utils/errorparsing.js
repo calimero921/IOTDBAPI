@@ -2,7 +2,7 @@ const Log4n = require('./log4n.js');
 
 module.exports = function (context, error) {
     const log4n = new Log4n(context, '/utils/errorparsing');
-    log4n.object(error, 'error in ');
+    // log4n.object(error, 'error');
     let result = {};
 
     if (typeof error === 'undefined') {

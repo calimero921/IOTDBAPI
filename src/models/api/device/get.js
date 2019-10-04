@@ -52,9 +52,9 @@ module.exports = function (context, query, offset, limit, overtake) {
                 }
             })
             .catch(error => {
-                log4n.debug('done - global catch');
                 log4n.object(error, 'error');
                 reject(errorparsing(context, error));
+                log4n.debug('done - global catch');
             });
     });
 };

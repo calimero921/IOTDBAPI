@@ -59,12 +59,12 @@ module.exports = function (context, collection, query, parameter, overtake) {
                             log4n.object(error, 'error');
                             reject(errorparsing(context, error));
                             global.mongodbConnexion = null;
-                            log4n.debug('done - promise catch')
+                            log4n.debug('done - find catch')
                         });
-                } catch (error) {
-                    console.log('error:', error);
-                    reject(errorparsing(context, error));
-                    log4n.debug('done - global catch')
+                } catch (exception) {
+                    console.log('exception:', exception);
+                    reject(errorparsing(context, exception));
+                    log4n.debug('done - exception')
                 }
             })
             .catch((error) => {

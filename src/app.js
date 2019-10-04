@@ -13,6 +13,7 @@ const expressSwagger = require('express-swagger-generator')(app);
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const favicon = require('serve-favicon');
 
 const Keycloak = require('keycloak-connect');
 const session = require('express-session');
@@ -78,11 +79,13 @@ app.set('trust proxy', 1);
 require('./routes/main.js')(app, keycloak);
 
 // uncomment after placing your favicon in /public
+app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// uncomment after placing your favicon in /public
 log4n.debug('Engine setup');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
-// app.use(express.static(path.join(__dirname, 'public')));
 
 log4n.debug('Parser setup');
 app.use(cookieParser());

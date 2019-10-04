@@ -48,12 +48,12 @@ module.exports = function (req, res) {
                         log4n.debug('done - not found');
                     } else {
                         // log4n.object(datas, 'datas');
-                        res.status(200).send({device_id:datas[0].device_id});
+                        res.status(200).send({device_id: datas[0].device_id});
                         log4n.debug('done - ok');
                     }
                 })
                 .catch(error => {
-                    responseError(error, res, log4n);
+                    responseError(context, error, res, log4n);
                     log4n.debug('done - global catch');
                 });
         }

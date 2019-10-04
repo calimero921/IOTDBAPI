@@ -1,6 +1,6 @@
 const Log4n = require('../utils/log4n.js');
 
-const statusGet = require('./status.js');
+const status = require('./status.js');
 
 const accountGet = require('./api/account/getAll.js');
 const accountGetByID = require('./api/account/getByID.js');
@@ -25,12 +25,12 @@ let context = {httpRequestId: 'Initialize'};
 
 module.exports = function (app, keycloak) {
     const log4n = new Log4n(context, '/routes/main.js', 'initialize');
-    app.use(function (req, res, next) {
+    app.use((req, res, next) => {
         req.httpRequestId = Date.now().toString();
         next();
     });
 
-    app.get('/status', statusGet);
+    app.get('/status', status);
 
     app.get('/1.0.0/account', keycloak.protect(), accountGet);
     app.get('/1.0.0/account/id/:id', keycloak.protect(), accountGetByID);
