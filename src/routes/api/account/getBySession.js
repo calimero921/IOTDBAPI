@@ -27,7 +27,7 @@ module.exports = function (req, res) {
 
             //traitement de recherche dans la base
             if (typeof session_id === 'undefined') {
-                responseError(context, {error_code: 400, error_message: 'Missing parameters'}, res, log4n);
+                responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
                 log4n.debug('done - missing parameter');
             } else {
                 //traitement de recherche dans la base
@@ -43,7 +43,7 @@ module.exports = function (req, res) {
                     });
             }
         } else {
-            responseError(context, {error_code: 403, error_message: 'user must be admin for this action'}, res, log4n);
+            responseError(context, {status_code: 403, status_message: 'user must be admin for this action'}, res, log4n);
         }
     } catch (exception) {
         log4n.error(exception.stack);

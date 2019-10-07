@@ -10,7 +10,7 @@ module.exports = function (context, device_id) {
     return new Promise((resolve, reject) => {
         let query = {};
         if (typeof device_id === 'undefined') {
-            reject(errorparsing(context, {error_code: 400}));
+            reject(errorparsing(context, {status_code: 400}));
             log4n.debug('done - missing paramater');
         } else {
             query.device_id = device_id;
@@ -18,10 +18,10 @@ module.exports = function (context, device_id) {
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas === 'undefined') {
-                        reject(errorparsing(context, {error_code: 500}));
+                        reject(errorparsing(context, {status_code: 500}));
                         log4n.debug('done - no reult');
                     } else {
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             resolve(datas);
                             log4n.debug('done - ok');
                         } else {

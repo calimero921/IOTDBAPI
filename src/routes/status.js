@@ -29,6 +29,6 @@ module.exports = function (req, res) {
         log4n.debug('done');
     } catch (exception) {
         log4n.error(exception.stack);
-        responseError({error_code: 500}, res, log4n);
+        responseError({status_code: 500}, res, log4n);
     }
 };

@@ -27,7 +27,7 @@ module.exports = function (req, res) {
         //traitement de recherche dans la base
         if (typeof device_id === 'undefined') {
             //aucun device_id
-            responseError(context, {error_code: 400}, res, log4n);
+            responseError(context, {status_code: 400}, res, log4n);
             log4n.debug('done - missing parameter(device_id)');
         } else {
             let query = {device_id: device_id};
@@ -38,7 +38,7 @@ module.exports = function (req, res) {
             deviceGet(context, query, 0, 0)
                 .then(datas => {
                     if (typeof datas === 'undefined') {
-                        responseError(context, {error_code: 404}, res, log4n);
+                        responseError(context, {status_code: 404}, res, log4n);
                         log4n.debug('done - not found');
                     } else {
                         // log4n.object(datas, 'datas');
@@ -53,10 +53,10 @@ module.exports = function (req, res) {
         }
     } catch (exception) {
         if (exception.message === "403") {
-            responseError(context, {error_code: 403}, res, log4n);
+            responseError(context, {status_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError(context, {error_code: 500}, res, log4n);
+            responseError(context, {status_code: 500}, res, log4n);
         }
     }
 };

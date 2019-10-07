@@ -16,7 +16,7 @@ module.exports = function (context, device) {
             const generator = new Generator(context);
             const converter = new Converter(context);
             if (typeof device === 'undefined') {
-                reject(errorparsing({error_code: '400', error_message: 'Missing parameter'}));
+                reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
@@ -45,7 +45,7 @@ module.exports = function (context, device) {
                             reject(errorparsing(context, 'No datas'));
                             log4n.debug('done - no data');
                         } else {
-                            if (typeof datas.error_code === "undefined") {
+                            if (typeof datas.status_code === "undefined") {
                                 resolve(datas);
                                 log4n.debug('done - ok');
                             } else {

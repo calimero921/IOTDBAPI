@@ -23,7 +23,7 @@ module.exports = function (req, res) {
     //traitement de recherche dans la base
     if (typeof id === 'undefined') {
         //aucun id
-        let error = {error_code: 400};
+        let error = {status_code: 400};
         responseError(context, error, res, log4n);
     } else {
         //traitement de suppression dans la base
@@ -31,9 +31,9 @@ module.exports = function (req, res) {
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 if (typeof datas === 'undefined') {
-                    return {error_code: 404};
+                    return {status_code: 404};
                 } else {
-                    if (typeof datas.error_code === 'undefined') {
+                    if (typeof datas.status_code === 'undefined') {
                         res.status(204).send();
                         log4n.debug('done');
                     } else {

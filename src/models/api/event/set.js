@@ -5,7 +5,7 @@ const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, measure) {
-    const log4n = new Log4n(context, '/models/api/measure/set');
+    const log4n = new Log4n(context, '/models/api/event/set');
     log4n.object(measure, 'measure');
 
     //traitement d'enregistrement dans la base
@@ -14,7 +14,7 @@ module.exports = function (context, measure) {
             log4n.debug('storing device');
             const converter = new Converter(context);
             if (typeof measure === 'undefined') {
-                reject(errorparsing({error_code: '400', error_message: 'Missing parameter'}));
+                reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
@@ -40,7 +40,7 @@ module.exports = function (context, measure) {
                             reject(errorparsing(context, 'No datas'));
                             log4n.debug('done - no data');
                         } else {
-                            if (typeof datas.error_code === "undefined") {
+                            if (typeof datas.status_code === "undefined") {
                                 resolve(datas);
                                 log4n.debug('done - ok');
                             } else {

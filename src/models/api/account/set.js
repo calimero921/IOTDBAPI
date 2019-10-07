@@ -17,7 +17,7 @@ module.exports = function (context, account) {
             const generator = new Generator(context);
             const converter = new Converter(context);
             if (typeof account === 'undefined') {
-                reject(errorparsing(context, {error_code: '400'}));
+                reject(errorparsing(context, {status_code: '400'}));
                 log4n.debug('done - missing parameter');
             } else {
                 let query = {};
@@ -41,14 +41,14 @@ module.exports = function (context, account) {
                     .then(datas => {
                         if (datas.length > 0) {
                             log4n.debug('account already exists');
-                            return errorparsing(context, {error_code: '409'});
+                            return errorparsing(context, {status_code: '409'});
                         } else {
                             return mongoClientInsert(context, 'account', query);
                         }
                     })
                     .then(datas => {
                         // console.log('datas: ', datas);
-                        if (typeof datas.error_code === "undefined") {
+                        if (typeof datas.status_code === "undefined") {
                             //renvoi la fiche complète
                             return converter.db2json(datas[0]);
                         } else {
@@ -58,7 +58,7 @@ module.exports = function (context, account) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === "undefined") {
+                        if (typeof datas.status_code === "undefined") {
                             resolve(datas);
                             log4n.debug('done - ok');
                         } else {

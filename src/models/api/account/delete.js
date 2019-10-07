@@ -10,14 +10,14 @@ module.exports = function (context, id, token) {
 	//traitement de suppression dans la base
 	return new Promise((resolve, reject) => {
 		if (typeof id === 'undefined') {
-			reject(errorparsing(context, {error_code: 400}));
+			reject(errorparsing(context, {status_code: 400}));
 			log4n.debug('done - missing paramater')
 		} else {
 			let query = {id: id, token: token};
 			mongoClient('account', query)
 				.then(datas => {
 					// log4n.object(datas, 'datas');
-					if (typeof datas.error_code === 'undefined') {
+					if (typeof datas.status_code === 'undefined') {
 						resolve(datas);
 						log4n.debug('done - ok')
 					} else {

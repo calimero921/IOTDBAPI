@@ -51,8 +51,8 @@ class Converter {
                     .catch(error => {
                         log4n.object(error, 'error');
                         reject(errorparsing(this.context, {
-                            error_code: 500,
-                            error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
+                            status_code: 500,
+                            status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                         log4n.debug('done - promise catch');
                     });
@@ -104,8 +104,8 @@ class Converter {
                     .catch(error => {
                         log4n.object(error, 'error');
                         reject(errorparsing(this.context, {
-                            error_code: 500,
-                            error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
+                            status_code: 500,
+                            status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                         log4n.debug('done - promise catch');
                     });

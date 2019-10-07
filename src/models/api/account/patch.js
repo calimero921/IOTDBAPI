@@ -16,7 +16,7 @@ module.exports = function (context, id, token, new_account) {
             log4n.debug('storing account');
             let converter = new Converter(context);
             if (typeof id === 'undefined' || typeof token === 'undefined' || typeof new_account === 'undefined') {
-                reject(errorparsing(context, {error_code: 400}));
+                reject(errorparsing(context, {status_code: 400}));
                 log4n.debug('done - missing paramater')
             } else {
                 let query = {id: id, token: token};
@@ -25,7 +25,7 @@ module.exports = function (context, id, token, new_account) {
                 converter.json2db(new_account)
                     .then(datas => {
                         // log4n.object(datas,'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             parameter = datas;
                             //recherche d'un compte pré-existant
                             return mongoFind(context, 'account', query, {offset: 0, limit: 0}, true)
@@ -35,12 +35,12 @@ module.exports = function (context, id, token, new_account) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             if (datas.length > 0) {
                                 return mongoUpdate(context, 'account', query, parameter);
                             } else {
                                 log4n.debug('account doesn\'t exist');
-                                return errorparsing(context, {error_code: '404'});
+                                return errorparsing(context, {status_code: '404'});
                             }
                         } else {
                             return datas;
@@ -48,7 +48,7 @@ module.exports = function (context, id, token, new_account) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             log4n.debug('converting db data to json');
                             return converter.db2json(datas);
                         } else {
@@ -57,7 +57,7 @@ module.exports = function (context, id, token, new_account) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             resolve(datas);
                             log4n.debug('done - ok');
                         } else {

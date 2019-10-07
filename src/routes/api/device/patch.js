@@ -28,7 +28,7 @@ module.exports = function (req, res) {
         // log4n.object(device_id, 'id');
 
         if (typeof device_id === 'undefined') {
-            responseError(context, {error_code: 400}, res, log4n);
+            responseError(context, {status_code: 400}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
             let updatedata;
@@ -62,7 +62,7 @@ module.exports = function (req, res) {
                 })
                 .then(datas => {
                     // log4n.object(datas, 'datas');
-                    if (typeof datas.error_code === 'undefined') {
+                    if (typeof datas.status_code === 'undefined') {
                         if (userInfo.admin || (datas.user_id === userInfo.id)) {
                             // log4n.object(updatedata, 'updatedata');
                             let newdata = datas[0];
@@ -74,10 +74,10 @@ module.exports = function (req, res) {
                                 // log4n.object(newdata, 'newdata');
                                 return patch(context, device_id, newdata)
                             } else {
-                                return {error_code: '403'};
+                                return {status_code: '403'};
                             }
                         } else {
-                            return {error_code: '404'};
+                            return {status_code: '404'};
                         }
                     } else {
                         return datas;
@@ -86,10 +86,10 @@ module.exports = function (req, res) {
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas === 'undefined') {
-                        responseError(context, {error_code: 500}, res, log4n);
+                        responseError(context, {status_code: 500}, res, log4n);
                         log4n.debug('done - internal server error');
                     } else {
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             res.status(200).send(datas);
                             log4n.debug('done - ok');
                         } else {
@@ -105,10 +105,10 @@ module.exports = function (req, res) {
         }
     } catch (exception) {
         if (exception.message === "403") {
-            responseError(context, {error_code: 403}, res, log4n);
+            responseError(context, {status_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError(context, {error_code: 500}, res, log4n);
+            responseError(context, {status_code: 500}, res, log4n);
         }
     }
 };

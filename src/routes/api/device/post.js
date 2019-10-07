@@ -28,7 +28,7 @@ module.exports = function (req, res) {
                 // log4n.object(datas, 'datas');
                 if (typeof datas === 'undefined') {
                     //aucune donnée postée
-                    return {error_code: 400};
+                    return {status_code: 400};
                 } else {
                     postData = datas;
                     //lecture des données postées
@@ -41,7 +41,7 @@ module.exports = function (req, res) {
                         };
                         return get(context, query, 0, 0, true);
                     } else {
-                        return {error_code: '403'};
+                        return {status_code: '403'};
                     }
                 }
             })
@@ -49,13 +49,13 @@ module.exports = function (req, res) {
                 log4n.object(datas, 'get datas');
                 if (typeof datas === 'undefined') {
                     //aucune données recue du processus d'enregistrement
-                    return {error_code: 500, error_message: 'No datas'};
+                    return {status_code: 500, status_message: 'No datas'};
                 } else {
-                    if (typeof datas.error_code === "undefined") {
+                    if (typeof datas.status_code === "undefined") {
                         //le device est déjà présent
-                        return {error_code: 409};
+                        return {status_code: 409};
                     } else {
-                        if (datas.error_code === 404) {
+                        if (datas.status_code === 404) {
                             if (typeof postData.user_id === 'undefined') {
                                 postData.user_id = userInfo.id;
                             }
@@ -70,11 +70,11 @@ module.exports = function (req, res) {
                 log4n.object(datas, 'set datas');
                 if (typeof datas === 'undefined') {
                     //aucune données recue du processus d'enregistrement
-                    responseError(context, {error_code: 500}, res, log4n);
+                    responseError(context, {status_code: 500}, res, log4n);
                     log4n.debug('done - no data');
                 } else {
                     //recherche d'un code erreur précédent
-                    if (typeof datas.error_code === 'undefined') {
+                    if (typeof datas.status_code === 'undefined') {
                         //notification enregistrée
                         res.status(201).send(datas);
                         log4n.debug('done - ok');
@@ -91,10 +91,10 @@ module.exports = function (req, res) {
             });
     } catch (exception) {
         if (exception.message === "403") {
-            responseError(context, {error_code: 403}, res, log4n);
+            responseError(context, {status_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError(context, {error_code: 500}, res, log4n);
+            responseError(context, {status_code: 500}, res, log4n);
         }
     }
 };

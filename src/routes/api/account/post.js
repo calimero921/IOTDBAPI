@@ -25,20 +25,20 @@ module.exports = function (req, res) {
                 // log4n.object(datas, 'datas');
                 if (typeof datas === 'undefined') {
                     //aucune donnée postée
-                    return {error_code: 400, error_message: 'Missing parameters'};
+                    return {status_code: 400, status_message: 'Missing parameters'};
                 } else {
                     if (userInfo.admin || ((datas.email === userInfo.email) && (datas.firstname === userInfo.firstname) && (datas.lastname === userInfo.lastname))) {
                         //creation du compte
                         return accountSet(context, datas);
                     } else {
                         log4n.error('user must be admin or account owner for this action');
-                        return {error_code: 403};
+                        return {status_code: 403};
                     }
                 }
             })
             .then(datas => {
                 //recherche d'un code erreur précédent
-                if (typeof datas.error_code === 'undefined') {
+                if (typeof datas.status_code === 'undefined') {
                     //notification enregistrée
                     res.status(201).send(datas);
                     log4n.debug('done - ok');

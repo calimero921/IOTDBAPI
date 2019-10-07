@@ -36,7 +36,7 @@ module.exports = function (req, res) {
         //traitement de recherche dans la base
         if (typeof manufacturer === 'undefined' || typeof model === 'undefined' || typeof serial === 'undefined' || typeof secret === 'undefined') {
             //informations manquantes
-            responseError(context, {error_code: 400, error_message: 'Missing parameters'}, res, log4n);
+            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
             log4n.debug('done - missing parameter');
         } else {
             //traitement de recherche dans la base
@@ -44,7 +44,7 @@ module.exports = function (req, res) {
             deviceGet(context, query, 0, 0, false)
                 .then(datas => {
                     if (typeof datas === 'undefined') {
-                        responseError(context, {error_code: 404}, res, log4n);
+                        responseError(context, {status_code: 404}, res, log4n);
                         log4n.debug('done - not found');
                     } else {
                         // log4n.object(datas, 'datas');

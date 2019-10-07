@@ -38,7 +38,7 @@ module.exports = function (req, res) {
                     responseError(context, '', res, log4n);
                     log4n.debug('done - unknown error');
                 } else {
-                    if(typeof datas.error_code != 'undefined') {
+                    if(typeof datas.status_code != 'undefined') {
                         responseError(context, datas, res, log4n);
                         log4n.debug('done - with error');
                     } else {

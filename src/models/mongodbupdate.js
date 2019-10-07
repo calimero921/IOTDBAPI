@@ -24,18 +24,18 @@ module.exports = function (context, collection, query, parameter) {
                         .then(datas => {
                             // console.log('datas: ', datas);
                             if (typeof datas === 'undefined') {
-                                reject(errorparsing(context, {error_code: 500}));
+                                reject(errorparsing(context, {status_code: 500}));
                             } else {
                                 if (datas.ok === 1) {
                                     if (typeof datas.value === 'undefined') {
-                                        reject(errorparsing(context, {error_code: 500}));
+                                        reject(errorparsing(context, {status_code: 500}));
                                         log4n.debug('done - no response');
                                     } else {
                                         resolve(datas.value);
                                         log4n.debug('done - ok');
                                     }
                                 } else {
-                                    reject(errorparsing(context, {error_code: 500}));
+                                    reject(errorparsing(context, {status_code: 500}));
                                     log4n.debug('done - response error');
                                 }
                             }

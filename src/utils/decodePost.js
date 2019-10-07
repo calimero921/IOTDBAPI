@@ -1,5 +1,6 @@
-const Log4n = require('./log4n.js');
 const checkJSON = require('./checkJSON.js');
+
+const Log4n = require('./log4n.js');
 
 module.exports = function (context, req, res) {
 	const log4n = new Log4n(context, '/utils/decodePost');
@@ -8,6 +9,7 @@ module.exports = function (context, req, res) {
         try {
 			let fullBody = '';
 			req.on('data', chunk => {
+				// log4n.object(chunk, 'chunk');
 				fullBody += chunk.toString();
 				// log4n.object(fullBody, 'fullBody');
 			});

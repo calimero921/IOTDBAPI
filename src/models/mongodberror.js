@@ -9,12 +9,12 @@ module.exports = function (context, error) {
         let result = {};
         switch (error.code) {
             case 11000:
-                result.error_code = 409;
-                result.error_message = "Duplicate entry";
+                result.status_code = 409;
+                result.status_message = "Duplicate entry";
                 break;
             default:
-                result.error_code = error.code;
-                result.error_message = error.message;
+                result.status_code = error.code;
+                result.status_message = error.message;
                 break;
         }
         log4n.object(result, 'result');

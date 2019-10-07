@@ -16,19 +16,19 @@ module.exports = function (context, collection, query) {
 						.then(datas => {
 							// console.log('datas: ', datas);
 							if (typeof datas === 'undefined') {
-								reject(errorparsing(context, {error_code: 500}));
+								reject(errorparsing(context, {status_code: 500}));
 								log4n.debug('done - no data')
 							} else {
 								if (datas.ok === 1) {
 									if (typeof datas.value === 'undefined' || datas.value === null) {
-										reject(errorparsing(context, {error_code: 404}));
+										reject(errorparsing(context, {status_code: 404}));
 										log4n.debug('done - not found')
 									} else {
 										resolve(datas.value);
 										log4n.debug('done - ok')
 									}
 								} else {
-									reject(errorparsing(context, {error_code: 500}));
+									reject(errorparsing(context, {status_code: 500}));
 									log4n.debug('done - response error')
 								}
 							}

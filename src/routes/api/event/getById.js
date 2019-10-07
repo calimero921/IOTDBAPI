@@ -1,12 +1,12 @@
 const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
-const measureGet = require('../../../models/api/measure/get.js');
+const measureGet = require('../../../models/api/event/get.js');
 const deviceGet = require('../../../models/api/device/get.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /1.0.0/measure/{device_id}
+ * @route GET /1.0.0/event/{device_id}
  * @group Measure - Operations about measure
  * @param {string} device_id.path.required - eg: 778cdaa0-869c-11e8-a13c-0d1008100710
  * @returns {array.<Measure>} 200 - Device info
@@ -17,7 +17,7 @@ const responseError = require('../../../utils/responseError.js');
  */
 module.exports = function (req, res) {
     let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/measure/get');
+    const log4n = new Log4n(context, '/routes/api/event/get');
 
     try {
         let userInfo = checkAuth(context, req, res);
@@ -28,7 +28,7 @@ module.exports = function (req, res) {
         //traitement de recherche dans la base
         if (typeof device_id === 'undefined') {
             //aucun device_id
-            responseError(context,{error_code: 400}, res, log4n);
+            responseError(context,{status_code: 400}, res, log4n);
             log4n.debug('done - missing parameter(id)');
         } else  {
             let query = {device_id: device_id};
@@ -39,21 +39,21 @@ module.exports = function (req, res) {
             deviceGet(context, query, 0, 0)
                 .then(datas => {
                     if (typeof datas !== 'undefined') {
-                        if (typeof datas.error_code !== 'undefined') {
+                        if (typeof datas.status_code !== 'undefined') {
                             return datas;
                         } else {
                             return measureGet(context, query, 0, 100);
                         }
                     } else {
-                        return {error_code: 404};
+                        return {status_code: 404};
                     }
                 })
                 .then(datas => {
                     if (typeof datas === 'undefined') {
-                        responseError(context, {error_code: 404}, res, log4n);
+                        responseError(context, {status_code: 404}, res, log4n);
                         log4n.debug('done - not found');
                     } else {
-                        if (typeof datas.error_code !== 'undefined') {
+                        if (typeof datas.status_code !== 'undefined') {
                             responseError(context, datas, res, log4n);
                             log4n.debug('done - error');
                         } else {
@@ -70,10 +70,10 @@ module.exports = function (req, res) {
         }
     } catch (exception) {
         if (exception.message === "403") {
-            responseError(context, {error_code: 403}, res, log4n);
+            responseError(context, {status_code: 403}, res, log4n);
         } else {
             log4n.error(exception.stack);
-            responseError(context, {error_code: 500}, res, log4n);
+            responseError(context, {status_code: 500}, res, log4n);
         }
     }
 };

@@ -33,7 +33,7 @@ module.exports = function (context, collection, query, parameter, overtake) {
                         .then(datas => {
                             // console.log('datas: ', datas);
                             if (typeof datas === 'undefined') {
-                                reject(errorparsing(context, {error_code: 500}));
+                                reject(errorparsing(context, {status_code: 500}));
                                 log4n.debug('done - no data')
                             } else {
                                 let result = [];
@@ -49,7 +49,7 @@ module.exports = function (context, collection, query, parameter, overtake) {
                                         resolve(result);
                                         log4n.debug('done - no result but ok')
                                     } else {
-                                        reject(errorparsing(context, {error_code: 404}));
+                                        reject(errorparsing(context, {status_code: 404}));
                                         log4n.debug('done - not found')
                                     }
                                 }

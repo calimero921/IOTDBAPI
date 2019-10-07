@@ -17,9 +17,9 @@ const devicePost = require('./api/device/post.js');
 const devicePatch = require('./api/device/patch.js');
 const deviceDelete = require('./api/device/delete.js');
 
-const measureGetById = require('./api/measure/getById.js');
-const measurePost = require('./api/measure/post.js');
-const measureDelete = require('./api/measure/delete.js');
+const measureGetById = require('./api/event/getById.js');
+const measurePost = require('./api/event/post.js');
+const measureDelete = require('./api/event/delete.js');
 
 let context = {httpRequestId: 'Initialize'};
 
@@ -47,22 +47,9 @@ module.exports = function (app, keycloak) {
     app.patch('/1.0.0/device/:id', keycloak.protect(), devicePatch);
     app.delete('/1.0.0/device/:id', keycloak.protect(), deviceDelete);
 
-    app.get('/1.0.0/measure/:id', keycloak.protect(), measureGetById);
+    app.get('/1.0.0/event/:id', keycloak.protect(), measureGetById);
     app.post('/1.0.0/measure', keycloak.protect(), measurePost);
-    app.delete('/1.0.0/measure/:id', keycloak.protect(), measureDelete);
+    app.delete('/1.0.0/event/:id', keycloak.protect(), measureDelete);
 
     log4n.debug('done');
 };
-
-function displayToken(token, request) {
-    const log4n = new Log4n(context, '/routes/main/displayToken');
-    try {
-        token.clientId =
-        log4n.object(token.clientId, 'token.clientId');
-        log4n.object(token.header, 'token.header');
-        log4n.object(token.content, 'token.content');
-    } catch (exception) {
-        log4n.error(exception.stack);
-    }
-    return true;
-}

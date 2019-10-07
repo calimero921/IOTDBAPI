@@ -10,7 +10,7 @@ class Converter {
     }
 
     json2db(data) {
-        const log4n = new Log4n(this.context, '/models/api/measure/converter/json2db');
+        const log4n = new Log4n(this.context, '/models/api/event/converter/json2db');
         // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
@@ -19,7 +19,7 @@ class Converter {
                 let ajv = new Ajv();
                 require('ajv-async')(ajv);
 
-                let schemaPath = path.join(__dirname, 'measurejs.json');
+                let schemaPath = path.join(__dirname, 'eventjs.json');
                 // log4n.object(schemaPath, 'schemaPath');
                 let jsonSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
@@ -50,8 +50,8 @@ class Converter {
                     .catch(error => {
                         log4n.object(error, 'error');
                         reject(errorparsing(this.context,{
-                            error_code: 500,
-                            error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
+                            status_code: 500,
+                            status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                         log4n.debug('done - promise catch');
                     });
@@ -64,7 +64,7 @@ class Converter {
     };
 
     db2json(data) {
-        const log4n = new Log4n(this.context, '/models/api/measure/converter/db2json');
+        const log4n = new Log4n(this.context, '/models/api/event/converter/db2json');
         // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ class Converter {
                 let ajv = new Ajv();
                 require('ajv-async')(ajv);
 
-                let schemaPath = path.join(__dirname, 'measuredb.json');
+                let schemaPath = path.join(__dirname, 'eventdb.json');
                 // log4n.object(schemaPath, 'schemaPath');
                 let dbSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
@@ -94,8 +94,8 @@ class Converter {
                     })
                     .catch(error => {
                         reject(errorparsing(this.context,{
-                            error_code: 500,
-                            error_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
+                            status_code: 500,
+                            status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                     });
             } catch (error) {

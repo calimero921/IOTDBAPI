@@ -7,11 +7,11 @@ module.exports = function (context, content, response, logger) {
 
     let finalContent = errorParsing(context, content);
     let message = 'code: ';
-    message += finalContent.error_code;
-    if (typeof finalContent.error_message !== 'undefined') {
-        message += ' / message: ' + finalContent.error_message;
+    message += finalContent.status_code;
+    if (typeof finalContent.status_message !== 'undefined') {
+        message += ' / message: ' + finalContent.status_message;
     }
     logger.error(message);
-    response.status(finalContent.error_code).send(finalContent.error_message);
+    response.status(finalContent.status_code).send(finalContent.status_message);
     log4n.debug('done');
 };

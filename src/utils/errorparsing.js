@@ -6,32 +6,32 @@ module.exports = function (context, error) {
     let result = {};
 
     if (typeof error === 'undefined') {
-        result.error_code = 500;
+        result.status_code = 500;
         log4n.debug('done unknown');
     } else {
-        if (typeof error.error_code !== 'undefined') {
+        if (typeof error.status_code !== 'undefined') {
             result = error;
             log4n.debug('done - already formated');
         } else {
-            result.error_code = 500;
+            result.status_code = 500;
             if (typeof error.errmsg !== 'undefined') {
-                result.error_message = error.errmsg;
+                result.status_message = error.errmsg;
                 log4n.debug('done - prefix 500, errmsg');
             } else {
                 if (typeof error.stack !== 'undefined') {
-                    result.error_message = error.toString();
+                    result.status_message = error.toString();
                     log4n.debug('done - prefix 500, stack');
                 } else {
-                    result.error_message = error;
+                    result.status_message = error;
                     log4n.debug('done - prefix 500, message');
                 }
             }
         }
     }
 
-    if (typeof result.error_message === 'undefined') {
+    if (typeof result.status_message === 'undefined') {
         let message;
-        switch (result.error_code) {
+        switch (result.status_code) {
             case 400:
                 message = "Bad Request";
                 break;
@@ -60,7 +60,7 @@ module.exports = function (context, error) {
                 message = 'Unknown error';
                 break;
         }
-        result.error_message = message;
+        result.status_message = message;
     }
 
     // log4n.object(result, 'error out');

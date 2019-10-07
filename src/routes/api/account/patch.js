@@ -31,7 +31,7 @@ module.exports = function (req, res) {
         log4n.object(token, 'token');
 
         if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError(context, {error_code: 400, error_message: 'Missing parameters'}, res, log4n);
+            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
             if (userInfo.admin || (id === userInfo.id)) {
@@ -51,7 +51,7 @@ module.exports = function (req, res) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             log4n.object(datas, 'datas');
                             log4n.object(updatedata, 'updatedata');
                             let newdata = datas[0];
@@ -63,7 +63,7 @@ module.exports = function (req, res) {
                                 log4n.object(newdata, 'newdata');
                                 return patch(context, id, token, newdata)
                             } else {
-                                return  {error_code:'404'};
+                                return  {status_code:'404'};
                             }
                         } else {
                             return (datas)
@@ -71,7 +71,7 @@ module.exports = function (req, res) {
                     })
                     .then(datas => {
                         // log4n.object(datas, 'datas');
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             res.status(200).send(datas);
                             log4n.debug('done - ok');
                         } else {
@@ -84,7 +84,7 @@ module.exports = function (req, res) {
                         log4n.debug('done - global catch');
                     })
             } else {
-                responseError(context, {error_code: 403}, res, log4n);
+                responseError(context, {status_code: 403}, res, log4n);
                 log4n.debug('done - Forbidden');
             }
         }

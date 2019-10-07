@@ -33,7 +33,7 @@ module.exports = function (req, res) {
 
         //traitement de recherche dans la base
         if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError(context, {error_code: 400, error_message: 'Missing parameters'}, res, log4n);
+            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
         } else {
             if (userInfo.admin || (id === userInfo.id)) {
                 //traitement de suppression dans la base
@@ -49,7 +49,7 @@ module.exports = function (req, res) {
                     });
             } else {
                 log4n.error('user must be admin or account owner for this action');
-                responseError(context, context, {error_code: 403}, res, log4n);
+                responseError(context, context, {status_code: 403}, res, log4n);
             }
         }
     } catch (exception) {

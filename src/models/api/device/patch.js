@@ -15,7 +15,7 @@ module.exports = function (context, device_id, new_device) {
             log4n.debug('storing device');
             let converter = new Converter(context);
             if (typeof device_id === 'undefined' || typeof new_device === 'undefined') {
-                reject(errorparsing(context, {error_code: 400}));
+                reject(errorparsing(context, {status_code: 400}));
                 log4n.debug('done - missing paramater')
             } else {
                 let query = {};
@@ -31,9 +31,9 @@ module.exports = function (context, device_id, new_device) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return errorparsing(context, {error_code: 500});
+                            return errorparsing(context, {status_code: 500});
                         } else {
-                            if (typeof datas.error_code === 'undefined') {
+                            if (typeof datas.status_code === 'undefined') {
                                 log4n.debug('done - ok');
                                 return converter.db2json(datas);
                             } else {
@@ -43,7 +43,7 @@ module.exports = function (context, device_id, new_device) {
                         }
                     })
                     .then(datas => {
-                        if (typeof datas.error_code === 'undefined') {
+                        if (typeof datas.status_code === 'undefined') {
                             resolve(datas);
                             log4n.debug('done - ok');
                         } else {

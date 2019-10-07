@@ -4,7 +4,7 @@ const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
-    const log4n = new Log4n(context, '/models/api/measure/get');
+    const log4n = new Log4n(context, '/models/api/event/get');
     log4n.object(query, 'query');
     log4n.object(offset, 'offset');
     log4n.object(limit, 'limit');
@@ -35,7 +35,7 @@ module.exports = function (context, query, offset, limit, overtake) {
                                 resolve(result);
                             } else {
                                 log4n.debug('done - not correct record found');
-                                reject(errorparsing(context, {error_code: 404}));
+                                reject(errorparsing(context, {status_code: 404}));
                             }
                         })
                         .catch(error => {
@@ -45,10 +45,10 @@ module.exports = function (context, query, offset, limit, overtake) {
                 } else {
                     if (overtake) {
                         log4n.debug('done - no result but ok');
-                        resolve(errorparsing(context, {error_code: 404}));
+                        resolve(errorparsing(context, {status_code: 404}));
                     } else {
                         log4n.debug('done - not found');
-                        reject(errorparsing(context, {error_code: 404}));
+                        reject(errorparsing(context, {status_code: 404}));
                     }
                 }
             })

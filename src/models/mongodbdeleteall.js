@@ -16,14 +16,14 @@ module.exports = function (context, collection, query) {
                         .then(datas => {
                             // console.log('datas: ', datas);
                             if (typeof datas === 'undefined') {
-                                reject(errorparsing(context, {error_code: 500}));
+                                reject(errorparsing(context, {status_code: 500}));
                                 log4n.debug('done - no data');
                             } else {
                                 if (datas.result.ok === 1) {
                                     resolve({deletedCount: datas.deletedCount});
                                     log4n.debug('done - ok');
                                 } else {
-                                    reject(errorparsing(context, {error_code: 500}));
+                                    reject(errorparsing(context, {status_code: 500}));
                                     log4n.debug('done - response error');
                                 }
                             }
