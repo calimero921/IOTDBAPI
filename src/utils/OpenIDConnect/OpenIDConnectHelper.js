@@ -1,8 +1,8 @@
 const https = require('https');
 const http = require('http');
-const {JWKS} = require('jose');
-const {JWS} = require('jose');
-const {JWT} = require('jose');
+const { JWKS } = require('jose');
+const { JWS } = require('jose');
+const { JWT } = require('jose');
 
 const globalPrefix = 'OpenIDConnectHelper';
 
@@ -10,69 +10,71 @@ class OpenIDConnectHelper {
     constructor(configuration) {
         let prefix = globalPrefix + ":constructor";
         try {
-            this.configuration = configuration;
-            this.keyStore = [];
+            this.context = {};
+            this.context.configuration = configuration;
+            this.context.keyStore = {};
         } catch (exception) {
             console.log('%s:exception ', prefix, exception.stack);
         }
     }
 
-    getJWTContent(jwtObject) {
-        let prefix = globalPrefix + ":getJWTContent";
+    getAccessTokenContent(jwtObject) {
+        let prefix = globalPrefix + ":getAccessTokenContent";
         return new Promise((resolve, reject) => {
             try {
                 // console.log('%s:jwtObject %j', prefix, jwtObject);
-                let result = JWT.decode(jwtObject, {complete: true});
-                // console.log('%s:result.header %j', prefix, result.header);
-                // console.log('%s:result.payload %j', prefix, result.payload);
-                // console.log('%s:result.signature %j', prefix, result.signature);
+                let decodedJWT = JWT.decode(jwtObject, {complete: true});
+                // console.log('%s:decodedJWT.header %j', prefix, decodedJWT.header);
+                // console.log('%s:decodedJWT.payload %j', prefix, decodedJWT.payload);
+                // console.log('%s:decodedJWT.signature %j', prefix, decodedJWT.signature);
 
-                this.isJWTValid(jwtObject, result.header.kid)
-                    .then(() => {
-                        resolve(result.payload);
-                    })
-                    .catch(error => {
-                        reject('jwt validation failed: ' + error);
-                    })
-            } catch (exception) {
-                console.log('%s:exception ', prefix, exception.stack);
-                resolve(exception);
-            }
-        });
-    }
-
-    isJWTValid(jwtObject, kid) {
-        let prefix = globalPrefix + ":isJWTvalid";
-        return new Promise((resolve, reject) => {
-            try {
-                getJWKS(this.configuration, this.keyStore)
+                getJWKS(this.context)
                     .then(keyStore => {
                         // console.log('%s:keyStore %j', prefix, keyStore);
-                        this.keyStore = keyStore;
-                        return getKey(this.keyStore, kid)
+                        this.context.keyStore = keyStore;
+                        return isJWTValid(this.context.keyStore, jwtObject, decodedJWT.header.kid);
                     })
-                    .then(key => {
-                        // console.log('%s:key %j', prefix, key);
-                        let options = {};
-                        return JWS.verify(jwtObject, key, options);
-                    })
-                    .then(result => {
-                        // console.log('%s:verify %j', prefix, result);
-                        if (typeof result === 'undefined') {
-                            reject('unknown key to verify signature');
-                        } else {
-                            resolve();
-                        }
+                    .then(() => {
+                        resolve(decodedJWT.payload);
                     })
                     .catch(error => {
                         reject(error);
+                        console.log('%s:error %s', prefix, error);
                     })
             } catch (exception) {
-                reject(exception);
+                resolve(exception);
                 console.log('%s:exception ', prefix, exception.stack);
             }
-        })
+        });
     }
+}
+
+function isJWTValid(keyStore, jwtObject, kid) {
+    let prefix = globalPrefix + ":isJWTvalid";
+    return new Promise((resolve, reject) => {
+        try {
+            getKey(keyStore, kid)
+                .then(key => {
+                    // console.log('%s:key %j', prefix, key);
+                    let options = {};
+                    return JWS.verify(jwtObject, key, options);
+                })
+                .then(result => {
+                    // console.log('%s:verify %j', prefix, result);
+                    if (typeof result === 'undefined') {
+                        reject('unknown key to verify signature');
+                    } else {
+                        resolve();
+                    }
+                })
+                .catch(error => {
+                    reject(error);
+                })
+        } catch (exception) {
+            reject(exception);
+            console.log('%s:exception ', prefix, exception.stack);
+        }
+    })
 }
 
 function getKey(keyStore, kid) {
@@ -99,15 +101,17 @@ function getKey(keyStore, kid) {
     });
 }
 
-function getJWKS(configuration, keyStore) {
+function getJWKS(context) {
     let prefix = globalPrefix + ":getJWKS";
     return new Promise((resolve, reject) => {
         try {
-            if (keyStore.length > 0) {
-                resolve(keyStore);
+            // console.log('%s: context ', prefix, context);
+            if (context.keyStore.length > 0) {
+                resolve(context.keyStore);
+                console.log('%s:reuse keyStore ', prefix, context.keyStore);
             } else {
-                let JWKSURL = new URL(configuration.oidcserver.jwks_uri);
-                // console.log('%s: introspectionURL ', prefix, introspectionURL);
+                let JWKSURL = new URL(context.configuration.oidcserver.jwks_uri);
+                // console.log('%s: JWKSURL ', prefix, JWKSURL);
 
                 const options = {
                     host: JWKSURL.hostname,
@@ -138,13 +142,16 @@ function getJWKS(configuration, keyStore) {
                     response.setEncoding('utf8');
                     response.on('end', () => {
                         // console.log('%s:callReturn ', prefix, callReturn);
-                        resolve(JWKS.asKeyStore(JSON.parse(callReturn)));
+                        let keyStore = JWKS.asKeyStore(JSON.parse(callReturn));
+                        // console.log('%s:new keyStore ', prefix, keyStore);
+                        resolve(keyStore);
                     });
                     response.on('data', (chunk) => {
                         // console.log('%s:chunk ', prefix, chunk);
                         if (typeof chunk === 'undefined') throw('chunk empty');
                         if (typeof callReturn === 'undefined') callReturn = "";
                         callReturn = callReturn + chunk;
+                        // console.log('%s:callReturn ', prefix, callReturn);
                     });
 
                 });

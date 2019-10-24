@@ -4,25 +4,23 @@ const Log4n = require('./log4n.js');
 module.exports = function (context, req, res) {
     const log4n = new Log4n(context, '/routes/checkauth.js');
 
-    let parsedToken = req.access_token;
-
-    // let token = req.get('authorization').replace('Bearer ', '');
-    // log4n.object(token, 'token');
-    // let parsedToken = JWT.decode(token);
+    let parsedToken = req.access_token.accessToken;
     // log4n.object(parsedToken, 'parsedToken');
+    let parsedUserInfo = req.access_token.userinfo;
+    // log4n.object(parsedUserInfo, 'parsedUserInfo');
 
-    if(typeof parsedToken !== 'undefined') {
+    if(typeof parsedUserInfo !== 'undefined') {
         let userInfo = {
-            id: parsedToken.sub,
-            firstname: parsedToken.given_name,
-            lastname: parsedToken.family_name,
+            id: parsedUserInfo.sub,
+            firstname: parsedUserInfo.given_name,
+            lastname: parsedUserInfo.family_name,
             email: "",
             admin: false,
             active: false
         };
 
-        if (parsedToken.email_verified) {
-            userInfo.email = parsedToken.email;
+        if (parsedUserInfo.email_verified) {
+            userInfo.email = parsedUserInfo.email;
         }
 
         let client = parsedToken.azp;
@@ -30,6 +28,7 @@ module.exports = function (context, req, res) {
 
         //lecture des roles liés au royaume
         if(typeof parsedToken.realm_access !== 'undefined') {
+            // log4n.object(parsedToken.realm_access, 'parsedToken.realm_access');
             if (parsedToken.realm_access.roles.length > 0) {
                 parsedToken.realm_access.roles.forEach(role => {
                     switch (role) {
@@ -49,6 +48,7 @@ module.exports = function (context, req, res) {
 
         //lecture des roles liés à l'application
         if(typeof parsedToken.resource_access !== 'undefined') {
+            // log4n.object(parsedToken.resource_access, 'parsedToken.resource_access');
             if (parsedToken.resource_access[client].roles.length > 0) {
                 parsedToken.resource_access[client].roles.forEach(role => {
                     switch (role) {

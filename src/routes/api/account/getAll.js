@@ -1,6 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const accountGet = require('../../../models/api/account/get.js');
+
+const Log4n = require('../../../utils/log4n.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**

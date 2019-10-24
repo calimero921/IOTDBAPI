@@ -62,7 +62,7 @@ function readConfig() {
                     return discoverOIDCServer(configuration.local);
                 })
                 .then(result => {
-                    // console.log('%s:result %j', prefix, result);
+                    // console.log('%s:result ', prefix, result);
                     configuration.oidcserver = result;
                     // console.log('%s:configuration %j', prefix, configuration);
                     resolve(configuration);

@@ -4,7 +4,7 @@ const OpenIDConnectHTTPClient = require('./OpenIDConnectHTTPClient.js');
 const globalPrefix = 'OpenIDConnectConnect';
 
 let openIDConnectConfig = undefined;
-let config = undefined;
+let openIDConnectHTTPClient = undefined;
 
 class OpenIDConnectConnect {
     constructor() {
@@ -13,40 +13,54 @@ class OpenIDConnectConnect {
             openIDConnectConfig = new OpenIDConnectConfig();
             openIDConnectConfig.getConfig()
                 .then(result => {
-                    config = result;
+                    this.config = result;
                     // console.log('%s:done', prefix);
+                    openIDConnectHTTPClient = new OpenIDConnectHTTPClient(this.config);
                 })
                 .catch(error => {
-                    response.status(500).send();
-                    console.log('%s:error :%j', prefix, error);
+                    console.log('%s:error: %j', prefix, error);
                 });
         } catch (exception) {
-            console.log('%s:exception :%j', prefix, exception.stack);
+            console.log('%s:exception ', prefix, exception.stack);
         }
     }
 
-    // protect(request, response, next) {
     protect(request, response, next) {
         let prefix = globalPrefix + ":protect";
         try {
-            let openIDConnectHTTPClient = new OpenIDConnectHTTPClient(config);
-            let authorization = request.headers['authorization'];
+            // let openIDConnectHTTPClient = new OpenIDConnectHTTPClient(config);
+            let bearer = request.headers['authorization'];
             // console.log('%s:authorization: %s',prefix, authorization);
-            if (typeof authorization === 'undefined') {
+            if (typeof bearer === 'undefined') {
                 console.log('%s:no authorization provided', prefix);
                 return {};
             } else {
-                if (authorization.startsWith('Bearer ')) {
-                    let accessToken = authorization.substr(7);
-                    openIDConnectHTTPClient.introspection(accessToken)
+                if (bearer.startsWith('Bearer ')) {
+                    let context = {};
+                    context.encodedAccessToken = bearer.substr(7);
+                    openIDConnectHTTPClient.introspection(context.encodedAccessToken)
                         .then(result => {
                             // console.log('%s:introspection: ', prefix, result);
                             if (typeof result === 'undefined') {
                                 console.log('%s:no introspection data', prefix);
+                                return;
+                            } else {
+                                context.authorization = result.authorization;
+                                context.accessToken = result.accesstoken;
+                                // console.log('%s:context: ',prefix, context);
+                                return openIDConnectHTTPClient.userinfo(bearer);
+                            }
+                        })
+                        .then(userinfo => {
+                            // console.log('%s:introspection: ', prefix, result);
+                            if (typeof userinfo === 'undefined') {
+                                console.log('%s:no introspection data', prefix);
                                 response.status(500).send();
                             } else {
-                                if (result.active) {
-                                    request.access_token = result.accessToken;
+                                if (context.authorization.active) {
+                                    context.userinfo = userinfo;
+                                    // console.log('%s:context: ',prefix, context);
+                                    request.access_token = context;
                                     next();
                                 } else {
                                     console.log('%s:forbidden', prefix);
@@ -55,7 +69,7 @@ class OpenIDConnectConnect {
                             }
                         })
                         .catch(error => {
-                            console.log('%s:error :%j', prefix, error);
+                            console.log('%s:error: %j', prefix, error);
                             response.status(500).send();
                         });
                 } else {
