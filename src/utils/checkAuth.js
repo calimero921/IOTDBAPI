@@ -1,13 +1,14 @@
-const jwt = require('jsonwebtoken');
+const {JWT} = require('jose');
 const Log4n = require('./log4n.js');
 
 module.exports = function (context, req, res) {
     const log4n = new Log4n(context, '/routes/checkauth.js');
 
-    let token = req.get('authorization').replace('Bearer ', '');
-    // log4n.object(token, 'token');
+    let parsedToken = req.access_token;
 
-    let parsedToken = jwt.decode(token);
+    // let token = req.get('authorization').replace('Bearer ', '');
+    // log4n.object(token, 'token');
+    // let parsedToken = JWT.decode(token);
     // log4n.object(parsedToken, 'parsedToken');
 
     if(typeof parsedToken !== 'undefined') {

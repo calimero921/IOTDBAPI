@@ -25,10 +25,9 @@
           "subscribe": {"type": "string"},
           "last_value": {"type": "string"}
         },
-        "required": ["name", "type"]
+        "required": ["name"]
       }
     },
     "last_connexion_date": {"type": "integer"}
-  },
-  "required": ["device_id","user_id", "manufacturer", "model", "serial", "secret"]
+  }
 }

@@ -1,8 +1,7 @@
-const Moment = require('moment');
-const Log4n = require('../../../utils/log4n.js');
 const mongoInsert = require('../../mongodbinsert.js');
 const Converter = require('./converter.js');
-const Generator = require('../generator.js');
+
+const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, device) {
@@ -13,18 +12,13 @@ module.exports = function (context, device) {
     return new Promise((resolve, reject) => {
         try {
             log4n.debug('storing device');
-            const generator = new Generator(context);
             const converter = new Converter(context);
+            // const generator = new Generator(context);
             if (typeof device === 'undefined') {
                 reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
-                //ajout des informations générées par le serveur
-                device.device_id = generator.idgen();
-                device.key = generator.keygen();
-                device.creation_date = parseInt(Moment().format('x'));
-                device.last_connexion_date = parseInt(Moment().format('x'));
                 converter.json2db(device)
                     .then(query => {
                         log4n.object(query, 'query');

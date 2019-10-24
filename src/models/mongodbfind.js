@@ -1,31 +1,32 @@
-const Log4n = require('../utils/log4n.js');
-const errorparsing = require('../utils/errorparsing.js');
 const connexion = require('./mongoconnexion.js');
 
-module.exports = function (context, collection, query, parameter, overtake) {
-    const log4n = new Log4n(context, '/models/mongodbfind');
-    log4n.object(collection, 'collection');
-    log4n.object(query, 'query');
-    log4n.object(parameter, 'parameter');
-    log4n.object(overtake, 'overtake');
+const Log4n = require('../utils/log4n.js');
+const errorparsing = require('../utils/errorparsing.js');
 
-    if (typeof overtake === 'undefined') overtake = false;
-
+module.exports = function (context, converter, collectionName, query, parameters, overtake) {
     return new Promise((resolve, reject) => {
-        connexion(context)
-            .then(() => {
-                try {
+        try {
+            const log4n = new Log4n(context, '/models/mongodbfind');
+            log4n.object(collectionName, 'collection');
+            log4n.object(query, 'query');
+            log4n.object(parameters, 'parameter');
+
+            if (typeof overtake === 'undefined') overtake = false;
+            log4n.object(overtake, 'overtake');
+
+            connexion(context)
+                .then(() => {
                     //initialisation des parametres offset et limit
                     let skip = 0;
                     let limit = 0;
                     let sort = {};
-                    if (typeof parameter !== 'undefined') {
-                        if (typeof parameter.skip !== 'undefined') skip = parseInt(parameter.skip);
-                        if (typeof parameter.limit !== 'undefined') limit = parseInt(parameter.limit);
-                        if (typeof parameter.sort !== 'undefined') sort = parameter.sort;
+                    if (typeof parameters !== 'undefined') {
+                        if (typeof parameters.skip !== 'undefined') skip = parseInt(parameters.skip);
+                        if (typeof parameters.limit !== 'undefined') limit = parseInt(parameters.limit);
+                        if (typeof parameters.sort !== 'undefined') sort = parameters.sort;
                     }
-                    let mdbcollection = mongodbConnexion.collection(collection);
-                    mdbcollection.find(query)
+                    let collection = mongodbConnexion.collection(collectionName);
+                    collection.find(query)
                         .skip(skip)
                         .limit(limit)
                         .sort(sort)
@@ -36,17 +37,32 @@ module.exports = function (context, collection, query, parameter, overtake) {
                                 reject(errorparsing(context, {status_code: 500}));
                                 log4n.debug('done - no data')
                             } else {
-                                let result = [];
                                 if (datas.length > 0) {
-                                    for (let i = 0; i < datas.length; i++) {
-                                        result.push(datas[i]);
+                                    let promises = [];
+                                    for (let idx1 = 0; idx1 < datas.length; idx1++) {
+                                        if (datas.hasOwnProperty(idx1)) {
+                                            promises.push(converter.db2json(datas[idx1]));
+                                        }
                                     }
-                                    // log4n.object(result, 'result');
-                                    resolve(result);
-                                    log4n.debug('done - ok');
+
+                                    Promise.all(promises)
+                                        .then(result => {
+                                            // log4n.object(result, 'result');
+                                            if (result.length > 0) {
+                                                resolve(result);
+                                                log4n.debug('done - ok');
+                                            } else {
+                                                reject(errorparsing(context, {status_code: 404}));
+                                                log4n.debug('done - not correct record found');
+                                            }
+                                        })
+                                        .catch(error => {
+                                            reject(errorparsing(context, error));
+                                            log4n.debug('done - error')
+                                        });
                                 } else {
                                     if (overtake) {
-                                        resolve(result);
+                                        resolve(errorparsing(context, {status_code: 404}));
                                         log4n.debug('done - no result but ok')
                                     } else {
                                         reject(errorparsing(context, {status_code: 404}));
@@ -61,16 +77,16 @@ module.exports = function (context, collection, query, parameter, overtake) {
                             global.mongodbConnexion = null;
                             log4n.debug('done - find catch')
                         });
-                } catch (exception) {
-                    console.log('exception:', exception);
-                    reject(errorparsing(context, exception));
-                    log4n.debug('done - exception')
-                }
-            })
-            .catch((error) => {
-                log4n.object(error, 'error');
-                reject(errorparsing(context, error));
-                log4n.debug('done - connexion catch')
-            });
+                })
+                .catch((error) => {
+                    log4n.object(error, 'error');
+                    reject(errorparsing(context, error));
+                    log4n.debug('done - connexion catch')
+                });
+        } catch (exception) {
+            console.log('exception:', exception);
+            reject(errorparsing(context, exception));
+            log4n.debug('done - exception')
+        }
     });
 };

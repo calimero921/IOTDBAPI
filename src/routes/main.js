@@ -1,4 +1,5 @@
 const Log4n = require('../utils/log4n.js');
+const lemonLDAPConnect = require('../utils/OpenIDConnect/OpenIDConnectConnector.js');
 
 const status = require('./status.js');
 
@@ -23,8 +24,10 @@ const measureDelete = require('./api/event/delete.js');
 
 let context = {httpRequestId: 'Initialize'};
 
-module.exports = function (app, keycloak) {
+module.exports = function (app) {
     const log4n = new Log4n(context, '/routes/main.js', 'initialize');
+    let lemonLDAP = new lemonLDAPConnect();
+
     app.use((req, res, next) => {
         req.httpRequestId = Date.now().toString();
         next();
@@ -32,24 +35,24 @@ module.exports = function (app, keycloak) {
 
     app.get('/status', status);
 
-    app.get('/1.0.0/account', keycloak.protect(), accountGet);
-    app.get('/1.0.0/account/id/:id', keycloak.protect(), accountGetByID);
-    app.get('/1.0.0/account/email/:email', keycloak.protect(), accountGetByEmail);
-    app.get('/1.0.0/account/session/:session_id', keycloak.protect(), accountGetBySession);
+    app.get('/1.0.0/account', lemonLDAP.protect, accountGet);
+    app.get('/1.0.0/account/id/:id', lemonLDAP.protect, accountGetByID);
+    app.get('/1.0.0/account/email/:email', lemonLDAP.protect, accountGetByEmail);
+    app.get('/1.0.0/account/session/:session_id', lemonLDAP.protect, accountGetBySession);
     app.post('/1.0.0/account', accountPost);
-    app.patch('/1.0.0/account/:id/:token', keycloak.protect(), accountPatch);
-    app.delete('/1.0.0/account/:id/:token', keycloak.protect(), accountDelete);
+    app.patch('/1.0.0/account/:id/:token', lemonLDAP.protect, accountPatch);
+    app.delete('/1.0.0/account/:id/:token', lemonLDAP.protect, accountDelete);
 
-    app.get('/1.0.0/device/:id', keycloak.protect(), deviceGetById);
-    app.get('/1.0.0/device/user/:id', keycloak.protect(), deviceGetByUser);
-    app.get('/1.0.0/device/exists/:manufacturer/:model/:serial/:secret', keycloak.protect(), deviceExists);
-    app.post('/1.0.0/device', keycloak.protect(), devicePost);
-    app.patch('/1.0.0/device/:id', keycloak.protect(), devicePatch);
-    app.delete('/1.0.0/device/:id', keycloak.protect(), deviceDelete);
+    app.get('/1.0.0/device/:id', lemonLDAP.protect, deviceGetById);
+    app.get('/1.0.0/device/user/:id', lemonLDAP.protect, deviceGetByUser);
+    app.get('/1.0.0/device/exists/:manufacturer/:model/:serial/:secret', lemonLDAP.protect, deviceExists);
+    app.post('/1.0.0/device', lemonLDAP.protect, devicePost);
+    app.patch('/1.0.0/device/:id', lemonLDAP.protect, devicePatch);
+    app.delete('/1.0.0/device/:id', lemonLDAP.protect, deviceDelete);
 
-    app.get('/1.0.0/event/:id', keycloak.protect(), measureGetById);
-    app.post('/1.0.0/measure', keycloak.protect(), measurePost);
-    app.delete('/1.0.0/event/:id', keycloak.protect(), measureDelete);
+    app.get('/1.0.0/event/:id', lemonLDAP.protect, measureGetById);
+    app.post('/1.0.0/event', lemonLDAP.protect, measurePost);
+    app.delete('/1.0.0/event/:id', lemonLDAP.protect, measureDelete);
 
     log4n.debug('done');
 };

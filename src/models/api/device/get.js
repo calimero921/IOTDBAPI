@@ -1,6 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
-const mongoClient = require('../../mongodbfind.js');
+const mongoFind = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
+
+const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
@@ -18,29 +19,11 @@ module.exports = function (context, query, offset, limit, overtake) {
         let parameter = {};
         if (typeof limit !== 'undefined') parameter.limit = limit;
         if (typeof offset !== 'undefined') parameter.offset = offset;
-        mongoClient(context, 'device', query, parameter, overtake)
+        mongoFind(context, converter,'device', query, parameter, overtake)
             .then(datas => {
                 // log4n.object(datas, 'datas');
                 if (datas.length > 0) {
-                    let promises = [];
-                    for (let i = 0; i < datas.length; i++) {
-                        promises.push(converter.db2json(datas[i]));
-                    }
-                    Promise.all(promises)
-                        .then(result => {
-                            // log4n.object(result, 'result');
-                            if (result.length > 0) {
-                                log4n.debug('done - ok');
-                                resolve(result);
-                            } else {
-                                log4n.debug('done - not correct record found');
-                                reject(errorparsing(context, {status_code: 404}));
-                            }
-                        })
-                        .catch(error => {
-                            log4n.object(error, 'error reading data');
-                            reject(errorparsing(context, error));
-                        });
+                    resolve(datas);
                 } else {
                     if (overtake) {
                         log4n.debug('done - no result but ok');

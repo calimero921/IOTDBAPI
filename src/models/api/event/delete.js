@@ -14,7 +14,7 @@ module.exports = function (context, device_id) {
             log4n.debug('done - missing paramater');
         } else {
             query.device_id = device_id;
-            mongoDelete(context, 'measure', query)
+            mongoDelete(context, 'event', query)
                 .then(datas => {
                     // log4n.object(datas, 'datas');
                     if (typeof datas === 'undefined') {

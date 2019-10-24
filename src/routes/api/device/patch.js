@@ -1,8 +1,10 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const decodePost = require('../../../utils/decodePost.js');
 const get = require('../../../models/api/device/get.js');
 const patch = require('../../../models/api/device/patch.js');
+
+const Log4n = require('../../../utils/log4n.js');
+const errorParsing = require('../../../utils/errorparsing.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -31,56 +33,31 @@ module.exports = function (req, res) {
             responseError(context, {status_code: 400}, res, log4n);
             log4n.debug('done - missing arguments')
         } else {
-            let updatedata;
+            let newData;
             decodePost(context, req, res)
                 .then(datas => {
                     //log4n.object(datas, 'datas');
-                    updatedata = datas;
-                    //supprime les champs id, user_id, manufacturer, model, secrial et secret des données pouvant être mise à jour
-                    if (typeof updatedata.device_id != 'undefined') {
-                        delete updatedata.device_id;
-                    }
-                    if (typeof updatedata.user_id != 'undefined') {
-                        delete updatedata.user_id;
-                    }
-                    if (typeof updatedata.manufacturer != 'undefined') {
-                        delete updatedata.manufacturer;
-                    }
-                    if (typeof updatedata.model != 'undefined') {
-                        delete updatedata.model;
-                    }
-                    if (typeof updatedata.serial != 'undefined') {
-                        delete updatedata.serial;
-                    }
-                    if (typeof updatedata.secret != 'undefined') {
-                        delete updatedata.secret;
-                    }
-                    if (typeof updatedata.creation_date != 'undefined') {
-                        delete updatedata.creation_date;
-                    }
+                    newData = datas;
                     return get(context, {device_id: device_id}, 0, 0, false)
                 })
                 .then(datas => {
                     // log4n.object(datas, 'datas');
-                    if (typeof datas.status_code === 'undefined') {
-                        if (userInfo.admin || (datas.user_id === userInfo.id)) {
-                            // log4n.object(updatedata, 'updatedata');
-                            let newdata = datas[0];
-                            if (typeof newdata != 'undefined') {
-                                for (let key in updatedata) {
-                                    // log4n.object(key, 'key');
-                                    newdata[key] = updatedata[key];
+                    if (typeof datas === 'undefined') {
+                        return errorParsing(context, {status_code: 500, status_message: 'no data'})
+                    } else {
+                        if (typeof datas.status_code === 'undefined') {
+                            if (userInfo.admin || (datas.user_id === userInfo.id)) {
+                                if (datas.length > 0) {
+                                    return patch(context, datas[0].device_id, newData);
+                                } else {
+                                    return errorParsing(context, {status_code: 404});
                                 }
-                                // log4n.object(newdata, 'newdata');
-                                return patch(context, device_id, newdata)
                             } else {
                                 return {status_code: '403'};
                             }
                         } else {
-                            return {status_code: '404'};
+                            return datas;
                         }
-                    } else {
-                        return datas;
                     }
                 })
                 .then(datas => {

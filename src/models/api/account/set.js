@@ -1,10 +1,11 @@
 const moment = require('moment');
-const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
 const mongoClientInsert = require('../../mongodbinsert.js');
-const mongoClientFind = require('../../mongodbfind.js');
+const mongoFind = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
 const Generator = require('../generator.js');
+
+const Log4n = require('../../../utils/log4n.js');
+const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, account) {
     const log4n = new Log4n(context, '/models/api/account/set');
@@ -36,7 +37,7 @@ module.exports = function (context, account) {
 
                         //recherche d'un compte pré-existant
                         let search = {$or: [{email: query.email}]};
-                        return mongoClientFind(context, 'account', search, {offset:0, limit: 0}, true);
+                        return mongoFind(context, converter,'account', search, {offset:0, limit: 0}, true);
                     })
                     .then(datas => {
                         if (datas.length > 0) {

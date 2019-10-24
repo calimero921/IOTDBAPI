@@ -1,6 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+const Moment = require('moment');
+
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
@@ -11,26 +13,34 @@ class Converter {
 
     json2db(data) {
         const log4n = new Log4n(this.context, '/models/api/event/converter/json2db');
-        // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
             try {
+                // log4n.object(data, 'data');
                 let result = {};
-                let ajv = new Ajv();
-                require('ajv-async')(ajv);
+
+                data.store_date = parseInt(Moment().format('x'));
+                if (typeof data.event_date === 'undefined') {
+                    data.event_date = data.store_date;
+                }
 
                 let schemaPath = path.join(__dirname, 'eventjs.json');
                 // log4n.object(schemaPath, 'schemaPath');
                 let jsonSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
                 // log4n.object(jsonSchema, 'jsonSchema');
+                let ajv = new Ajv();
+                require('ajv-async')(ajv);
                 let validate = ajv.compile(jsonSchema);
 
                 log4n.debug('schema validation');
+                log4n.object(data, 'data');
                 validate(data)
                     .then(valid => {
                         // log4n.object(valid, 'valid');
                         if (typeof valid.device_id !== 'undefined') result.device_id = valid.device_id;
+                        if (typeof valid.event_date !== 'undefined') result.event_date = valid.event_date;
+                        if (typeof valid.store_date !== 'undefined') result.store_date = valid.store_date;
                         if (typeof valid.capabilities !== 'undefined') {
                             result.capabilities = [];
                             for (let i in valid.capabilities) {
@@ -49,7 +59,7 @@ class Converter {
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(this.context,{
+                        reject(errorparsing(this.context, {
                             status_code: 500,
                             status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
@@ -65,10 +75,10 @@ class Converter {
 
     db2json(data) {
         const log4n = new Log4n(this.context, '/models/api/event/converter/db2json');
-        // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
             try {
+                // log4n.object(data, 'data');
                 let result = {};
                 let ajv = new Ajv();
                 require('ajv-async')(ajv);
@@ -85,6 +95,7 @@ class Converter {
                     .then(valid => {
                         // log4n.object(valid, 'valid');
                         if (typeof valid.device_id !== 'undefined') result.device_id = valid.device_id;
+                        if (typeof valid.event_date !== 'undefined') result.event_date = valid.event_date;
                         if (typeof valid.store_date !== 'undefined') result.store_date = valid.store_date;
                         if (typeof valid.capabilities !== 'undefined') result.capabilities = valid.capabilities;
 
@@ -93,7 +104,7 @@ class Converter {
                         resolve(result);
                     })
                     .catch(error => {
-                        reject(errorparsing(this.context,{
+                        reject(errorparsing(this.context, {
                             status_code: 500,
                             status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));

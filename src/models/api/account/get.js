@@ -1,6 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
-const mongoClient = require('../../mongodbfind.js');
+const mongoFind = require('../../mongodbfind.js');
 const Converter = require('./converter.js');
+
+const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, query, skip, limit, overtake) {
@@ -18,33 +19,13 @@ module.exports = function (context, query, skip, limit, overtake) {
     return new Promise((resolve, reject) => {
         const converter = new Converter(context);
         let parameter = {"skip" : skip, "limit" : limit};
-        mongoClient(context,'account', query, parameter, overtake)
+        mongoFind(context,converter,'account', query, parameter, overtake)
             .then(datas => {
-                let result = [];
                 if (datas.length > 0) {
-                    let promises = [];
-                    for (let i = 0; i < datas.length; i++) {
-                        promises.push(converter.db2json(datas[i]));
-                    }
-                    Promise.all(promises)
-                        .then(results => {
-                            // log4n.object(results, 'results');
-                            if (results.length > 0) {
-                                log4n.debug('done - ok');
-                                resolve(results);
-                            } else {
-                                log4n.debug('done - not correct record found');
-                                reject(errorparsing(context, {status_code: 404}));
-                            }
-                        })
-                        .catch(error => {
-                            log4n.object(error, 'error reading data');
-                            reject(errorparsing(context, error));
-                        });
+                    resolve(datas);
                 } else {
                     if (overtake) {
-                        // log4n.debug('no result but ok');
-                        resolve(result);
+                        resolve(errorparsing(context, {status_code: 404}));
                         log4n.debug('done - no result but ok');
                     } else {
                         reject(errorparsing(context, {status_code: 404}));

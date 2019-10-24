@@ -1,29 +1,27 @@
-const Moment = require('moment');
 const Log4n = require('../../../utils/log4n.js');
 const mongoInsert = require('../../mongodbinsert.js');
 const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
-module.exports = function (context, measure) {
+module.exports = function (context, event) {
     const log4n = new Log4n(context, '/models/api/event/set');
-    log4n.object(measure, 'measure');
+    log4n.object(event, 'event');
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
             log4n.debug('storing device');
             const converter = new Converter(context);
-            if (typeof measure === 'undefined') {
+            if (typeof event === 'undefined') {
                 reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
-                converter.json2db(measure)
+                converter.json2db(event)
                     .then(query => {
                         //ajout des informations générées par le serveur
-                        query.store_date = parseInt(Moment().format('x'));
                         log4n.object(query, 'query');
-                        return mongoInsert(context, 'measure', query);
+                        return mongoInsert(context, 'event', query);
                     })
                     .then(datas => {
                         // console.log('datas: ', datas);

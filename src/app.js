@@ -15,7 +15,6 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const favicon = require('serve-favicon');
 
-const Keycloak = require('keycloak-connect');
 const session = require('express-session');
 
 const config = require('./config/server.js');
@@ -26,20 +25,6 @@ const log4n = new Log4n(context, '/app.js', 'initialize');
 
 log4n.debug('Database connexion setup');
 global.mongodbConnexion = null;
-
-log4n.debug('Create server');
-let memoryStore = new session.MemoryStore();
-app.use(session({
-    secret: 'thisShouldBeLongAndSecret',
-    resave: false,
-    saveUninitialized: true,
-    store: memoryStore
-}));
-let keycloak = new Keycloak({store: memoryStore});
-app.use(keycloak.middleware({
-    logout: '/logout',
-    admin: '/'
-}));
 
 log4n.debug('Express swagger generator setup');
 let swaggerOptions = {
@@ -76,7 +61,7 @@ expressSwagger(swaggerOptions);
 
 log4n.debug('Express server setup');
 app.set('trust proxy', 1);
-require('./routes/main.js')(app, keycloak);
+require('./routes/main.js')(app);
 
 // uncomment after placing your favicon in /public
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

@@ -1,6 +1,10 @@
+const Moment = require('moment');
 const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
+
+const Generator = require('../generator.js');
+
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
@@ -16,17 +20,31 @@ class Converter {
         return new Promise((resolve, reject) => {
             try {
                 let result = {};
-                let ajv = new Ajv();
-                require('ajv-async')(ajv);
+
+                //ajout des informations générées par le serveur
+                const generator = new Generator(this.context);
+                data.device_id = generator.idgen();
+                if (typeof data.key === 'undefined') {
+                    data.key = generator.keygen();
+                }
+                if (typeof data.creation_date === 'undefined') {
+                    data.creation_date = parseInt(Moment().format('x'));
+                }
+                if (typeof data.last_connexion_date === 'undefined') {
+                    data.last_connexion_date = parseInt(Moment().format('x'));
+                }
 
                 let schemaPath = path.join(__dirname, 'devicejs.json');
                 // log4n.object(schemaPath, 'schemaPath');
                 let jsonSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
                 // log4n.object(jsonSchema, 'jsonSchema');
+                let ajv = new Ajv();
+                require('ajv-async')(ajv);
                 let validate = ajv.compile(jsonSchema);
 
                 log4n.debug('schema validation');
+                log4n.object(data, 'data');
                 validate(data)
                     .then(valid => {
                         // log4n.object(valid, 'valid');
@@ -102,17 +120,18 @@ class Converter {
         return new Promise((resolve, reject) => {
             try {
                 let result = {};
-                let ajv = new Ajv();
-                require('ajv-async')(ajv);
 
                 let schemaPath = path.join(__dirname, 'devicedb.json');
                 // log4n.object(schemaPath, 'schemaPath');
                 let dbSchema = JSON.parse(fs.readFileSync(schemaPath, 'utf8'));
 
                 // log4n.object(dbSchema, 'dbSchema');
+                let ajv = new Ajv();
+                require('ajv-async')(ajv);
                 let validate = ajv.compile(dbSchema);
 
                 log4n.debug('schema validation');
+                // log4n.object(data, 'data');
                 validate(data)
                     .then(valid => {
                         // log4n.object(valid, 'valid');
