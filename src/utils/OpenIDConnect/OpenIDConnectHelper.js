@@ -1,8 +1,8 @@
-const https = require('https');
-const http = require('http');
-const { JWKS } = require('jose');
-const { JWS } = require('jose');
-const { JWT } = require('jose');
+const {JWKS} = require('jose');
+const {JWS} = require('jose');
+const {JWT} = require('jose');
+
+const OpenIDConnectHTTPClient = require('./OpenIDConnectHTTPClient.js');
 
 const globalPrefix = 'OpenIDConnectHelper';
 
@@ -13,6 +13,7 @@ class OpenIDConnectHelper {
             this.context = {};
             this.context.configuration = configuration;
             this.context.keyStore = {};
+
         } catch (exception) {
             console.log('%s:exception ', prefix, exception.stack);
         }
@@ -105,60 +106,22 @@ function getJWKS(context) {
     let prefix = globalPrefix + ":getJWKS";
     return new Promise((resolve, reject) => {
         try {
+            let openIDConnectHTTPClient = new OpenIDConnectHTTPClient(context.configuration);
             // console.log('%s: context ', prefix, context);
             if (context.keyStore.length > 0) {
                 resolve(context.keyStore);
                 console.log('%s:reuse keyStore ', prefix, context.keyStore);
             } else {
-                let JWKSURL = new URL(context.configuration.oidcserver.jwks_uri);
-                // console.log('%s: JWKSURL ', prefix, JWKSURL);
-
-                const options = {
-                    host: JWKSURL.hostname,
-                    port: JWKSURL.port,
-                    path: JWKSURL.pathname,
-                    method: 'GET',
-                    headers: {
-                        'Accept': 'application/json',
-                    },
-                    rejectUnauthorized: false
-                };
-                // console.log('%s:options ', prefix, options);
-
-                let HTTPClient = undefined;
-                switch (JWKSURL.protocol) {
-                    case 'http':
-                        HTTPClient = http;
-                        break;
-                    case 'https':
-                        HTTPClient = https;
-                        break;
-                    default:
-                        HTTPClient = http;
-                        break;
-                }
-                let callReturn = "";
-                const request = HTTPClient.get(options, (response) => {
-                    response.setEncoding('utf8');
-                    response.on('end', () => {
-                        // console.log('%s:callReturn ', prefix, callReturn);
-                        let keyStore = JWKS.asKeyStore(JSON.parse(callReturn));
-                        // console.log('%s:new keyStore ', prefix, keyStore);
+                openIDConnectHTTPClient.jwksuri()
+                    .then(jwks => {
+                        let keyStore = JWKS.asKeyStore(jwks);
                         resolve(keyStore);
+                        // console.log('%s:new keyStore ', prefix, keyStore);
+                    })
+                    .catch(error => {
+                        reject(error);
+                        console.log('%s:error %j', prefix, error);
                     });
-                    response.on('data', (chunk) => {
-                        // console.log('%s:chunk ', prefix, chunk);
-                        if (typeof chunk === 'undefined') throw('chunk empty');
-                        if (typeof callReturn === 'undefined') callReturn = "";
-                        callReturn = callReturn + chunk;
-                        // console.log('%s:callReturn ', prefix, callReturn);
-                    });
-
-                });
-                request.on('error', (error) => {
-                    console.log('%s:error %j', prefix, error);
-                    reject(error);
-                });
             }
         } catch (exception) {
             console.log('%s:exception ', prefix, exception.stack);

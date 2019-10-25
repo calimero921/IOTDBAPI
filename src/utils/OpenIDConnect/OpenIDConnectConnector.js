@@ -1,10 +1,12 @@
 const OpenIDConnectConfig = require('./OpenIDConnectConfig.js');
 const OpenIDConnectHTTPClient = require('./OpenIDConnectHTTPClient.js');
+const OpenIDConnectHelper = require('./OpenIDConnectHelper.js');
 
 const globalPrefix = 'OpenIDConnectConnect';
 
 let openIDConnectConfig = undefined;
 let openIDConnectHTTPClient = undefined;
+let openIDConnectHelper = undefined;
 
 class OpenIDConnectConnect {
     constructor() {
@@ -13,9 +15,10 @@ class OpenIDConnectConnect {
             openIDConnectConfig = new OpenIDConnectConfig();
             openIDConnectConfig.getConfig()
                 .then(result => {
-                    this.config = result;
+                    this.configuration = result;
                     // console.log('%s:done', prefix);
-                    openIDConnectHTTPClient = new OpenIDConnectHTTPClient(this.config);
+                    openIDConnectHTTPClient = new OpenIDConnectHTTPClient(this.configuration);
+                    openIDConnectHelper = new OpenIDConnectHelper(this.configuration);
                 })
                 .catch(error => {
                     console.log('%s:error: %j', prefix, error);
@@ -28,7 +31,7 @@ class OpenIDConnectConnect {
     protect(request, response, next) {
         let prefix = globalPrefix + ":protect";
         try {
-            // let openIDConnectHTTPClient = new OpenIDConnectHTTPClient(config);
+            // let openIDConnectHTTPClient = new OpenIDConnectHTTPClient(configuration);
             let bearer = request.headers['authorization'];
             // console.log('%s:authorization: %s',prefix, authorization);
             if (typeof bearer === 'undefined') {
@@ -39,14 +42,24 @@ class OpenIDConnectConnect {
                     let context = {};
                     context.encodedAccessToken = bearer.substr(7);
                     openIDConnectHTTPClient.introspection(context.encodedAccessToken)
-                        .then(result => {
-                            // console.log('%s:introspection: ', prefix, result);
-                            if (typeof result === 'undefined') {
+                        .then(authorization => {
+                            // console.log('%s:authorization: ', prefix, authorization);
+                            if (typeof authorization === 'undefined') {
                                 console.log('%s:no introspection data', prefix);
                                 return;
                             } else {
-                                context.authorization = result.authorization;
-                                context.accessToken = result.accesstoken;
+                                context.authorization = authorization;
+                                // console.log('%s:context: ',prefix, context);
+                                return openIDConnectHelper.getAccessTokenContent(context.encodedAccessToken);
+                            }
+                        })
+                        .then(accesstoken => {
+                            // console.log('%s:accesstoken: ', prefix, accesstoken);
+                            if (typeof accesstoken === 'undefined') {
+                                console.log('%s:no introspection data', prefix);
+                                return;
+                            } else {
+                                context.accessToken = accesstoken;
                                 // console.log('%s:context: ',prefix, context);
                                 return openIDConnectHTTPClient.userinfo(bearer);
                             }

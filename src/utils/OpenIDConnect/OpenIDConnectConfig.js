@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-
 const {Issuer} = require('openid-client');
 
 const LOCALCONFIGURATIONFILE = 'openIDConnect.json';
@@ -18,13 +17,13 @@ class OpenIDConnectConfig {
         let prefix = globalPrefix + ":getConfig";
         return new Promise((resolve, reject) => {
             try {
-                // console.log('%s:config %j', prefix, config);
+                // console.log('%s:configuration %j', prefix, configuration);
                 if (typeof config === 'undefined') {
                     readConfig()
                         .then(configuration => {
                             config = configuration;
                             resolve(config);
-                            // console.log('%s:done new config', prefix);
+                            // console.log('%s:done new configuration', prefix);
                         })
                         .catch(error => {
                             reject(error);
@@ -32,7 +31,7 @@ class OpenIDConnectConfig {
                         });
                 } else {
                     resolve(config);
-                    // console.log('%s:done previous config', prefix);
+                    // console.log('%s:done previous configuration', prefix);
                 }
             } catch (exception) {
                 reject(exception);
@@ -58,7 +57,7 @@ function readConfig() {
                     };
                     delete configuration.local.resource;
                     delete configuration.local.credentials.secret;
-                    // console.log('%s:config %j', prefix, configuration);
+                    // console.log('%s:configuration %j', prefix, configuration);
                     return discoverOIDCServer(configuration.local);
                 })
                 .then(result => {

@@ -2,22 +2,19 @@ const https = require('https');
 const http = require('http');
 const {URL} = require('url');
 
-const OpenIDConnectHelper = require('./OpenIDConnectHelper.js');
-
 const globalPrefix = 'OpenIDConnectHTTPClient';
 
 class OpenIDConnectHTTPClient {
     constructor(configuration) {
         let prefix = globalPrefix + ":constructor";
         this.configuration = configuration;
-        this.openIDConnectHelper = new OpenIDConnectHelper(this.configuration);
     }
 
     introspection(accessToken) {
         let prefix = globalPrefix + ":introspection";
         return new Promise((resolve, reject) => {
             try {
-                // console.log("%s:config %j", prefix, this.configuration);
+                // console.log("%s:configuration %j", prefix, this.configuration);
                 // console.log("%s:encodedAccessToken %j", prefix, encodedAccessToken);
 
                 let credentials = Buffer.from(this.configuration.client.client_id + ':' + this.configuration.client.client_secret).toString('base64');
@@ -30,16 +27,27 @@ class OpenIDConnectHTTPClient {
                 let jsonObject = introspectionURL.search.replace('?', '');
                 // console.log("%s:jsonObject %j", prefix, jsonObject);
 
-                let result = {};
                 genericHTTPRequest('POST', introspectionURL, auth, jsonObject)
-                    .then(authorization => {
-                        result.authorization = authorization;
-                        // console.log('%s:authorization ', prefix, result.authorization);
-                        return this.openIDConnectHelper.getAccessTokenContent(accessToken);
+                    .then(result => {
+                        resolve(result);
                     })
-                    .then(decodedAccessToken => {
-                        // console.log('%s:decodedAccessToken %j', prefix, decodedAccessToken);
-                        result.accesstoken = decodedAccessToken;
+                    .catch(error => {
+                        console.log('%s:error %j', prefix, error);
+                    });
+            } catch (exception) {
+                console.log('%s:exception ', prefix, exception.stack);
+                reject(exception);
+            }
+        });
+    }
+
+    jwksuri() {
+        let prefix = globalPrefix + ":userinfo";
+        return new Promise((resolve, reject) => {
+            try {
+                let JWKSURL = new URL(this.configuration.oidcserver.jwks_uri);
+                genericHTTPRequest('GET', JWKSURL)
+                    .then(result => {
                         resolve(result);
                     })
                     .catch(error => {
@@ -53,7 +61,7 @@ class OpenIDConnectHTTPClient {
     }
 
     userinfo(bearer) {
-        let prefix = globalPrefix + ":userInfo";
+        let prefix = globalPrefix + ":userinfo";
         return new Promise((resolve, reject) => {
             try {
                 let userinfoURL = new URL(this.configuration.oidcserver.userinfo_endpoint);
@@ -82,15 +90,16 @@ function genericHTTPRequest(verb, url, auth, body = undefined) {
                 path: url.pathname,
                 method: verb.toUpperCase(),
                 headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'Accept': 'application/json',
-                    'Authorization': auth
-                },
-                rejectUnauthorized: false
+                    'Accept': 'application/json'
+                }
             };
             // console.log('%s:options ', prefix, options);
             if (typeof body !== 'undefined') {
-                options.headers["Content-Length"] = Buffer.byteLength(body);
+                options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+                options.headers['Content-Length'] = Buffer.byteLength(body);
+            }
+            if (typeof auth !== 'undefined') {
+                options.headers['Authorization'] = auth;
             }
 
             let HTTPClient = undefined;
@@ -100,6 +109,7 @@ function genericHTTPRequest(verb, url, auth, body = undefined) {
                     break;
                 case 'https':
                     HTTPClient = https;
+                    options.rejectUnauthorized = false;
                     break;
                 default:
                     HTTPClient = http;
