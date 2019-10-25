@@ -4,9 +4,9 @@ const Log4n = require('./log4n.js');
 module.exports = function (context, req, res) {
     const log4n = new Log4n(context, '/routes/checkauth.js');
 
-    let parsedToken = req.access_token.accessToken;
+    let parsedToken = req.openIDConnect.accessToken;
     // log4n.object(parsedToken, 'parsedToken');
-    let parsedUserInfo = req.access_token.userinfo;
+    let parsedUserInfo = req.openIDConnect.userinfo;
     // log4n.object(parsedUserInfo, 'parsedUserInfo');
 
     if(typeof parsedUserInfo !== 'undefined') {

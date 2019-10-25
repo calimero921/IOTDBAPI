@@ -56,7 +56,7 @@ class OpenIDConnectConnect {
                         .then(accesstoken => {
                             // console.log('%s:accesstoken: ', prefix, accesstoken);
                             if (typeof accesstoken === 'undefined') {
-                                console.log('%s:no introspection data', prefix);
+                                console.log('%s:no access token data', prefix);
                                 return;
                             } else {
                                 context.accessToken = accesstoken;
@@ -67,13 +67,13 @@ class OpenIDConnectConnect {
                         .then(userinfo => {
                             // console.log('%s:introspection: ', prefix, result);
                             if (typeof userinfo === 'undefined') {
-                                console.log('%s:no introspection data', prefix);
+                                console.log('%s:no user info data', prefix);
                                 response.status(500).send();
                             } else {
+                                context.userinfo = userinfo;
+                                // console.log('%s:context: ', prefix, context);
                                 if (context.authorization.active) {
-                                    context.userinfo = userinfo;
-                                    // console.log('%s:context: ',prefix, context);
-                                    request.access_token = context;
+                                    request.openIDConnect = context;
                                     next();
                                 } else {
                                     console.log('%s:forbidden', prefix);
