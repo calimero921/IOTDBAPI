@@ -1,6 +1,6 @@
 const Log4n = require('../../../utils/log4n.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const mongoClient = require('../../mongodbdelete.js');
+const mongoClient = require('../../../connectors/mongodb/mongodbdelete.js');
 
 module.exports = function (context, id, token) {
 	const log4n = new Log4n(context, '/models/api/account/delete');

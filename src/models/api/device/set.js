@@ -1,4 +1,4 @@
-const mongoInsert = require('../../mongodbinsert.js');
+const mongoInsert = require('../../../connectors/mongodb/mongodbinsert.js');
 const Converter = require('./converter.js');
 
 const Log4n = require('../../../utils/log4n.js');

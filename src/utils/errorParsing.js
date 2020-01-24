@@ -1,35 +1,41 @@
-const Log4n = require('./log4n.js');
+// const serverLogger = require('./ServerLogger.js');
 
-module.exports = function (context, error) {
-    const log4n = new Log4n(context, '/utils/errorparsing');
-    // log4n.object(error, 'error');
+module.exports = function (context, error, reset) {
+    // const logger = serverLogger.child({
+    //     source: '/utils/errorParsing.js',
+    //     httpRequestId: context.httpRequestId
+    // });
+
+    if(typeof reset === 'undefined') reset = false;
+    if(reset && error.status_message) delete error.status_message;
+
+    // logger.debug('error: %j', error);
     let result = {};
 
-    if (typeof error === 'undefined') {
+    if (!error) {
         result.status_code = 500;
-        log4n.debug('done unknown');
     } else {
-        if (typeof error.status_code !== 'undefined') {
+        if (error.status_code) {
             result = error;
-            log4n.debug('done - already formated');
+            // logger.debug('already formated');
         } else {
             result.status_code = 500;
-            if (typeof error.errmsg !== 'undefined') {
+            if (error.errmsg) {
                 result.status_message = error.errmsg;
-                log4n.debug('done - prefix 500, errmsg');
+                // logger.debug('prefix 500, errmsg');
             } else {
-                if (typeof error.stack !== 'undefined') {
-                    result.status_message = error.toString();
-                    log4n.debug('done - prefix 500, stack');
+                if (error.stack) {
+                    result.status_message = error.stack;
+                    // logger.debug('prefix 500, stack');
                 } else {
                     result.status_message = error;
-                    log4n.debug('done - prefix 500, message');
+                    // logger.debug('prefix 500, message');
                 }
             }
         }
     }
 
-    if (typeof result.status_message === 'undefined') {
+    if (!result.status_message) {
         let message;
         switch (result.status_code) {
             case 400:
@@ -48,7 +54,7 @@ module.exports = function (context, error) {
                 message = "Method Not Allowed";
                 break;
             case 408:
-                message = "Bad Request";
+                message = "Request Timeout";
                 break;
             case 409:
                 message = "Conflict";
@@ -63,7 +69,6 @@ module.exports = function (context, error) {
         result.status_message = message;
     }
 
-    // log4n.object(result, 'error out');
+    // logger.debug('error out: %j', result);
     return result;
-}
-;
+};

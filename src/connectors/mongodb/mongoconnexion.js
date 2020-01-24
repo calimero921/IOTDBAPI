@@ -1,8 +1,8 @@
-const mongodbConf = require('../config/mongodb.js');
+const mongodbConf = require('../../config/mongodb.js');
 const mongodb = require('mongodb');
 
-const Log4n = require('../utils/log4n.js');
-const errorParsing = require('../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context) {
     const log4n = new Log4n(context, '/models/mongoconnexion');

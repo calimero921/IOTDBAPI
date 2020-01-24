@@ -1,7 +1,7 @@
 const connexion = require('./mongoconnexion.js');
 
-const Log4n = require('../utils/log4n.js');
-const errorparsing = require('../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, converter, collectionName, query, parameters, overtake) {
     return new Promise((resolve, reject) => {

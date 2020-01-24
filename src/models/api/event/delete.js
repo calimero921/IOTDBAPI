@@ -1,5 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
-const mongoDelete = require('../../mongodbdeleteall.js');
+const mongoDelete = require('../../../connectors/mongodb/mongodbdeleteall.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, device_id) {

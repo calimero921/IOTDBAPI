@@ -1,5 +1,5 @@
-const Log4n = require('../utils/log4n.js');
-const errorparsing = require('../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, error) {
     const log4n = new Log4n(context, '/models/mongodberror');

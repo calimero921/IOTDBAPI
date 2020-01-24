@@ -1,5 +1,5 @@
 module.exports = {
-    logPath: '/var/log/iotdb',
+    logPath: '/opt/application/iotdb',
     logFile: 'iotdbapi.log',
     logFilepattern: 'iotdb.YYYY-MM-DD.log',
     logLevel: 'debug'

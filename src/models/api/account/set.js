@@ -1,6 +1,6 @@
 const moment = require('moment');
-const mongoClientInsert = require('../../mongodbinsert.js');
-const mongoFind = require('../../mongodbfind.js');
+const mongoClientInsert = require('../../../connectors/mongodb/mongodbinsert.js');
+const mongoFind = require('../../../connectors/mongodb/mongodbfind.js');
 const Converter = require('./converter.js');
 const Generator = require('../generator.js');
 

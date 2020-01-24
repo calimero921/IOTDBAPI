@@ -1,5 +1,5 @@
-const Log4n = require('../utils/log4n.js');
-const errorparsing = require('../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
 const connexion = require('./mongoconnexion.js');
 
 module.exports = function (context, collection, query, parameter) {
