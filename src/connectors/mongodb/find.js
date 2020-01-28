@@ -4,14 +4,14 @@ const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, converter, collectionName, query, parameters, overtake) {
+    const logger = serverLogger.child({
+        source: '/connectors/mongodb/find.js',
+        httpRequestId: context.httpRequestId
+    });
+
     return new Promise((resolve, reject) => {
         try {
-            const logger = serverLogger.child({
-                source: '/connectors/mongodb/find.js',
-                httpRequestId: context.httpRequestId
-            });
-
-            logger.debug('collection: %s', collectionName);
+            logger.debug('collectionName: %s', collectionName);
             logger.debug('query: %s', query);
             logger.debug('parameter: %s', parameters);
 
@@ -31,54 +31,53 @@ module.exports = function (context, converter, collectionName, query, parameters
             mongoDBConnector.getDB(context)
                 .then(mongodbDatabase => {
                     let collection = mongodbDatabase.collection(collectionName);
-                    collection.find(query)
+                    return collection.find(query)
                         .skip(skip)
                         .limit(limit)
                         .sort(sort)
                         .toArray()
-                        .then(datas => {
-                            logger.debug('datas: %j', datas);
-                            if (typeof datas === 'undefined') {
-                                logger.debug('no data');
-                                reject(errorparsing(context, {status_code: 500}));
-                            } else {
-                                if (datas.length > 0) {
-                                    let promises = [];
-                                    for (let idx1 = 0; idx1 < datas.length; idx1++) {
-                                        if (datas.hasOwnProperty(idx1)) {
-                                            promises.push(converter.db2json(datas[idx1]));
-                                        }
-                                    }
-                                    Promise.all(promises)
-                                        .then(result => {
-                                            // logger.debug(result, 'result');
-                                            if (result.length > 0) {
-                                                logger.debug('result: %j', result);
-                                                resolve(result);
-                                            } else {
-                                                logger.debug('not correct record found');
-                                                reject(errorparsing(context, {status_code: 404}));
-                                            }
-                                        })
-                                        .catch(error => {
-                                            logger.debug('error: %j', error);
-                                            reject(errorparsing(context, error));
-                                        });
-                                } else {
-                                    if (overtake) {
-                                        logger.debug('no result but ok');
-                                        resolve(errorparsing(context, {status_code: 404}));
-                                    } else {
-                                        logger.debug('not found');
-                                        reject(errorparsing(context, {status_code: 404}));
-                                    }
+                })
+                .then(datas => {
+                    logger.debug('datas: %j', datas);
+                    if (datas) {
+                        if (datas.length > 0) {
+                            let promises = [];
+                            for (let idx1 = 0; idx1 < datas.length; idx1++) {
+                                if (datas.hasOwnProperty(idx1)) {
+                                    promises.push(converter.db2json(datas[idx1]));
                                 }
                             }
-                        })
-                        .catch((error) => {
-                            logger.debug('error: %j', error);
-                            reject(errorparsing(context, error));
-                        });
+                            Promise.all(promises)
+                                .then(result => {
+                                    logger.debug('result: %j', result);
+                                    if (result.length > 0) {
+                                        resolve(result);
+                                    } else {
+                                        logger.debug('not correct record found');
+                                        reject(errorparsing(context, {status_code: 404}));
+                                    }
+                                })
+                                .catch(error => {
+                                    logger.debug('error: %j', error);
+                                    reject(errorparsing(context, error));
+                                });
+                        } else {
+                            if (overtake) {
+                                logger.debug('no result but ok');
+                                resolve(errorparsing(context, {status_code: 404}));
+                            } else {
+                                logger.debug('not found');
+                                reject(errorparsing(context, {status_code: 404}));
+                            }
+                        }
+                    } else {
+                        logger.debug('no data');
+                        reject(errorparsing(context, {status_code: 500}));
+                    }
+                })
+                .catch((error) => {
+                    logger.debug('error: %j', error);
+                    reject(errorparsing(context, error));
                 })
         } catch (exception) {
             console.log('exception: %s', exception.stack);

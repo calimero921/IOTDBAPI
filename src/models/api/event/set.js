@@ -1,5 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
-const mongoInsert = require('../../../connectors/mongodb/mongodbinsert.js');
+const mongoInsert = require('../../../connectors/mongodb/insert.js');
 const Converter = require('./converter.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 

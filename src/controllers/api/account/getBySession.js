@@ -1,6 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const accountGet = require('../../../models/api/account/get.js');
+
+const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -14,39 +15,41 @@ const responseError = require('../../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/account/getBySession');
+module.exports = function (request, response) {
+    const logger = serverLogger.child({
+        source: '/controllers/api/account/getBySession.js',
+        httpRequestId: request.httpRequestId
+    });
+    let context = {httpRequestId: request.httpRequestId};
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
 
         if (userInfo.admin) {
-            let session_id = req.params.session_id;
-            log4n.object(session_id, 'session_id');
+            let session_id = request.params.session_id;
+            logger.debug( 'session_id: %s', session_id);
 
             //traitement de recherche dans la base
             if (typeof session_id === 'undefined') {
-                responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
-                log4n.debug('done - missing parameter');
+                logger.debug('missing parameter');
+                responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
             } else {
                 //traitement de recherche dans la base
                 accountGet(context, {session_id: session_id}, 0, 0, false)
                     .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        res.status(200).send(datas);
-                        log4n.debug('done - ok');
+                        logger.debug( 'datas: %j', datas);
+                        response.status(200).send(datas);
                     })
                     .catch(error => {
-                        responseError(context, error, res, log4n);
-                        log4n.debug('done - promise catch');
+                        logger.error( 'error: %j', error);
+                        responseError(context, error, response, logger);
                     });
             }
         } else {
-            responseError(context, {status_code: 403, status_message: 'user must be admin for this action'}, res, log4n);
+            responseError(context, {status_code: 403, status_message: 'user must be admin for this action'}, response, logger);
         }
     } catch (exception) {
-        log4n.error(exception.stack);
-        responseError(context, exception, res, log4n);
+        logger.error(exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

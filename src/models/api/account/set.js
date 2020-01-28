@@ -1,25 +1,29 @@
 const moment = require('moment');
-const mongoClientInsert = require('../../../connectors/mongodb/mongodbinsert.js');
+
+const mongoClientInsert = require('../../../connectors/mongodb/insert.js');
 const mongoFind = require('../../../connectors/mongodb/find.js');
 const Converter = require('./utils/converter.js');
 const Generator = require('../generator.js');
 
-const Log4n = require('../../../utils/log4n.js');
+const serverLogger = require('../../../utils/serverLogger.js');
 const errorparsing = require('../../../utils/errorparsing.js');
 
 module.exports = function (context, account) {
-    const log4n = new Log4n(context, '/models/api/account/set');
-    // log4n.object(account, 'account');
+    const logger = serverLogger.child({
+        source: '/models/api/account/set.js',
+        httpRequestId: context.httpRequestId
+    });
+    logger.debug( 'account: %j', account);
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
-            log4n.debug('storing account');
+            logger.debug('storing account');
             const generator = new Generator(context);
             const converter = new Converter(context);
             if (typeof account === 'undefined') {
+                logger.debug('missing parameter');
                 reject(errorparsing(context, {status_code: '400'}));
-                log4n.debug('done - missing parameter');
             } else {
                 let query = {};
                 converter.json2db(account)
@@ -33,7 +37,7 @@ module.exports = function (context, account) {
                         query.creation_date = parseInt(moment().format('x'));
                         query.session_id = "no session";
                         query.token = generator.keygen();
-                        log4n.object(query, 'query');
+                        logger.debug(query, 'query');
 
                         //recherche d'un compte pré-existant
                         let search = {$or: [{email: query.email}]};
@@ -41,42 +45,38 @@ module.exports = function (context, account) {
                     })
                     .then(datas => {
                         if (datas.length > 0) {
-                            log4n.debug('account already exists');
+                            logger.debug('account already exists');
                             return errorparsing(context, {status_code: '409'});
                         } else {
                             return mongoClientInsert(context, 'account', query);
                         }
                     })
                     .then(datas => {
-                        // console.log('datas: ', datas);
-                        if (typeof datas.status_code === "undefined") {
-                            //renvoi la fiche complète
-                            return converter.db2json(datas[0]);
-                        } else {
+                        if (datas.status_code) {
                             //renvoi l'erreur de l'étape précédente
                             return datas;
+                        } else {
+                            logger.debug('datas: %j', datas);
+                            //renvoi la fiche complète
+                            return converter.db2json(datas[0]);
                         }
                     })
                     .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas.status_code === "undefined") {
-                            resolve(datas);
-                            log4n.debug('done - ok');
-                        } else {
+                        // logger.debug(datas, 'datas');
+                        if (datas.status_code) {
                             reject(datas);
-                            log4n.debug('done - erreur dans la procédure');
+                        } else {
+                            resolve(datas);
                         }
                     })
                     .catch(error => {
-                        log4n.object(error, 'error');
+                        logger.debug( 'error: %j', error);
                         reject(errorparsing(context, error));
-                        log4n.debug('done - promise catch')
                     });
             }
-        } catch (error) {
-            log4n.debug('done - global catch');
-            log4n.object(error, 'error');
-            reject(errorparsing(context, error));
+        } catch (exception) {
+            logger.debug('exception: %s', exception.stack);
+            reject(errorparsing(context, exception));
         }
     });
 };

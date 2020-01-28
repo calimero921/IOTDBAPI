@@ -38,17 +38,17 @@ module.exports = function (request, response) {
         //traitement de recherche dans la base
         accountGet(context, query, skip, limit, false)
             .then(datas => {
-                if (typeof datas === 'undefined') {
-                    logger.debug('undefined error');
-                    responseError(context, '', response, logger);
-                } else {
-                    if(typeof datas.status_code != 'undefined') {
+                if (datas) {
+                    if(datas.status_code) {
                         logger.debug('unknown error');
                         responseError(context, datas, response, logger);
                     } else {
                         logger.debug('datas: %j', datas);
                         response.status(200).send(datas);
                     }
+                } else {
+                    logger.debug('undefined error');
+                    responseError(context, '', response, logger);
                 }
             })
             .catch(error => {

@@ -1,8 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
-const decodePost = require('../../../utils/decodePost.js');
 const patch = require('../../../models/api/account/patch.js');
 const get = require('../../../models/api/account/get.js');
+
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -18,78 +17,77 @@ const responseError = require('../../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/account/patch');
+module.exports = function (request, response) {
+    const logger = serverLogger.child({
+        source: '/controllers/api/account/patch.js',
+        httpRequestId: request.httpRequestId
+    });
+    let context = {httpRequestId: request.httpRequestId};
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
 
-        let id = req.params.id;
-        log4n.object(id, 'id');
-        let token = req.params.token;
-        log4n.object(token, 'token');
+        let id = request.params.id;
+        logger.debug('id: %s', id);
+        let token = request.params.token;
+        logger.debug('token: %s', token);
 
-        if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
-            log4n.debug('done - missing arguments')
-        } else {
+        if (id && token && request.body) {
             if (userInfo.admin || (id === userInfo.id)) {
-                let updatedata;
-                decodePost(context, req, res)
+                let updatedata = request.body;
+                logger.debug('updatedata: %j', updatedata);
+
+                //supprime les champs id et token des données pouvant être mise à jour
+                if (updatedata.id) {
+                    delete updatedata.id;
+                }
+                if (updatedata.token) {
+                    delete updatedata.token;
+                }
+                logger.debug('updatedata: %j', updatedata);
+                get(context, {id: id}, 0, 0, false)
                     .then(datas => {
-                        //log4n.object(datas, 'datas');
-                        updatedata = datas;
-                        //supprime les champs id et token des données pouvant être mise à jour
-                        if (typeof updatedata.id !='undefined') {
-                            delete updatedata.id;
-                        }
-                        if (typeof updatedata.token !='undefined') {
-                            delete updatedata.token;
-                        }
-                        return get(context, {id: id}, 0, 0, false)
-                    })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
+                        logger.debug('datas: %j', datas);
                         if (typeof datas.status_code === 'undefined') {
-                            log4n.object(datas, 'datas');
-                            log4n.object(updatedata, 'updatedata');
+                            logger.debug(datas, 'datas');
                             let newdata = datas[0];
-                            if(typeof newdata !='undefined') {
+                            if (typeof newdata != 'undefined') {
                                 for (let key in updatedata) {
-                                    // log4n.object(key, 'key');
+                                    logger.debug('key: %s', key);
                                     newdata[key] = updatedata[key];
                                 }
-                                log4n.object(newdata, 'newdata');
+                                logger.debug('newdata: %j', newdata);
                                 return patch(context, id, token, newdata)
                             } else {
-                                return  {status_code:'404'};
+                                return {status_code: '404'};
                             }
                         } else {
                             return (datas)
                         }
                     })
                     .then(datas => {
-                        // log4n.object(datas, 'datas');
+                        logger.debug('datas: %j', datas);
                         if (typeof datas.status_code === 'undefined') {
-                            res.status(200).send(datas);
-                            log4n.debug('done - ok');
+                            response.status(200).send(datas);
                         } else {
-                            responseError(context, datas, res, log4n);
-                            log4n.debug('done - response error');
+                            logger.debug('response error');
+                            responseError(context, datas, response, logger);
                         }
                     })
                     .catch(error => {
-                        responseError(context, error, res, log4n);
-                        log4n.debug('done - global catch');
+                        logger.error('error: %j', error);
+                        responseError(context, error, response, logger);
                     })
             } else {
-                responseError(context, {status_code: 403}, res, log4n);
-                log4n.debug('done - Forbidden');
+                logger.debug('Forbidden');
+                responseError(context, {status_code: 403}, response, logger);
             }
+        } else {
+            logger.debug('missing parameters');
+            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
         }
     } catch (exception) {
-            log4n.error(exception.stack);
-            responseError(context, exception, res, log4n);
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

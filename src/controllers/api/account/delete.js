@@ -1,6 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
 const accountDelete = require('../../../models/api/account/delete.js');
+
+const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -15,44 +16,47 @@ const responseError = require('../../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/account/delete');
+module.exports = function (request, response) {
+    const logger = serverLogger.child({
+        source: '/controllers/api/account/delete.js',
+        httpRequestId: request.httpRequestId
+    });
+    let context = {httpRequestId: request.httpRequestId};
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
 
         let id;
         let token;
-        if (typeof req.params !== 'undefined') {
-            id = req.params.id;
-            token = req.params.token;
+        if (typeof request.params !== 'undefined') {
+            id = request.params.id;
+            token = request.params.token;
         }
-        // log4n.object(id,'id');
-        // log4n.object(token,'token');
+        logger.debug('id: %s', id);
+        logger.debug('token: %s', token);
 
         //traitement de recherche dans la base
         if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, res, log4n);
+            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
         } else {
             if (userInfo.admin || (id === userInfo.id)) {
                 //traitement de suppression dans la base
                 accountDelete(context, id, token)
-                    .then(data => {
-                        // log4n.object(datas, 'datas');
-                        res.status(204).send();
-                        log4n.debug('done - ok');
+                    .then(datas => {
+                        logger.debug('datas: %j', datas);
+                        response.status(204).send();
                     })
                     .catch(error => {
-                        responseError(context, error, res, log4n);
-                        log4n.debug('done - promise catch');
+                        logger.debug('error: %j', error);
+                        responseError(context, error, response, logger);
                     });
             } else {
-                log4n.error('user must be admin or account owner for this action');
-                responseError(context, context, {status_code: 403}, res, log4n);
+                logger.error('user must be admin or account owner for this action');
+                responseError(context, context, {status_code: 403}, response, logger);
             }
         }
     } catch (exception) {
-        responseError(context, exception, res, log4n);
+        logger.debug('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

@@ -1,34 +1,35 @@
-const Log4n = require('../../../utils/log4n.js');
+const mongoClient = require('../../../connectors/mongodb/delete.js');
+
+const serverLogger = require('../../../utils/serverLogger.js');
 const errorparsing = require('../../../utils/errorparsing.js');
-const mongoClient = require('../../../connectors/mongodb/mongodbdelete.js');
 
 module.exports = function (context, id, token) {
-	const log4n = new Log4n(context, '/models/api/account/delete');
-	log4n.object(id,'id');
-	log4n.object(token,'token');
+	const logger = serverLogger.child({
+		source: '/models/api/account/delete.js',
+		httpRequestId: context.httpRequestId
+	});
+	logger.debug(id,'id');
+	logger.debug(token,'token');
 
 	//traitement de suppression dans la base
 	return new Promise((resolve, reject) => {
 		if (typeof id === 'undefined') {
+			logger.debug('missing paramater');
 			reject(errorparsing(context, {status_code: 400}));
-			log4n.debug('done - missing paramater')
 		} else {
 			let query = {id: id, token: token};
-			mongoClient('account', query)
+			mongoClient(context,'account', query)
 				.then(datas => {
-					// log4n.object(datas, 'datas');
-					if (typeof datas.status_code === 'undefined') {
-						resolve(datas);
-						log4n.debug('done - ok')
-					} else {
+					if (datas.status_code) {
+						logger.debug('error: %j', datas);
 						reject(errorparsing(context, datas));
-						log4n.debug('done - response error')
+					} else {
+						resolve(datas);
 					}
 				})
 				.catch(error => {
-					log4n.object(error, 'error');
+					logger.debug( 'error: %j', error);
 					reject(errorparsing(context, error));
-					log4n.debug('done - promise catch')
 				})
 		}
 	})

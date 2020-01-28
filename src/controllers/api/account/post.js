@@ -1,7 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
-const decodePost = require('../../../utils/decodePost.js');
 const accountSet = require('../../../models/api/account/set.js');
+
+const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**
@@ -12,47 +12,47 @@ const responseError = require('../../../utils/responseError.js');
  * @returns {Account.model} 201 - User info
  * @returns {Error} default - Unexpected error
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/account/post');
+module.exports = function (request, response) {
+    const logger = serverLogger.child({
+        source: '/controllers/api/account/post.js',
+        httpRequestId: request.httpRequestId
+    });
+    let context = {httpRequestId: request.httpRequestId};
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
 
         //lecture des données postées
-        decodePost(context, req, res)
-            .then(datas => {
-                // log4n.object(datas, 'datas');
-                if (typeof datas === 'undefined') {
-                    //aucune donnée postée
-                    return {status_code: 400, status_message: 'Missing parameters'};
-                } else {
-                    if (userInfo.admin || ((datas.email === userInfo.email) && (datas.firstname === userInfo.firstname) && (datas.lastname === userInfo.lastname))) {
-                        //creation du compte
-                        return accountSet(context, datas);
-                    } else {
-                        log4n.error('user must be admin or account owner for this action');
-                        return {status_code: 403};
-                    }
-                }
-            })
-            .then(datas => {
-                //recherche d'un code erreur précédent
-                if (typeof datas.status_code === 'undefined') {
-                    //notification enregistrée
-                    res.status(201).send(datas);
-                    log4n.debug('done - ok');
-                } else {
-                    //erreur dans le processus d'enregistrement de la notification
-                    responseError(context, datas, res, log4n);
-                    log4n.debug('done - response error');
-                }
-            })
-            .catch(error => {
-                responseError(context, error, res, log4n);
-                log4n.debug('done - promise catch');
-            });
+        if (request.body) {
+            let datas = request.body;
+            logger.debug('datas: %j', datas);
+            if (userInfo.admin || ((datas.email === userInfo.email) && (datas.firstname === userInfo.firstname) && (datas.lastname === userInfo.lastname))) {
+                //creation du compte
+                accountSet(context, datas)
+                    .then(datas => {
+                        //recherche d'un code erreur précédent
+                        if (typeof datas.status_code === 'undefined') {
+                            //notification enregistrée
+                            response.status(201).send(datas);
+                        } else {
+                            //erreur dans le processus d'enregistrement de la notification
+                            logger.debug('error: %j', datas);
+                            responseError(context, datas, response, logger);
+                        }
+                    })
+                    .catch(error => {
+                        logger.debug('error: %j', datas);
+                        responseError(context, error, response, logger);
+                    });
+            } else {
+                logger.error('user must be admin or account owner for this action');
+                responseError(context, {status_code: 403}, response, logger);
+            }
+        } else {
+            //aucune donnée postée
+            return {status_code: 400, status_message: 'Missing parameters'};
+        }
     } catch (exception) {
-        responseError(context,exception, res, log4n);
+        responseError(context, exception, response, logger);
     }
 };

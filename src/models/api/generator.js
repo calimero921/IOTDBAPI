@@ -1,5 +1,8 @@
 const uuid = require('uuid');
-const Log4n = require('../../utils/log4n.js');
+
+const serverLogger = require('../../utils/serverLogger.js');
+
+const globalPrefix = '/models/api/generator';
 
 class Generator {
     constructor(context) {
@@ -7,24 +10,30 @@ class Generator {
     }
 
     idgen() {
-        const log4n = new Log4n(this.context, '/models/api/generator:idgen');
-        log4n.debug('idgen starting');
+        const logger = serverLogger.child({
+            source: globalPrefix + ':idgen',
+            httpRequestId: this.context.httpRequestId
+        });
+
+        logger.debug('idgen starting');
         let node = [];
 
         for(let i=0; i<6; i++) {
             node.push(parseInt(Math.floor(Math.random()*16)), 16);
         }
-        // log4n.object(node, 'node');
+        logger.debug('node: %j', node);
 
         let data = uuid.v1({node: node});
-        // log4n.object(data, 'data');
-        log4n.debug('idegen done - ok');
+        logger.debug('data: %s', data);
         return data;
-    };
+    }
 
     keygen() {
-        const log4n = new Log4n(this.context, '/models/api/generator:keygen');
-        log4n.debug('keygen starting');
+        const logger = serverLogger.child({
+            source: globalPrefix + ':keygen',
+            httpRequestId: this.context.httpRequestId
+        });
+        logger.debug('keygen starting');
         const dictionnary = "0123456789ABCDEF";
         const keylength = 256;
         let result = "";
@@ -32,10 +41,9 @@ class Generator {
         for(let i=0; i < Math.floor(keylength/8); i++) {
             result = result + dictionnary.substr(Math.floor(Math.random()*dictionnary.length), 1);
         }
-        log4n.debug('keygen done - ok');
-        log4n.object(result, 'result');
+        logger.debug('result: %s', result);
         return result;
-    };
+    }
 }
 
 module.exports = Generator;

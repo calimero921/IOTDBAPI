@@ -1,5 +1,5 @@
 const mongoFind = require('../../../connectors/mongodb/find.js');
-const mongoUpdate = require('../../../connectors/mongodb/mongodbupdate.js');
+const mongoUpdate = require('../../../connectors/mongodb/update.js');
 const Converter = require('./converter.js');
 
 const Log4n = require('../../../utils/log4n.js');
