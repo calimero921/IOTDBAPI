@@ -1,8 +1,8 @@
-const checkAuth = require('../../../utils/checkAuth.js');
-const patch = require('../../../models/account/patch.js');
-const get = require('../../../models/account/get.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const patch = require('../../models/account/patch.js');
+const get = require('../../models/account/get.js');
 
-const responseError = require('../../../utils/responseError.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
@@ -19,7 +19,7 @@ const responseError = require('../../../utils/responseError.js');
  */
 module.exports = function (request, response) {
     const logger = serverLogger.child({
-        source: '/controllers/api/account/patch.js',
+        source: '/controllers/account/patch.js',
         httpRequestId: request.httpRequestId
     });
     let context = {httpRequestId: request.httpRequestId};

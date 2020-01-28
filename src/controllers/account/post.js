@@ -1,8 +1,8 @@
-const checkAuth = require('../../../utils/checkAuth.js');
-const accountSet = require('../../../models/account/set.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const accountSet = require('../../models/account/set.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const responseError = require('../../../utils/responseError.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
@@ -14,7 +14,7 @@ const responseError = require('../../../utils/responseError.js');
  */
 module.exports = function (request, response) {
     const logger = serverLogger.child({
-        source: '/controllers/api/account/post.js',
+        source: '/controllers/account/post.js',
         httpRequestId: request.httpRequestId
     });
     let context = {httpRequestId: request.httpRequestId};

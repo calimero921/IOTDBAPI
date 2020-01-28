@@ -4,24 +4,24 @@ const serverLogger = require('../utils/ServerLogger.js');
 
 const status = require('../controllers/status.js');
 
-const accountGet = require('../controllers/api/account/getAll.js');
-const accountGetByID = require('../controllers/api/account/getByID.js');
-const accountGetByEmail = require('../controllers/api/account/getByEmail.js');
-const accountGetBySession = require('../controllers/api/account/getBySession.js');
-const accountPost = require('../controllers/api/account/post.js');
-const accountPatch = require('../controllers/api/account/patch.js');
-const accountDelete = require('../controllers/api/account/delete.js');
+const accountGet = require('../controllers/account/getAll.js');
+const accountGetByID = require('../controllers/account/getByID.js');
+const accountGetByEmail = require('../controllers/account/getByEmail.js');
+const accountGetBySession = require('../controllers/account/getBySession.js');
+const accountPost = require('../controllers/account/post.js');
+const accountPatch = require('../controllers/account/patch.js');
+const accountDelete = require('../controllers/account/delete.js');
 
-const deviceGetById = require('../controllers/api/device/getById.js');
-const deviceGetByUser = require('../controllers/api/device/getByUser.js');
-const deviceExists = require('../controllers/api/device/exists.js');
-const devicePost = require('../controllers/api/device/post.js');
-const devicePatch = require('../controllers/api/device/patch.js');
-const deviceDelete = require('../controllers/api/device/delete.js');
+const deviceGetById = require('../controllers/device/getById.js');
+const deviceGetByUser = require('../controllers/device/getByUser.js');
+const deviceExists = require('../controllers/device/exists.js');
+const devicePost = require('../controllers/device/post.js');
+const devicePatch = require('../controllers/device/patch.js');
+const deviceDelete = require('../controllers/device/delete.js');
 
-const measureGetById = require('../controllers/api/event/getById.js');
-const measurePost = require('../controllers/api/event/post.js');
-const measureDelete = require('../controllers/api/event/delete.js');
+const measureGetById = require('../controllers/event/getById.js');
+const measurePost = require('../controllers/event/post.js');
+const measureDelete = require('../controllers/event/delete.js');
 
 module.exports = function (server) {
     const logger = serverLogger.child({

@@ -1,10 +1,10 @@
-const checkAuth = require('../../../utils/checkAuth.js');
-const get = require('../../../models/device/get.js');
-const patch = require('../../../models/device/patch.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const get = require('../../models/device/get.js');
+const patch = require('../../models/device/patch.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const errorParsing = require('../../../utils/errorparsing.js');
-const responseError = require('../../../utils/responseError.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine

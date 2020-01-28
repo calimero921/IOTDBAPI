@@ -1,11 +1,11 @@
-const checkAuth = require('../../../utils/checkAuth.js');
-const set = require('../../../models/event/set.js');
-const update = require('../../../models/device/patch.js');
-const get = require('../../../models/device/get.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const set = require('../../models/event/set.js');
+const update = require('../../models/device/patch.js');
+const get = require('../../models/device/get.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const errorparsing = require('../../../utils/errorparsing.js');
-const responseError = require('../../../utils/responseError.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorparsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
 
 const globalPrefix = '/routes/api/event/post.js';
 /**

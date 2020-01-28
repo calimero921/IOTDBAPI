@@ -1,6 +1,6 @@
-const Log4n = require('../../../utils/log4n.js');
-const remove = require('../../../models/device/delete.js');
-const responseError = require('../../../utils/responseError.js');
+const Log4n = require('../../utils/log4n.js');
+const remove = require('../../models/device/delete.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine

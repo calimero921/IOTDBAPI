@@ -1,7 +1,7 @@
-const Log4n = require('../../../utils/log4n.js');
-const checkAuth = require('../../../utils/checkAuth.js');
-const deviceGet = require('../../../models/device/get.js');
-const responseError = require('../../../utils/responseError.js');
+const Log4n = require('../../utils/log4n.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const deviceGet = require('../../models/device/get.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine

@@ -1,8 +1,8 @@
-const checkAuth = require('../../../utils/checkAuth.js');
-const accountDelete = require('../../../models/account/delete.js');
+const checkAuth = require('../../utils/checkAuth.js');
+const accountDelete = require('../../models/account/delete.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const responseError = require('../../../utils/responseError.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
@@ -18,7 +18,7 @@ const responseError = require('../../../utils/responseError.js');
  */
 module.exports = function (request, response) {
     const logger = serverLogger.child({
-        source: '/controllers/api/account/delete.js',
+        source: '/controllers/account/delete.js',
         httpRequestId: request.httpRequestId
     });
     let context = {httpRequestId: request.httpRequestId};
