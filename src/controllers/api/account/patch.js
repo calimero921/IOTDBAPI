@@ -7,7 +7,7 @@ const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route PATCH /1.0.0/account/{id}/{token}
+ * @route PATCH /v0/account/{id}/{token}
  * @group Account - Operations about account
  * @param {string} id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
  * @param {string} token.path.required - eg: FCB108968C990419BD5403D1F12E60C4

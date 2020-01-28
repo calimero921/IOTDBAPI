@@ -1,15 +1,58 @@
 const {JWT} = require('jose');
-const Log4n = require('./log4n.js');
 
-module.exports = function (context, req, res) {
-    const log4n = new Log4n(context, '/routes/checkauth.js');
+const serverLogger = require('../utils/serverLogger.js');
 
-    let parsedToken = req.openIDConnect.accessToken;
-    // log4n.object(parsedToken, 'parsedToken');
-    let parsedUserInfo = req.openIDConnect.userinfo;
-    // log4n.object(parsedUserInfo, 'parsedUserInfo');
+module.exports = function (context, request, response) {
+    const logger = serverLogger.child({
+        source: '/utils/checkauth.js',
+        httpRequestId: context.httpRequestId
+    });
 
-    if(typeof parsedUserInfo !== 'undefined') {
+    // let parsedToken = request.openIDConnect.accessToken;
+    let parsedToken = {
+        jti: "a13dc9cc-c06b-4f80-807d-853c0378eb8b",
+        exp: 1572044038,
+        nbf: 0,
+        iat: 1572008045,
+        iss: "http://localhost:8080/auth/realms/IOTDB",
+        sub: "23df8bad-ca36-4dba-90e0-1a69f0f016b8",
+        typ: "Bearer",
+        azp: "IOTDBDashboard",
+        auth_time: 1572008038,
+        session_state: "353e1fe9-9755-4acf-a9a8-e2c3e59588b8",
+        acr: "0",
+        allowed_origins: ["https://localhost:4443"],
+        realm_access: {
+            roles: ["users", "admins"]
+        }
+        ,
+        resource_access: {
+            IOTDBDashboard: {
+                roles: [
+                    "uma_protection"
+                ]
+            }
+        }
+        ,
+        scope: "openid profile read_profile email",
+        email_verified: true,
+        name: "Emmanuel David",
+        preferred_username: "bede6362",
+        given_name: "Emmanuel",
+        family_name: "David",
+        email: "emmanuel.david@orange.com"
+    };
+    logger.debug('parsedToken: %j', parsedToken);
+    // let parsedUserInfo = request.openIDConnect.userinfo;
+    let parsedUserInfo = {
+        sub: '23df8bad-ca36-4dba-90e0-1a69f0f016b8',
+        given_name: 'Emmanuel',
+        family_name: 'David',
+        email: 'emmanuel.davic@orange.com',
+    };
+    logger.debug('parsedUserInfo: %j', parsedUserInfo);
+
+    if (typeof parsedUserInfo !== 'undefined') {
         let userInfo = {
             id: parsedUserInfo.sub,
             firstname: parsedUserInfo.given_name,
@@ -24,18 +67,17 @@ module.exports = function (context, req, res) {
         }
 
         let client = parsedToken.azp;
-        // log4n.object(client, 'client');
+        logger.debug('client: %j', client);
 
         //lecture des roles liés au royaume
-        if(typeof parsedToken.realm_access !== 'undefined') {
-            // log4n.object(parsedToken.realm_access, 'parsedToken.realm_access');
+        if (typeof parsedToken.realm_access !== 'undefined') {
+            logger.debug('parsedToken.realm_access: %j', parsedToken.realm_access);
             if (parsedToken.realm_access.roles.length > 0) {
                 parsedToken.realm_access.roles.forEach(role => {
                     switch (role) {
                         case 'users':
                             userInfo.active = true;
                             break;
-
                         case 'admins':
                             userInfo.admin = true;
                             break;
@@ -47,8 +89,8 @@ module.exports = function (context, req, res) {
         }
 
         //lecture des roles liés à l'application
-        if(typeof parsedToken.resource_access !== 'undefined') {
-            // log4n.object(parsedToken.resource_access, 'parsedToken.resource_access');
+        if (typeof parsedToken.resource_access !== 'undefined') {
+            logger.debug('parsedToken.resource_access: %j', parsedToken.resource_access);
             if (parsedToken.resource_access[client].roles.length > 0) {
                 parsedToken.resource_access[client].roles.forEach(role => {
                     switch (role) {
@@ -65,13 +107,13 @@ module.exports = function (context, req, res) {
                 })
             }
         }
-        log4n.object(userInfo, 'userInfo');
+        logger.debug('userInfo: %j', userInfo);
 
         if (userInfo.active) {
-            log4n.debug('done - ok');
+            logger.debug('done - ok');
             return userInfo;
         } else {
-            log4n.error('done - Unauthorized user');
+            logger.error('done - Unauthorized user');
             throw new Error('403');
         }
     }

@@ -1,4 +1,4 @@
-const connexion = require('./mongoconnexion.js');
+const connexion = require('./MongoDBConnector.js');
 
 const Log4n = require('../../utils/log4n.js');
 const errorparsing = require('../../utils/errorParsing.js');
@@ -6,7 +6,7 @@ const errorparsing = require('../../utils/errorParsing.js');
 module.exports = function (context, converter, collectionName, query, parameters) {
     return new Promise((resolve, reject) => {
             try {
-                const log4n = new Log4n(context, '/models/mongodbupdate');
+                const log4n = new Log4n(context, '/connectors/mongodbupdate');
                 // log4n.object(collection, 'collection');
                 // log4n.object(query, 'query');
                 log4n.object(parameters, 'parameter');

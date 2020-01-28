@@ -4,7 +4,7 @@ const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route DELETE /1.0.0/event/{device_id}
+ * @route DELETE /v0/event/{device_id}
  * @group Measure - Operations about measure
  * @param {string} device_id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
  * @returns {Error} 204

@@ -1,4 +1,4 @@
-const Log4n = require('../utils/log4n.js');
+const serverLogger = require('../utils/serverLogger.js');
 const config = require('../config/server.js');
 const responseError = require('../utils/responseError.js');
 
@@ -9,26 +9,28 @@ const responseError = require('../utils/responseError.js');
  * @returns {Error}  default - Unexpected error
  */
 
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/status.js');
+module.exports = function (request, response) {
+    const logger = serverLogger.child({
+        source: '/controllers/status.js',
+        httpRequestId: request.httpRequestId
+    });
 
     try {
-        // log4n.object(req.headers, 'headers');
-        // log4n.object(req.path, 'path');
-        // log4n.object(req.query, 'query');
-        // log4n.object(req.params, 'params');
-        // log4n.object(req.body, 'body');
+        // logger.debug(request.headers, 'headers');
+        // logger.debug(request.path, 'path');
+        // logger.debug(request.query, 'query');
+        // logger.debug(request.params, 'params');
+        // logger.debug(request.body, 'body');
 
         let result = {};
         result.swagger_version = config.swagger;
         result.last_update = config.date;
-        log4n.object(result, 'result');
+        logger.debug('result: %j', result);
 
-        res.status(200).send(result);
-        log4n.debug('done');
+        response.status(200).send(result);
+        logger.debug('done');
     } catch (exception) {
-        log4n.error(exception.stack);
-        responseError({status_code: 500}, res, log4n);
+        logger.error('exception: %s', exception.stack);
+        responseError({status_code: 500}, response, logger);
     }
 };

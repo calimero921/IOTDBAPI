@@ -1,10 +1,10 @@
 const Log4n = require('../../utils/log4n.js');
-const connexion = require('./mongoconnexion.js');
+const connexion = require('./MongoDBConnector.js');
 const mongoerror = require('./mongodberror.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, collection, query) {
-    const log4n = new Log4n(context, '/models/mongodbinsert');
+    const log4n = new Log4n(context, '/connectors/mongodbinsert');
     log4n.object(collection, 'collection');
     log4n.object(query, 'query');
 

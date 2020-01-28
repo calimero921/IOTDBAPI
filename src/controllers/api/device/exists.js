@@ -5,7 +5,7 @@ const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /1.0.0/device/exists/{manufacturer}/{model}/{serial}/{secret}
+ * @route GET /v0/device/exists/{manufacturer}/{model}/{serial}/{secret}
  * @group Device - Operations about device
  * @param {String} manufacturer.path.required - eg: edavid
  * @param {String} model.path.required - eg: MS001

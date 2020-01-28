@@ -1,4 +1,5 @@
 const path = require('path');
+
 const serverConfig = require('./server.js');
 
 module.exports = {
@@ -31,5 +32,5 @@ module.exports = {
         }
     },
     basedir: __dirname, //app absolute path
-    files: [path.join(process.cwd(),'src', 'controlers','**','*.js')] //Path to the API handle folder
+    files: [path.join(process.cwd(),'src', 'controllers','**','*.js')] //Path to the API handle folder
 };

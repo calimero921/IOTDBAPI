@@ -23,13 +23,12 @@ const measureGetById = require('../controllers/api/event/getById.js');
 const measurePost = require('../controllers/api/event/post.js');
 const measureDelete = require('../controllers/api/event/delete.js');
 
-let context = {httpRequestId: 'Initialize'};
-
 module.exports = function (server) {
     const logger = serverLogger.child({
         source: '/routes/main.js',
         httpRequestId: 'initialize'
     });
+
     // let lemonLDAP = new lemonLDAPConnect();
     logger.info('Router starting ...');
     logger.info('Request ID middleware');
@@ -40,40 +39,40 @@ module.exports = function (server) {
 
     server.get('/status', status);
 
-    // server.get('/1.0.0/account', lemonLDAP.protect, accountGet);
-    server.get('/1.0.0/account', accountGet);
-    // server.get('/1.0.0/account/id/:id', lemonLDAP.protect, accountGetByID);
-    server.get('/1.0.0/account/id/:id', accountGetByID);
-    // server.get('/1.0.0/account/email/:email', lemonLDAP.protect, accountGetByEmail);
-    server.get('/1.0.0/account/email/:email', accountGetByEmail);
-    // server.get('/1.0.0/account/session/:session_id', lemonLDAP.protect, accountGetBySession);
-    server.get('/1.0.0/account/session/:session_id', accountGetBySession);
-    // server.post('/1.0.0/account', accountPost);
-    server.post('/1.0.0/account', accountPost);
-    // server.patch('/1.0.0/account/:id/:token', lemonLDAP.protect, accountPatch);
-    server.patch('/1.0.0/account/:id/:token', accountPatch);
-    // server.delete('/1.0.0/account/:id/:token', lemonLDAP.protect, accountDelete);
-    server.delete('/1.0.0/account/:id/:token', accountDelete);
+    // server.get('/'+config.server.api_version+'/account', lemonLDAP.protect, accountGet);
+    server.get('/' + config.server.api_version + '/account', accountGet);
+    // server.get('/'+config.server.api_version+'/account/id/:id', lemonLDAP.protect, accountGetByID);
+    server.get('/' + config.server.api_version + '/account/id/:id', accountGetByID);
+    // server.get('/'+config.server.api_version+'/account/email/:email', lemonLDAP.protect, accountGetByEmail);
+    server.get('/' + config.server.api_version + '/account/email/:email', accountGetByEmail);
+    // server.get('/'+config.server.api_version+'/account/session/:session_id', lemonLDAP.protect, accountGetBySession);
+    server.get('/' + config.server.api_version + '/account/session/:session_id', accountGetBySession);
+    // server.post('/'+config.server.api_version+'/account', accountPost);
+    server.post('/' + config.server.api_version + '/account', accountPost);
+    // server.patch('/'+config.server.api_version+'/account/:id/:token', lemonLDAP.protect, accountPatch);
+    server.patch('/' + config.server.api_version + '/account/:id/:token', accountPatch);
+    // server.delete('/'+config.server.api_version+'/account/:id/:token', lemonLDAP.protect, accountDelete);
+    server.delete('/' + config.server.api_version + '/account/:id/:token', accountDelete);
 
-    // server.get('/1.0.0/device/:id', lemonLDAP.protect, deviceGetById);
-    server.get('/1.0.0/device/:id', deviceGetById);
-    // server.get('/1.0.0/device/user/:id', lemonLDAP.protect, deviceGetByUser);
-    server.get('/1.0.0/device/user/:id', deviceGetByUser);
-    // server.get('/1.0.0/device/exists/:manufacturer/:model/:serial/:secret', lemonLDAP.protect, deviceExists);
-    server.get('/1.0.0/device/exists/:manufacturer/:model/:serial/:secret', deviceExists);
-    // server.post('/1.0.0/device', lemonLDAP.protect, devicePost);
-    server.post('/1.0.0/device', devicePost);
-    // server.patch('/1.0.0/device/:id', lemonLDAP.protect, devicePatch);
-    server.patch('/1.0.0/device/:id', devicePatch);
-    // server.delete('/1.0.0/device/:id', lemonLDAP.protect, deviceDelete);
-    server.delete('/1.0.0/device/:id', deviceDelete);
+    // server.get('/'+config.server.api_version+'/device/:id', lemonLDAP.protect, deviceGetById);
+    server.get('/' + config.server.api_version + '/device/:id', deviceGetById);
+    // server.get('/'+config.server.api_version+'/device/user/:id', lemonLDAP.protect, deviceGetByUser);
+    server.get('/' + config.server.api_version + '/device/user/:id', deviceGetByUser);
+    // server.get('/'+config.server.api_version+'/device/exists/:manufacturer/:model/:serial/:secret', lemonLDAP.protect, deviceExists);
+    server.get('/' + config.server.api_version + '/device/exists/:manufacturer/:model/:serial/:secret', deviceExists);
+    // server.post('/'+config.server.api_version+'/device', lemonLDAP.protect, devicePost);
+    server.post('/' + config.server.api_version + '/device', devicePost);
+    // server.patch('/'+config.server.api_version+'/device/:id', lemonLDAP.protect, devicePatch);
+    server.patch('/' + config.server.api_version + '/device/:id', devicePatch);
+    // server.delete('/'+config.server.api_version+'/device/:id', lemonLDAP.protect, deviceDelete);
+    server.delete('/' + config.server.api_version + '/device/:id', deviceDelete);
 
-    // server.get('/1.0.0/event/:id', lemonLDAP.protect, measureGetById);
-    server.get('/1.0.0/event/:id', measureGetById);
-    // server.post('/1.0.0/event', lemonLDAP.protect, measurePost);
-    server.post('/1.0.0/event', measurePost);
-    // server.delete('/1.0.0/event/:id', lemonLDAP.protect, measureDelete);
-    server.delete('/1.0.0/event/:id', measureDelete);
+    // server.get('/'+config.server.api_version+'/event/:id', lemonLDAP.protect, measureGetById);
+    server.get('/' + config.server.api_version + '/event/:id', measureGetById);
+    // server.post('/'+config.server.api_version+'/event', lemonLDAP.protect, measurePost);
+    server.post('/' + config.server.api_version + '/event', measurePost);
+    // server.delete('/'+config.server.api_version+'/event/:id', lemonLDAP.protect, measureDelete);
+    server.delete('/' + config.server.api_version + '/event/:id', measureDelete);
 
     logger.debug('done');
 };

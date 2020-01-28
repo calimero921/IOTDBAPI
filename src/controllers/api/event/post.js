@@ -9,7 +9,7 @@ const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route POST /1.0.0/measure
+ * @route POST /v0/measure
  * @group Measure - Operations about measure
  * @param {Measure.model} measure.body.required - Device details
  * @returns {Measure.model} 201 - Device info

@@ -1,41 +1,46 @@
-const connexion = require('./mongoconnexion.js');
+const mongoDBConnector = require('./MongoDBConnector.js');
 
-const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, converter, collectionName, query, parameters, overtake) {
     return new Promise((resolve, reject) => {
         try {
-            const log4n = new Log4n(context, '/models/mongodbfind');
-            log4n.object(collectionName, 'collection');
-            log4n.object(query, 'query');
-            log4n.object(parameters, 'parameter');
+            const logger = serverLogger.child({
+                source: '/connectors/mongodb/find.js',
+                httpRequestId: context.httpRequestId
+            });
+
+            logger.debug('collection: %s', collectionName);
+            logger.debug('query: %s', query);
+            logger.debug('parameter: %s', parameters);
 
             if (typeof overtake === 'undefined') overtake = false;
-            log4n.object(overtake, 'overtake');
+            logger.debug('overtake: %s', overtake);
 
-            connexion(context)
-                .then(() => {
-                    //initialisation des parametres offset et limit
-                    let skip = 0;
-                    let limit = 0;
-                    let sort = {};
-                    if (typeof parameters !== 'undefined') {
-                        if (typeof parameters.skip !== 'undefined') skip = parseInt(parameters.skip);
-                        if (typeof parameters.limit !== 'undefined') limit = parseInt(parameters.limit);
-                        if (typeof parameters.sort !== 'undefined') sort = parameters.sort;
-                    }
-                    let collection = mongodbConnexion.collection(collectionName);
+            //initialisation des parametres offset et limit
+            let skip = 0;
+            let limit = 0;
+            let sort = {};
+            if (parameters) {
+                if (parameters.skip) skip = parseInt(parameters.skip);
+                if (parameters.limit) limit = parseInt(parameters.limit);
+                if (parameters.sort) sort = parameters.sort;
+            }
+
+            mongoDBConnector.getDB(context)
+                .then(mongodbDatabase => {
+                    let collection = mongodbDatabase.collection(collectionName);
                     collection.find(query)
                         .skip(skip)
                         .limit(limit)
                         .sort(sort)
                         .toArray()
                         .then(datas => {
-                            // console.log('datas: ', datas);
+                            logger.debug('datas: %j', datas);
                             if (typeof datas === 'undefined') {
+                                logger.debug('no data');
                                 reject(errorparsing(context, {status_code: 500}));
-                                log4n.debug('done - no data')
                             } else {
                                 if (datas.length > 0) {
                                     let promises = [];
@@ -44,49 +49,40 @@ module.exports = function (context, converter, collectionName, query, parameters
                                             promises.push(converter.db2json(datas[idx1]));
                                         }
                                     }
-
                                     Promise.all(promises)
                                         .then(result => {
-                                            // log4n.object(result, 'result');
+                                            // logger.debug(result, 'result');
                                             if (result.length > 0) {
+                                                logger.debug('result: %j', result);
                                                 resolve(result);
-                                                log4n.debug('done - ok');
                                             } else {
+                                                logger.debug('not correct record found');
                                                 reject(errorparsing(context, {status_code: 404}));
-                                                log4n.debug('done - not correct record found');
                                             }
                                         })
                                         .catch(error => {
+                                            logger.debug('error: %j', error);
                                             reject(errorparsing(context, error));
-                                            log4n.debug('done - error')
                                         });
                                 } else {
                                     if (overtake) {
+                                        logger.debug('no result but ok');
                                         resolve(errorparsing(context, {status_code: 404}));
-                                        log4n.debug('done - no result but ok')
                                     } else {
+                                        logger.debug('not found');
                                         reject(errorparsing(context, {status_code: 404}));
-                                        log4n.debug('done - not found')
                                     }
                                 }
                             }
                         })
                         .catch((error) => {
-                            log4n.object(error, 'error');
+                            logger.debug('error: %j', error);
                             reject(errorparsing(context, error));
-                            global.mongodbConnexion = null;
-                            log4n.debug('done - find catch')
                         });
                 })
-                .catch((error) => {
-                    log4n.object(error, 'error');
-                    reject(errorparsing(context, error));
-                    log4n.debug('done - connexion catch')
-                });
         } catch (exception) {
-            console.log('exception:', exception);
+            console.log('exception: %s', exception.stack);
             reject(errorparsing(context, exception));
-            log4n.debug('done - exception')
         }
     });
 };

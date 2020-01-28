@@ -5,7 +5,7 @@ const responseError = require('../../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /1.0.0/account/session/{session_id}
+ * @route GET /v0/account/session/{session_id}
  * @group Account - Operations about account
  * @param {string} session_id.path.required - eg: 2lPe21SQcHJoD_1UY7l3I82NOrS_Hzw9
  * @returns {Account.model} 200 - User info

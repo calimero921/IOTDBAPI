@@ -24,16 +24,12 @@ logger.debug('serverPath: %s', serverPath);
 const session = require('express-session');
 let server = express();
 
-logger.debug('Database connexion setup');
-global.mongodbConnexion = null;
-
 logger.info('Express swagger generator setup');
 if (configuration.swagger) {
     const expressSwagger = require('express-swagger-generator')(server);
     let swaggerOptions = configuration.swagger;
     expressSwagger(swaggerOptions);
 }
-
 
 // uncomment after placing your favicon in /public
 logger.debug('Engine setup');
@@ -48,6 +44,7 @@ server.use(bodyParser.urlencoded({extended: false}));
 logger.debug('Express server setup');
 server.set('trust proxy', 1);
 require('./routes/main.js')(server);
+
 /**
  * Get port from environment and store in Express.
  */

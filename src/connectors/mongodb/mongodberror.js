@@ -2,7 +2,7 @@ const Log4n = require('../../utils/log4n.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, error) {
-    const log4n = new Log4n(context, '/models/mongodberror');
+    const log4n = new Log4n(context, '/connectors/mongodberror');
     // log4n.object(error, 'error');
 
     try {
