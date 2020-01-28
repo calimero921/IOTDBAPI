@@ -1,28 +1,27 @@
-const mongoInsert = require('../../../connectors/mongodb/insert.js');
-const Converter = require('./converter.js');
+const Log4n = require('../../utils/log4n.js');
+const mongoInsert = require('../../connectors/mongodb/insert.js');
+const Converter = require('./utils/converter.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
-const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
-
-module.exports = function (context, device) {
-    const log4n = new Log4n(context, '/models/api/device/set');
-    // log4n.object(device, 'device');
+module.exports = function (context, event) {
+    const log4n = new Log4n(context, '/models/event/set');
+    log4n.object(event, 'event');
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
             log4n.debug('storing device');
             const converter = new Converter(context);
-            // const generator = new Generator(context);
-            if (typeof device === 'undefined') {
+            if (typeof event === 'undefined') {
                 reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
-                converter.json2db(device)
+                converter.json2db(event)
                     .then(query => {
+                        //ajout des informations générées par le serveur
                         log4n.object(query, 'query');
-                        return mongoInsert(context, 'device', query);
+                        return mongoInsert(context, 'event', query);
                     })
                     .then(datas => {
                         // console.log('datas: ', datas);

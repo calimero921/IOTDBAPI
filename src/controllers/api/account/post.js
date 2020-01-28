@@ -1,5 +1,5 @@
 const checkAuth = require('../../../utils/checkAuth.js');
-const accountSet = require('../../../models/api/account/set.js');
+const accountSet = require('../../../models/account/set.js');
 
 const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');

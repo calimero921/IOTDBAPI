@@ -1,10 +1,10 @@
-const Log4n = require('../../../utils/log4n.js');
-const mongoFind = require('../../../connectors/mongodb/find.js');
-const Converter = require('./converter.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const mongoFind = require('../../connectors/mongodb/find.js');
+const Converter = require('./utils/converter.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
-    const log4n = new Log4n(context, '/models/api/event/get');
+    const log4n = new Log4n(context, '/models/event/get');
     log4n.object(query, 'query');
     log4n.object(offset, 'offset');
     log4n.object(limit, 'limit');

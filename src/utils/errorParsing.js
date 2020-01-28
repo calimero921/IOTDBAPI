@@ -1,35 +1,35 @@
-// const serverLogger = require('./ServerLogger.js');
+const serverLogger = require('./ServerLogger.js');
 
 module.exports = function (context, error, reset) {
-    // const logger = serverLogger.child({
-    //     source: '/utils/errorParsing.js',
-    //     httpRequestId: context.httpRequestId
-    // });
+    const logger = serverLogger.child({
+        source: '/utils/errorParsing.js',
+        httpRequestId: context.httpRequestId
+    });
 
     if(typeof reset === 'undefined') reset = false;
     if(reset && error.status_message) delete error.status_message;
 
-    // logger.debug('error: %j', error);
+    logger.debug('error: %j', error);
     let result = {};
 
     if (!error) {
         result.status_code = 500;
     } else {
         if (error.status_code) {
+            logger.debug('already formated');
             result = error;
-            // logger.debug('already formated');
         } else {
             result.status_code = 500;
             if (error.errmsg) {
+                logger.debug('prefix 500, errmsg');
                 result.status_message = error.errmsg;
-                // logger.debug('prefix 500, errmsg');
             } else {
                 if (error.stack) {
+                    logger.debug('prefix 500, stack');
                     result.status_message = error.stack;
-                    // logger.debug('prefix 500, stack');
                 } else {
+                    logger.debug('prefix 500, message');
                     result.status_message = error;
-                    // logger.debug('prefix 500, message');
                 }
             }
         }
@@ -69,6 +69,6 @@ module.exports = function (context, error, reset) {
         result.status_message = message;
     }
 
-    // logger.debug('error out: %j', result);
+    logger.debug('error out: %j', result);
     return result;
 };

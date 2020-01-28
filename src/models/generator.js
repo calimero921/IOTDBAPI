@@ -1,8 +1,8 @@
 const uuid = require('uuid');
 
-const serverLogger = require('../../utils/serverLogger.js');
+const serverLogger = require('../utils/ServerLogger.js');
 
-const globalPrefix = '/models/api/generator';
+const globalPrefix = '/models/generator.js';
 
 class Generator {
     constructor(context) {

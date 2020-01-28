@@ -2,10 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
 
-const serverLogger = require('../../../../utils/serverLogger.js');
-const errorparsing = require('../../../../utils/errorParsing.js');
+const serverLogger = require('../../../utils/ServerLogger.js');
+const errorparsing = require('../../../utils/errorParsing.js');
 
-const globalPrefix = '/models/api/account/utils/converter';
+const globalPrefix = '/models/account/utils/converter';
 
 class Converter {
     constructor(context) {

@@ -1,9 +1,9 @@
-const Log4n = require('../../../utils/log4n.js');
-const mongoClient = require('../../../connectors/mongodb/delete.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const mongoClient = require('../../connectors/mongodb/delete.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id) {
-    const log4n = new Log4n(context, '/models/api/device/delete');
+    const log4n = new Log4n(context, '/models/device/delete');
     // log4n.object(device_id,'device_id');
 
     //traitement de suppression dans la base

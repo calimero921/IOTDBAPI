@@ -1,12 +1,12 @@
-const mongoFind = require('../../../connectors/mongodb/find.js');
+const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/converter.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, skip, limit, overtake) {
     const logger = serverLogger.child({
-        source: '/models/api/account/get.js',
+        source: '/models/account/get.js',
         httpRequestId: context.httpRequestId
     });
 

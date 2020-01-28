@@ -1,8 +1,11 @@
-const Log4n = require('./log4n.js');
+const serverLogger = require('./serverLogger.js');
 const errorparsing = require('./errorparsing.js');
 
 module.exports = function (context) {
-    const log4n = new Log4n(context, '/utils/password',context.httpRequestId);
+    const logger = serverLogger.child({
+        source: '/utils/password.js',
+        httpRequestId: context.httpRequestId
+    });
 
     return new Promise(function (resolve, reject) {
         try {
@@ -17,10 +20,9 @@ module.exports = function (context) {
                 }
             }
             resolve(value);
-        } catch(error) {
-            log4n.object(error, 'error');
-            reject(errorparsing(error));
-            log4n.debug('done - global catch')
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            reject(errorparsing(context, exception));
         }
     });
 };

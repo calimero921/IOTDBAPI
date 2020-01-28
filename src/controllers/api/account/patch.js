@@ -1,6 +1,6 @@
 const checkAuth = require('../../../utils/checkAuth.js');
-const patch = require('../../../models/api/account/patch.js');
-const get = require('../../../models/api/account/get.js');
+const patch = require('../../../models/account/patch.js');
+const get = require('../../../models/account/get.js');
 
 const responseError = require('../../../utils/responseError.js');
 

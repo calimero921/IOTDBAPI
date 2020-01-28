@@ -1,7 +1,7 @@
 const checkAuth = require('../../../utils/checkAuth.js');
-const set = require('../../../models/api/event/set.js');
-const update = require('../../../models/api/device/patch.js');
-const get = require('../../../models/api/device/get.js');
+const set = require('../../../models/event/set.js');
+const update = require('../../../models/device/patch.js');
+const get = require('../../../models/device/get.js');
 
 const serverLogger = require('../../../utils/serverLogger.js');
 const errorparsing = require('../../../utils/errorparsing.js');

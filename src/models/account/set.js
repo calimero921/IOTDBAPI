@@ -1,16 +1,16 @@
 const moment = require('moment');
 
-const mongoClientInsert = require('../../../connectors/mongodb/insert.js');
-const mongoFind = require('../../../connectors/mongodb/find.js');
+const mongoClientInsert = require('../../connectors/mongodb/insert.js');
+const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/converter.js');
 const Generator = require('../generator.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, account) {
     const logger = serverLogger.child({
-        source: '/models/api/account/set.js',
+        source: '/models/account/set.js',
         httpRequestId: context.httpRequestId
     });
     logger.debug( 'account: %j', account);

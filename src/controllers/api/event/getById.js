@@ -1,7 +1,7 @@
 const Log4n = require('../../../utils/log4n.js');
 const checkAuth = require('../../../utils/checkAuth.js');
-const measureGet = require('../../../models/api/event/get.js');
-const deviceGet = require('../../../models/api/device/get.js');
+const measureGet = require('../../../models/event/get.js');
+const deviceGet = require('../../../models/device/get.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**

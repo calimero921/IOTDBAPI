@@ -1,5 +1,5 @@
 const Log4n = require('../../../utils/log4n.js');
-const remove = require('../../../models/api/event/delete.js');
+const remove = require('../../../models/event/delete.js');
 const responseError = require('../../../utils/responseError.js');
 
 /**

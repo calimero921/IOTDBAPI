@@ -3,10 +3,10 @@ const fs = require('fs');
 const path = require('path');
 const Ajv = require('ajv');
 
-const Generator = require('../generator.js');
+const Generator = require('../../generator.js');
 
 const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const errorparsing = require('../../../utils/errorParsing.js');
 
 class Converter {
     constructor(context) {
@@ -14,8 +14,8 @@ class Converter {
     }
 
     json2db(data) {
-        const log4n = new Log4n(this.context, '/models/api/device/converter/json2db');
-        // log4n.object(data, 'data');
+        const log4n = new Log4n(this.context, '/models/device/converter/json2db');
+        log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {
             try {
@@ -114,7 +114,7 @@ class Converter {
     };
 
     db2json(data) {
-        const log4n = new Log4n(this.context, '/models/api/device/converter/db2json');
+        const log4n = new Log4n(this.context, '/models/device/converter/db2json');
         // log4n.object(data, 'data');
 
         return new Promise((resolve, reject) => {

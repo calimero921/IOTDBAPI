@@ -1,15 +1,15 @@
-const mongoFind = require('../../../connectors/mongodb/find.js');
-const mongoUpdate = require('../../../connectors/mongodb/update.js');
-const Converter = require('./converter.js');
+const mongoFind = require('../../connectors/mongodb/find.js');
+const mongoUpdate = require('../../connectors/mongodb/update.js');
+const Converter = require('./utils/converter.js');
 
-const Log4n = require('../../../utils/log4n.js');
-const errorParsing = require('../../../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id, new_device) {
     //traitement de recherche dans la base
     return new Promise((resolve, reject) => {
         try {
-            const log4n = new Log4n(context, '/models/api/device/patch');
+            const log4n = new Log4n(context, '/models/device/patch');
             // log4n.object(context,'context');
             // log4n.object(device_id,'device_id');
             // log4n.object(new_device,'new_device');

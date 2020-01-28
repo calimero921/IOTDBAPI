@@ -1,11 +1,11 @@
-const mongoClient = require('../../../connectors/mongodb/delete.js');
+const mongoClient = require('../../connectors/mongodb/delete.js');
 
-const serverLogger = require('../../../utils/serverLogger.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, id, token) {
 	const logger = serverLogger.child({
-		source: '/models/api/account/delete.js',
+		source: '/models/account/delete.js',
 		httpRequestId: context.httpRequestId
 	});
 	logger.debug(id,'id');

@@ -1,6 +1,6 @@
 const checkAuth = require('../../../utils/checkAuth.js');
-const set = require('../../../models/api/device/set.js');
-const get = require('../../../models/api/device/get.js');
+const set = require('../../../models/device/set.js');
+const get = require('../../../models/device/get.js');
 
 const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');

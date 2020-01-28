@@ -4,7 +4,7 @@ const Ajv = require('ajv');
 const Moment = require('moment');
 
 const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const errorparsing = require('../../../utils/errorParsing.js');
 
 class Converter {
     constructor(context) {
@@ -12,7 +12,7 @@ class Converter {
     }
 
     json2db(data) {
-        const log4n = new Log4n(this.context, '/models/api/event/converter/json2db');
+        const log4n = new Log4n(this.context, '/models/event/converter/json2db');
 
         return new Promise((resolve, reject) => {
             try {
@@ -74,7 +74,7 @@ class Converter {
     };
 
     db2json(data) {
-        const log4n = new Log4n(this.context, '/models/api/event/converter/db2json');
+        const log4n = new Log4n(this.context, '/models/event/converter/db2json');
 
         return new Promise((resolve, reject) => {
             try {

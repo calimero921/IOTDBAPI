@@ -1,5 +1,5 @@
 const checkAuth = require('../../../utils/checkAuth.js');
-const accountDelete = require('../../../models/api/account/delete.js');
+const accountDelete = require('../../../models/account/delete.js');
 
 const serverLogger = require('../../../utils/serverLogger.js');
 const responseError = require('../../../utils/responseError.js');

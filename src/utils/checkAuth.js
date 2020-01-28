@@ -43,6 +43,7 @@ module.exports = function (context, request, response) {
         email: "emmanuel.david@orange.com"
     };
     logger.debug('parsedToken: %j', parsedToken);
+
     // let parsedUserInfo = request.openIDConnect.userinfo;
     let parsedUserInfo = {
         sub: '23df8bad-ca36-4dba-90e0-1a69f0f016b8',
@@ -52,7 +53,7 @@ module.exports = function (context, request, response) {
     };
     logger.debug('parsedUserInfo: %j', parsedUserInfo);
 
-    if (typeof parsedUserInfo !== 'undefined') {
+    if (parsedUserInfo) {
         let userInfo = {
             id: parsedUserInfo.sub,
             firstname: parsedUserInfo.given_name,
@@ -70,8 +71,8 @@ module.exports = function (context, request, response) {
         logger.debug('client: %j', client);
 
         //lecture des roles liés au royaume
-        if (typeof parsedToken.realm_access !== 'undefined') {
-            logger.debug('parsedToken.realm_access: %j', parsedToken.realm_access);
+        if (parsedToken.realm_access) {
+            logger.debug('realm_access: %j', parsedToken.realm_access);
             if (parsedToken.realm_access.roles.length > 0) {
                 parsedToken.realm_access.roles.forEach(role => {
                     switch (role) {
@@ -89,15 +90,14 @@ module.exports = function (context, request, response) {
         }
 
         //lecture des roles liés à l'application
-        if (typeof parsedToken.resource_access !== 'undefined') {
-            logger.debug('parsedToken.resource_access: %j', parsedToken.resource_access);
+        if (parsedToken.resource_access) {
+            logger.debug('resource_access: %j', parsedToken.resource_access);
             if (parsedToken.resource_access[client].roles.length > 0) {
                 parsedToken.resource_access[client].roles.forEach(role => {
                     switch (role) {
                         case 'users':
                             userInfo.active = true;
                             break;
-
                         case 'admins':
                             userInfo.admin = true;
                             break;

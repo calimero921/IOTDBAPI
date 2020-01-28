@@ -1,12 +1,12 @@
 const moment = require('moment');
-const Log4n = require('../../../utils/log4n.js');
-const errorparsing = require('../../../utils/errorparsing.js');
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
 const getAccount = require('./get.js');
 const patchAccount = require('./patch.js');
 const Generator = require('../generator.js');
 
 module.exports = function (context, id, token) {
-    const log4n = new Log4n(context, '/models/api/account/setToken');
+    const log4n = new Log4n(context, '/models/account/setToken');
     log4n.object(id, 'id');
 
     return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ module.exports = function (context, id, token) {
 };
 
 function createToken(context) {
-    const log4n = new Log4n(context, '/models/api/account/setToken/createToken');
+    const log4n = new Log4n(context, '/models/account/setToken/createToken');
 
     return new Promise((resolve, reject) => {
         let generator = new Generator();
