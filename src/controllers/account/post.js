@@ -50,7 +50,7 @@ module.exports = function (request, response) {
             }
         } else {
             //aucune donnée postée
-            return {status_code: 400, status_message: 'Missing parameters'};
+            responseError (context,{status_code: 400}, response, logger);
         }
     } catch (exception) {
         responseError(context, exception, response, logger);

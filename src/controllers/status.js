@@ -28,7 +28,6 @@ module.exports = function (request, response) {
         logger.debug('result: %j', result);
 
         response.status(200).send(result);
-        logger.debug('done');
     } catch (exception) {
         logger.error('exception: %s', exception.stack);
         responseError({status_code: 500}, response, logger);

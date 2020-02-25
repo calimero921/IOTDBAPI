@@ -1,8 +1,10 @@
 const moment = require('moment');
-const Log4n = require('../../utils/log4n.js');
-const errorparsing = require('../../utils/errorParsing.js');
+
 const patchAccount = require('./patch.js');
 const getAccount = require('./get.js');
+
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, id, token, session_id) {
     const log4n = new Log4n(context, '/models/account/setSession');

@@ -1,43 +1,52 @@
 {
-	"name": "iotdbapi",
-	"version": "0.0.1",
-	"description": "IOT Management platform API",
-	"private": true,
-	"license": "Apache-2.0",
-	"bugs": {
-		"url": "https://github.com/calimero921/IOTDBAPI/issues",
-		"email": "calimero921@gmail.com"
-	},
-	"author": {
-		"name": "Emmanuel David",
-		"email": "calimero921@gmail.com"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/calimero921/IOTDBAPI.git"
-	},
-	"scripts": {
-		"start": "node src/server.js"
-	},
-	"dependencies": {
-		"ajv": "^6.11.0",
-		"ajv-async": "^1.0.1",
-		"body-parser": "^1.19.0",
-		"cookie-parser": "^1.4.4",
-		"express": "^4.17.1",
-		"express-session": "^1.17.0",
-		"express-swagger-generator": "^1.1.17",
-		"jose": "^1.21.0",
-		"moment": "^2.24.0",
-		"mongodb": "^3.5.2",
-		"openid-client": "^3.12.0",
-		"uuid": "^3.4.0",
-		"winston": "^3.2.1",
-		"winston-daily-rotate-file": "^4.4.2"
-	},
-	"engines": {
-		"node": ">=12.12.0",
-		"npm": ">=6.11.3"
-	},
-	"devDependencies": {}
+  "name": "iotdbapi",
+  "version": "0.0.1",
+  "description": "IOT Management platform API",
+  "private": true,
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/calimero921/IOTDBAPI/issues",
+    "email": "calimero921@gmail.com"
+  },
+  "author": {
+    "name": "Emmanuel David",
+    "email": "calimero921@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/calimero921/IOTDBAPI.git"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "coverage": "nyc --all --include=src --reporter=html --reporter=text npm run test-dev",
+    "test-dev": "mocha ./test/**/*.spec.js --file test/startServer.js --reporter mochawesome --config=./test/000-configuration/test-dev-local.conf.json --timeout 8000 --exit"
+  },
+  "dependencies": {
+    "ajv": "^6.12.0",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "express-session": "^1.17.0",
+    "express-swagger-generator": "^1.1.17",
+    "jose": "^1.23.0",
+    "moment": "^2.24.0",
+    "mongodb": "^3.5.3",
+    "openid-client": "^3.13.0",
+    "uuid": "^3.4.0",
+    "winston": "^3.2.1",
+    "winston-daily-rotate-file": "^4.4.2"
+  },
+  "engines": {
+    "node": ">=12.12.0",
+    "npm": ">=6.11.3"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
+    "mocha": "^7.0.1",
+    "mochawesome": "^4.1.0",
+    "nyc": "^15.0.0",
+    "superagent": "^5.2.1",
+    "yargs": "^15.1.0"
+  }
 }

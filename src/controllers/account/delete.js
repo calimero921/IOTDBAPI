@@ -2,6 +2,7 @@ const checkAuth = require('../../utils/checkAuth.js');
 const accountDelete = require('../../models/account/delete.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
@@ -36,8 +37,10 @@ module.exports = function (request, response) {
         logger.debug('token: %s', token);
 
         //traitement de recherche dans la base
-        if (typeof id === 'undefined' || typeof token === 'undefined') {
-            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
+        if (!id || !token) {
+            let error = errorParsing(context, {status_code: 400, status_message: 'Missing parameters'});
+            logger.debug('error: %j', error);
+            responseError(context, error, response, logger);
         } else {
             if (userInfo.admin || (id === userInfo.id)) {
                 //traitement de suppression dans la base
@@ -51,8 +54,12 @@ module.exports = function (request, response) {
                         responseError(context, error, response, logger);
                     });
             } else {
-                logger.error('user must be admin or account owner for this action');
-                responseError(context, context, {status_code: 403}, response, logger);
+                let error = errorParsing(context, {
+                    status_code: 403,
+                    status_message: 'user must be admin or account owner for this action'
+                });
+                logger.error('error : %j', error);
+                responseError(context, error, response, logger);
             }
         }
     } catch (exception) {

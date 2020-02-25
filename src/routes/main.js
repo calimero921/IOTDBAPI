@@ -37,7 +37,7 @@ module.exports = function (server) {
         next();
     });
 
-    server.get('/status', status);
+    server.get('/'+config.server.api_version+'/status', status);
 
     // server.get('/'+config.server.api_version+'/account', lemonLDAP.protect, accountGet);
     server.get('/' + config.server.api_version + '/account', accountGet);

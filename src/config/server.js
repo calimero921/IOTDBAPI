@@ -7,7 +7,7 @@ module.exports = {
     protocol: 'https',
     hostname: 'localhost',
     port: '3443',
-    ca_crt: 'ca-crt.pem',
+    ca_crt: 'ca-dev-crt.pem',
     server_key: 'server-key.pem',
     server_crt: 'server-crt.pem',
     session_timeout: 3600000,

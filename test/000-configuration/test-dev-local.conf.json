@@ -1,0 +1,22 @@
+{
+  "env": {
+    "LOGLEVEL": "info",
+    "LOGDIR": "/opt/application/iam",
+    "LOGTRANSPORT": ["console"],
+    "MONGODBLOGIN": "admin",
+    "MONGODBPASSWD": "admin",
+    "MONGODBHOST":  "localhost",
+    "MONGODBPORT":  "27017",
+    "MONGODBADMDB": "admin",
+    "MONGODBTIMEOUT": "30000",
+    "MONGODBNAME": "iotdb",
+    "PROTOCOL": "https",
+    "HOSTNAME": "localhost",
+    "PORT": "3443",
+    "HTTPSCA": "ca-dev-crt.pem",
+    "HTTPSPRIVATEKEY": "server-key.pem",
+    "HTTPSCERTIFICATE": "server-crt.pem",
+    "HTTPSAUTHORIZATION": true,
+    "HTTPSAUTHORIZATIONLIST": [{"name": "postman", "cn": "client.localhost"}]
+  }
+}

@@ -1,5 +1,5 @@
 const mongoFind = require('../../connectors/mongodb/find.js');
-const Converter = require('./utils/converter.js');
+const Converter = require('./utils/Converter.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');

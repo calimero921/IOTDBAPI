@@ -2,8 +2,8 @@ const moment = require('moment');
 
 const mongoClientInsert = require('../../connectors/mongodb/insert.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
-const Converter = require('./utils/converter.js');
-const Generator = require('../generator.js');
+const Converter = require('./utils/Converter.js');
+const Generator = require('../utils/Generator.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
@@ -35,7 +35,7 @@ module.exports = function (context, account) {
                         query.current_connexion_date = parseInt(moment().format('x'));
                         query.last_connexion_date = parseInt(moment().format('x'));
                         query.creation_date = parseInt(moment().format('x'));
-                        query.session_id = "no session";
+                        query.session_id = datas.session_id ? datas.session_id : "no session";
                         query.token = generator.keygen();
                         logger.debug(query, 'query');
 

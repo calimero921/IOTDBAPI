@@ -2,7 +2,7 @@ const Log4n = require('../../utils/log4n.js');
 const errorparsing = require('../../utils/errorParsing.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
 const mongoUpdate = require('../../connectors/mongodb/update.js');
-const Converter = require('./utils/converter.js');
+const Converter = require('./utils/Converter.js');
 
 module.exports = function (context, id, token, new_account) {
     const log4n = new Log4n(context, '/models/account/patch');

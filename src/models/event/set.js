@@ -1,6 +1,6 @@
 const Log4n = require('../../utils/log4n.js');
 const mongoInsert = require('../../connectors/mongodb/insert.js');
-const Converter = require('./utils/converter.js');
+const Converter = require('./utils/Converter.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, event) {

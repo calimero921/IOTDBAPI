@@ -1,6 +1,6 @@
 const Log4n = require('../../utils/log4n.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
-const Converter = require('./utils/converter.js');
+const Converter = require('./utils/Converter.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {

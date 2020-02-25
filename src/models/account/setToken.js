@@ -1,9 +1,11 @@
 const moment = require('moment');
-const Log4n = require('../../utils/log4n.js');
-const errorparsing = require('../../utils/errorParsing.js');
+
 const getAccount = require('./get.js');
 const patchAccount = require('./patch.js');
-const Generator = require('../generator.js');
+
+const Log4n = require('../../utils/log4n.js');
+const errorparsing = require('../../utils/errorParsing.js');
+const Generator = require('../utils/Generator.js');
 
 module.exports = function (context, id, token) {
     const log4n = new Log4n(context, '/models/account/setToken');
