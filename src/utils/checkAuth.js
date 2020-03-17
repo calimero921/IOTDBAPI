@@ -1,6 +1,7 @@
 const {JWT} = require('jose');
 
 const serverLogger = require('../utils/serverLogger.js');
+const errorParsing = require('../utils/errorParsing.js');
 
 module.exports = function (context, request, response) {
     const logger = serverLogger.child({
@@ -8,8 +9,87 @@ module.exports = function (context, request, response) {
         httpRequestId: context.httpRequestId
     });
 
-    // let parsedToken = request.openIDConnect.accessToken;
-    let parsedToken = {
+    try {
+        // let accessToken = request.openIDConnect.accessToken;
+        let accessToken = getTestAccessToken();
+        logger.debug('accessToken: %j', accessToken);
+
+        // let userInfo = request.openIDConnect.userinfo;
+        let userInfo = getTestUserInfo();
+        logger.debug('userInfo: %j', userInfo);
+
+        if (userInfo) {
+            let resultUserInfo = {
+                id: userInfo.sub,
+                firstname: userInfo.given_name,
+                lastname: userInfo.family_name,
+                email: "",
+                admin: false,
+                active: false
+            };
+
+            if (resultUserInfo.email_verified) {
+                resultUserInfo.email = resultUserInfo.email;
+            }
+
+            let client = accessToken.azp;
+            logger.debug('client: %j', client);
+
+            //lecture des roles liés au royaume
+            if (accessToken.realm_access) {
+                logger.debug('realm_access: %j', accessToken.realm_access);
+                if (accessToken.realm_access.roles.length > 0) {
+                    accessToken.realm_access.roles.forEach(role => {
+                        switch (role) {
+                            case 'users':
+                                resultUserInfo.active = true;
+                                break;
+                            case 'admins':
+                                resultUserInfo.admin = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                }
+            }
+
+            //lecture des roles liés à l'application
+            if (accessToken.resource_access) {
+                logger.debug('resource_access: %j', accessToken.resource_access);
+                if (accessToken.resource_access[client].roles.length > 0) {
+                    accessToken.resource_access[client].roles.forEach(role => {
+                        switch (role) {
+                            case 'users':
+                                resultUserInfo.active = true;
+                                break;
+                            case 'admins':
+                                resultUserInfo.admin = true;
+                                break;
+                            default:
+                                break;
+                        }
+                    })
+                }
+            }
+            logger.debug('userInfo: %j', resultUserInfo);
+
+            if (resultUserInfo.active) {
+                logger.debug('done - ok');
+                return resultUserInfo;
+            } else {
+                logger.error('done - Unauthorized user');
+                throw new Error('403');
+            }
+        }
+    } catch (exception) {
+        logger.error(exception.stack);
+        throw new Error('500')
+    }
+};
+
+function getTestAccessToken() {
+    return {
         jti: "a13dc9cc-c06b-4f80-807d-853c0378eb8b",
         exp: 1572044038,
         nbf: 0,
@@ -23,7 +103,8 @@ module.exports = function (context, request, response) {
         acr: "0",
         allowed_origins: ["https://localhost:4443"],
         realm_access: {
-            roles: ["users", "admins"]
+            // roles: ["users", "admins"]
+            roles: ["users"]
         }
         ,
         resource_access: {
@@ -42,79 +123,13 @@ module.exports = function (context, request, response) {
         family_name: "David",
         email: "emmanuel.david@orange.com"
     };
-    logger.debug('parsedToken: %j', parsedToken);
+}
 
-    // let parsedUserInfo = request.openIDConnect.userinfo;
-    let parsedUserInfo = {
+function getTestUserInfo() {
+    return {
         sub: '23df8bad-ca36-4dba-90e0-1a69f0f016b8',
         given_name: 'Emmanuel',
         family_name: 'David',
         email: 'emmanuel.davic@orange.com',
     };
-    logger.debug('parsedUserInfo: %j', parsedUserInfo);
-
-    if (parsedUserInfo) {
-        let userInfo = {
-            id: parsedUserInfo.sub,
-            firstname: parsedUserInfo.given_name,
-            lastname: parsedUserInfo.family_name,
-            email: "",
-            admin: false,
-            active: false
-        };
-
-        if (parsedUserInfo.email_verified) {
-            userInfo.email = parsedUserInfo.email;
-        }
-
-        let client = parsedToken.azp;
-        logger.debug('client: %j', client);
-
-        //lecture des roles liés au royaume
-        if (parsedToken.realm_access) {
-            logger.debug('realm_access: %j', parsedToken.realm_access);
-            if (parsedToken.realm_access.roles.length > 0) {
-                parsedToken.realm_access.roles.forEach(role => {
-                    switch (role) {
-                        case 'users':
-                            userInfo.active = true;
-                            break;
-                        case 'admins':
-                            userInfo.admin = true;
-                            break;
-                        default:
-                            break;
-                    }
-                })
-            }
-        }
-
-        //lecture des roles liés à l'application
-        if (parsedToken.resource_access) {
-            logger.debug('resource_access: %j', parsedToken.resource_access);
-            if (parsedToken.resource_access[client].roles.length > 0) {
-                parsedToken.resource_access[client].roles.forEach(role => {
-                    switch (role) {
-                        case 'users':
-                            userInfo.active = true;
-                            break;
-                        case 'admins':
-                            userInfo.admin = true;
-                            break;
-                        default:
-                            break;
-                    }
-                })
-            }
-        }
-        logger.debug('userInfo: %j', userInfo);
-
-        if (userInfo.active) {
-            logger.debug('done - ok');
-            return userInfo;
-        } else {
-            logger.error('done - Unauthorized user');
-            throw new Error('403');
-        }
-    }
-};
+}

@@ -1,40 +1,50 @@
+const mongoDelete = require('../../connectors/mongodb/delete.js');
+
 const Log4n = require('../../utils/log4n.js');
-const mongoClient = require('../../connectors/mongodb/delete.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id) {
-    const log4n = new Log4n(context, '/models/device/delete');
-    // log4n.object(device_id,'device_id');
+    const logger = serverLogger.child({
+        source: '/models/device/delete.js',
+        httpRequestId: context.httpRequestId
+    });
 
     //traitement de suppression dans la base
     return new Promise((resolve, reject) => {
-        let query = {};
-        if (typeof device_id === 'undefined') {
-            reject(errorparsing(context, {status_code: 400}));
-            log4n.debug('done - missing paramater');
-        } else {
-            query.device_id = device_id;
-            mongoClient(context, 'device', query)
-                .then(datas => {
-                    // log4n.object(datas, 'datas');
-                    if (typeof datas === 'undefined') {
-                        reject(errorparsing(context, {status_code: 500}));
-                        log4n.debug('done - no reult');
-                    } else {
-                        if (typeof datas.status_code === 'undefined') {
-                            resolve(datas);
-                            log4n.debug('done - ok');
+        try {
+            logger.debug('device_id: %s', device_id);
+            let query = {};
+            if (device_id) {
+                query.device_id = device_id;
+                mongoDelete(context, 'device', query)
+                    .then(datas => {
+                        logger.debug('datas: %j', datas);
+                        if (datas) {
+                            if (datas.status_code) {
+                                logger.error('error: %j', datas);
+                                reject(datas);
+                            } else {
+                                resolve(datas);
+                            }
                         } else {
-                            reject(errorparsing(context, datas));
-                            log4n.debug('done - response error');
+                            let error = errorparsing(context, 'No result');
+                            logger.error('error: %j', error);
+                            reject(error);
                         }
-                    }
-                })
-                .catch(error => {
-                    log4n.object(error, 'error');
-                    reject(errorparsing(context, error));
-                    log4n.debug('done - promise catch')
-                });
+                    })
+                    .catch(error => {
+                        logger.debug('error: %j', error);
+                        reject(error);
+                    });
+            } else {
+                let error = errorparsing(context, {status_code: 400, status_message: 'Missing device ID'});
+                logger.error('error: %j', error);
+                reject(error);
+            }
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            reject(errorparsing(context, exception));
         }
     });
 };

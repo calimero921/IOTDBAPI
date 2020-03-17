@@ -1,6 +1,8 @@
-const Log4n = require('../../utils/log4n.js');
-const checkAuth = require('../../utils/checkAuth.js');
 const deviceGet = require('../../models/device/get.js');
+
+const checkAuth = require('../../utils/checkAuth.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
@@ -14,53 +16,60 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/device/getByUser');
+module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
+    const logger = serverLogger.child({
+        source: '/controllers/device/getByUser.js',
+        httpRequestId: context.httpRequestId
+    });
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %sj', userInfo);
 
-        log4n.object(req.params.id, 'id');
-        let user_id = req.params.id;
+        let id = request.params.id;
+        logger.debug( 'user id: %s', id);
 
         //traitement de recherche dans la base
-        if (typeof user_id === 'undefined') {
-            //aucun user_id
-            responseError(context, {status_code: 400}, res, log4n);
-            log4n.debug('done - missing parameter(user_id)');
-        } else {
-            if (userInfo.admin || user_id === userInfo.id) {
+        if (id) {
+            if (userInfo.admin || id === userInfo.id) {
                 //traitement de recherche dans la base
-                let query = {user_id: user_id};
-                deviceGet(context, query, 0, 0)
-                    .then(datas => {
-                        if (typeof datas === 'undefined') {
-                            responseError(context, {status_code: 404}, res, log4n);
-                            log4n.debug('done - not found');
+                let query = {user_id: id};
+                deviceGet(context, query, 0, 0, false)
+                    .then(devices => {
+                        if (devices) {
+                            if (devices.status_code) {
+                                logger.error('error: %j', devices);
+                                responseError(context, devices, response, logger);
+                            } else {
+                                logger.debug('devices: %j', devices);
+                                response.status(200).send(devices);
+                            }
                         } else {
-                            // log4n.object(datas, 'datas');
-                            res.status(200).send(datas[0]);
-                            log4n.debug('done - ok');
+                            let error = errorParsing(context, 'No result');
+                            logger.error('error: %j', error);
+                            responseError(context, error, response, logger);
                         }
                     })
                     .catch(error => {
-                        responseError(context, error, res, log4n);
-                        log4n.debug('done - global catch');
+                        logger.error('error: %j', error);
+                        responseError(context, error, response, logger);
                     });
             } else {
-                responseError(context, {
+                let error = errorParsing(context, {
                     status_code: 403,
-                    status_message: 'user must be admin or device owner for this action'
-                }, res, log4n);
+                    status_message: 'User must be admin or search for his own device'
+                });
+                logger.error('error: %j', error);
+                responseError(context, error, response, logger);
             }
+        } else {
+            let error = errorParsing(context, {status_code: 400, status_message: 'missing ID'});
+            logger.error('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError(context, {status_code: 403}, res, log4n);
-        } else {
-            log4n.error(exception.stack);
-            responseError(context, {status_code: 500}, res, log4n);
-        }
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

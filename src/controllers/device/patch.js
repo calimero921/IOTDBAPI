@@ -1,7 +1,7 @@
-const checkAuth = require('../../utils/checkAuth.js');
-const get = require('../../models/device/get.js');
-const patch = require('../../models/device/patch.js');
+const deviceGet = require('../../models/device/get.js');
+const devicePatch = require('../../models/device/patch.js');
 
+const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
@@ -20,69 +20,74 @@ const responseError = require('../../utils/responseError.js');
  */
 module.exports = function (request, response) {
     const logger = serverLogger.child({
-        source: '/routes/api/device/patch.js',
+        source: '/routes/api/device/devicePatch.js',
         httpRequestId: request.httpRequestId
     });
     let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %sj', userInfo);
 
         let device_id = request.params.id;
-        logger.debug('id: %s', device_id);
+        logger.debug('device id: %s', device_id);
 
         if (device_id && request.body) {
             let newData = request.body;
             logger.debug('newData: %j', newData);
-            get(context, {device_id: device_id}, 0, 0, false)
-                .then(datas => {
-                    logger.debug('datas: %j', datas);
-                    if (typeof datas === 'undefined') {
-                        return errorParsing(context, {status_code: 500, status_message: 'no data'})
-                    } else {
-                        if (datas.status_code) {
-                            return datas;
+            deviceGet(context, {device_id: device_id}, 0, 0, false)
+                .then(oldDevices => {
+                    logger.debug('oldDevices: %j', oldDevices);
+                    if (oldDevices) {
+                        if (oldDevices.status_code) {
+                            return oldDevices;
                         } else {
-                            if (userInfo.admin || (datas.user_id === userInfo.id)) {
-                                if (datas.length > 0) {
-                                    return patch(context, datas[0].device_id, newData);
+                            if (userInfo.admin || (oldDevices.user_id === userInfo.id)) {
+                                if (oldDevices.length > 0) {
+                                    return devicePatch(context, oldDevices[0].device_id, newData);
                                 } else {
-                                    return errorParsing(context, {status_code: 404});
+                                    let error = errorParsing(context, {status_code: 404,status_message:'No device found'});
+                                    logger.error('error: %j', error);
+                                    return error;
                                 }
                             } else {
-                                return {status_code: '403'};
+                                let error = errorParsing(context, {status_code: 403, status_message:'User not admin nor owner of device'});
+                                logger.error('error: %j', error);
+                                return error;
                             }
                         }
+                    } else {
+                        let error = errorParsing(context, 'No device found');
+                        logger.error('error: %j', error);
+                        return error;
                     }
                 })
-                .then(datas => {
-                    logger.debug('datas: %j', datas);
-                    if (datas) {
-                        if (datas.status_code) {
-                            logger.debug('error: %j', datas);
-                            responseError(context, datas, response, logger);
+                .then(result => {
+                    if (result) {
+                        if (result.status_code) {
+                            logger.error('error: %j', result);
+                            responseError(context, result, response, logger);
                         } else {
-                            response.status(200).send(datas);
+                            logger.debug('result: %j', result);
+                            response.status(200).send(result);
                         }
                     } else {
-                        logger.debug('internal server error');
-                        responseError(context, {status_code: 500}, response, logger);
+                        let error = errorparsing(context, 'No result');
+                        logger.error('error: %j', error);
+                        responseError(context, error, response, logger);
                     }
                 })
                 .catch(error => {
-                    logger.debug('error: %j', error);
+                    logger.error('error: %j', error);
                     responseError(context, error, response, logger);
                 });
         } else {
-            logger.debug('missing parameters');
-            responseError(context, {status_code: 400}, response, logger);
+            let error = errorparsing(context, {status_code: 400, status_message: 'Missing parameters'});
+            logger.error('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError(context, {status_code: 403}, response, logger);
-        } else {
-            logger.error(exception.stack);
-            responseError(context, {status_code: 500}, response, logger);
-        }
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

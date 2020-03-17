@@ -1,43 +1,56 @@
 const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/Converter.js');
 
-const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
-    const log4n = new Log4n(context, '/models/device/get');
-    log4n.object(query, 'query');
-    log4n.object(offset, 'offset');
-    log4n.object(limit, 'limit');
-    log4n.object(overtake, 'overtake');
-
-    if (typeof overtake === 'undefined') overtake = false;
+    const logger = serverLogger.child({
+        source: '/models/device/get.js',
+        httpRequestId: context.httpRequestId
+    });
 
     //traitement de recherche dans la base
     return new Promise((resolve, reject) => {
-        const converter = new Converter(context);
-        let parameter = {};
-        if (typeof limit !== 'undefined') parameter.limit = limit;
-        if (typeof offset !== 'undefined') parameter.offset = offset;
-        mongoFind(context, converter,'device', query, parameter, overtake)
-            .then(datas => {
-                // log4n.object(datas, 'datas');
-                if (datas.length > 0) {
-                    resolve(datas);
-                } else {
-                    if (overtake) {
-                        log4n.debug('done - no result but ok');
-                        resolve(errorparsing(context, {status_code: 404}));
+        try {
+            logger.debug('query: %s', query);
+            logger.debug('offset: %s', offset);
+            logger.debug('limit: %s', limit);
+            if (!overtake) overtake = false;
+            logger.debug('overtake: %s', overtake);
+
+            let parameter = {};
+            if (offset) parameter.offset = offset;
+            if (limit) parameter.limit = limit;
+
+            const converter = new Converter(context);
+            mongoFind(context, converter, 'device', query, parameter, overtake)
+                .then(datas => {
+                    if (datas) {
+                        if (datas.status_code) {
+                            logger.error('error: %j', datas);
+                            if (overtake) {
+                                resolve(datas);
+                            } else {
+                                reject(datas);
+                            }
+                        } else {
+                            logger.debug('datas: %j', datas);
+                            resolve(datas);
+                        }
                     } else {
-                        log4n.debug('done - not found');
-                        reject(errorparsing(context, {status_code: 404}));
+                        let error = errorparsing(context, 'No datas found');
+                        logger.error('error: %j', error);
+                        reject(error);
                     }
-                }
-            })
-            .catch(error => {
-                log4n.object(error, 'error');
-                reject(errorparsing(context, error));
-                log4n.debug('done - global catch');
-            });
+                })
+                .catch(error => {
+                    logger.debug('error: %j', error);
+                    reject(error);
+                });
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            reject(errorparsing(context, exception));
+        }
     });
 };

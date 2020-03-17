@@ -1,27 +1,33 @@
-const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, error) {
-    const log4n = new Log4n(context, '/connectors/mongodberror');
-    // log4n.object(error, 'error');
+    const logger = serverLogger.child({
+        source: '/connectors/mongodberror.js',
+        httpRequestId: context.httpRequestId
+    });
 
     try {
+        logger.debug('error: %j', error);
         let result = {};
-        switch (error.code) {
-            case 11000:
-                result.status_code = 409;
-                result.status_message = "Duplicate entry";
-                break;
-            default:
-                result.status_code = error.code;
-                result.status_message = error.message;
-                break;
+        if (error.status_code) {
+            result = error;
+        } else {
+            switch (error.code) {
+                case 11000:
+                    result.status_code = 409;
+                    result.status_message = "Duplicate entry";
+                    break;
+                default:
+                    result.status_code = error.code;
+                    result.status_message = error.message;
+                    break;
+            }
         }
-        log4n.object(result, 'result');
+        logger.debug('result: %j', result);
         return errorparsing(context, result);
     } catch (exception) {
-        console.log('error:', exception);
-        log4n.debug('done - try catch');
+        logger.error('exception: %s', exception.stack);
         return errorparsing(context, exception);
     }
 };

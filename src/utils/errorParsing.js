@@ -6,7 +6,7 @@ module.exports = function (context, error, reset) {
         httpRequestId: context.httpRequestId
     });
 
-    if(typeof reset === 'undefined') reset = false;
+    if(!reset) reset = false;
     if(reset && error.status_message) delete error.status_message;
 
     logger.debug('error: %j', error);

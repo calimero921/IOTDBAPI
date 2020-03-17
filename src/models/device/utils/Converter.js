@@ -20,7 +20,7 @@ class Converter {
         this.validator = new Validator(context);
     }
 
-    json2db(data) {
+    json2db(jsonObject) {
         const logger = serverLogger.child({
             source: globalPrefix + ':json2db',
             httpRequestId: this.context.httpRequestId
@@ -28,45 +28,39 @@ class Converter {
 
         return new Promise((resolve, reject) => {
             try {
-                logger.debug('data: %j', data);
+                logger.debug('jsonObject: %j', jsonObject);
                 let result = {};
 
                 //ajout des informations générées par le serveur
                 const generator = new Generator(this.context);
-                data.device_id = generator.idgen();
-                if (data.key === 'undefined') {
-                    data.key = generator.keygen();
-                }
-                if (data.creation_date === 'undefined') {
-                    data.creation_date = parseInt(Moment().format('x'));
-                }
-                if (data.last_connexion_date === 'undefined') {
-                    data.last_connexion_date = parseInt(Moment().format('x'));
-                }
+                jsonObject.device_id = generator.idgen();
+                if (!jsonObject.key) jsonObject.key = generator.keygen();
+                if (!jsonObject.creation_date) jsonObject.creation_date = parseInt(Moment().format('x'));
+                if (!jsonObject.last_connexion_date) jsonObject.last_connexion_date = parseInt(Moment().format('x'));
+                logger.debug('jsonObject: %j', jsonObject);
 
                 logger.debug('schema validation');
-                logger.debug(data, 'data');
-                this.validator.jsonValidator(data)
-                    .then(valid => {
-                        // logger.debug(valid, 'valid');
-                        if (valid.device_id) result.device_id = valid.device_id;
-                        if (valid.key) result.key = valid.key;
-                        if (valid.user_id) result.user_id = valid.user_id;
-                        if (valid.manufacturer) result.manufacturer = valid.manufacturer;
-                        if (valid.model) result.model = valid.model;
-                        if (valid.serial) result.serial = valid.serial;
-                        if (valid.secret) result.secret = valid.secret;
-                        if (valid.name) result.name = valid.name;
-                        if (valid.class) result.class = valid.class;
-                        if (valid.software_version) result.software_version = valid.software_version;
-                        if (valid.local_ip) result.local_ip = valid.local_ip;
-                        if (valid.creation_date) result.creation_date = valid.creation_date;
-                        if (valid.last_connexion_date) result.last_connexion_date = valid.last_connexion_date;
-                        if (valid.capabilities) {
+                this.validator.jsonValidator(jsonObject)
+                    .then(validated => {
+                        logger.debug('validated: %j', validated);
+                        if (validated.device_id) result.device_id = validated.device_id;
+                        if (validated.key) result.key = validated.key;
+                        if (validated.user_id) result.user_id = validated.user_id;
+                        if (validated.manufacturer) result.manufacturer = validated.manufacturer;
+                        if (validated.model) result.model = validated.model;
+                        if (validated.serial) result.serial = validated.serial;
+                        if (validated.secret) result.secret = validated.secret;
+                        if (validated.name) result.name = validated.name;
+                        if (validated.class) result.class = validated.class;
+                        if (validated.software_version) result.software_version = validated.software_version;
+                        if (validated.local_ip) result.local_ip = validated.local_ip;
+                        if (validated.creation_date) result.creation_date = validated.creation_date;
+                        if (validated.last_connexion_date) result.last_connexion_date = validated.last_connexion_date;
+                        if (validated.capabilities) {
                             result.capabilities = [];
-                            for (let i in valid.capabilities) {
-                                let datas = valid.capabilities[i];
-                                // logger.debug(datas, 'datas');
+                            for (let i in validated.capabilities) {
+                                let datas = validated.capabilities[i];
+                                logger.debug('datas: %j', datas);
                                 let capability = {
                                     "name": datas.name,
                                     "type": datas.type,
@@ -79,11 +73,11 @@ class Converter {
                                         break;
                                     case 'SWITCH':
                                         capability.publish = "switch";
-                                        capability.subscribe = "switch/" + valid.device_id;
+                                        capability.subscribe = "switch/" + validated.device_id;
                                         break;
                                     case 'SLAVE':
                                         capability.publish = "";
-                                        capability.subscribe = "slave/" + valid.device_id;
+                                        capability.subscribe = "slave/" + validated.device_id;
                                         break;
                                     default:
                                         capability.publish = "";
@@ -111,7 +105,7 @@ class Converter {
         });
     }
 
-    db2json(data) {
+    db2json(mongoObject) {
         const logger = serverLogger.child({
             source: globalPrefix + ':db2json',
             httpRequestId: this.context.httpRequestId
@@ -119,29 +113,27 @@ class Converter {
 
         return new Promise((resolve, reject) => {
             try {
-                logger.debug('data: %j', data);
+                logger.debug('data: %j', mongoObject);
                 let result = {};
-
                 logger.debug('schema validation');
-                // logger.debug(data, 'data');
-                this.validator.mongoValidator(data)
-                    .then(valid => {
-                        logger.debug( 'valid: %j', valid);
-                        if (valid.device_id) result.device_id = valid.device_id;
-                        if (valid.key) result.key = valid.key;
-                        if (valid.user_id) result.user_id = valid.user_id;
-                        if (valid.manufacturer) result.manufacturer = valid.manufacturer;
-                        if (valid.model) result.model = valid.model;
-                        if (valid.serial) result.serial = valid.serial;
-                        if (valid.secret) result.secret = valid.secret;
-                        if (valid.name) result.name = valid.name;
-                        if (valid.creation_date) result.creation_date = valid.creation_date;
-                        if (valid.class) result.class = valid.class;
-                        if (valid.software_version) result.software_version = valid.software_version;
-                        if (valid.local_ip) result.local_ip = valid.local_ip;
-                        if (valid.creation_date) result.creation_date = valid.creation_date;
-                        if (valid.last_connexion_date) result.last_connexion_date = valid.last_connexion_date;
-                        if (valid.capabilities) result.capabilities = valid.capabilities;
+                this.validator.mongoValidator(mongoObject)
+                    .then(validated => {
+                        logger.debug('validated: %j', validated);
+                        if (validated.device_id) result.device_id = validated.device_id;
+                        if (validated.key) result.key = validated.key;
+                        if (validated.user_id) result.user_id = validated.user_id;
+                        if (validated.manufacturer) result.manufacturer = validated.manufacturer;
+                        if (validated.model) result.model = validated.model;
+                        if (validated.serial) result.serial = validated.serial;
+                        if (validated.secret) result.secret = validated.secret;
+                        if (validated.name) result.name = validated.name;
+                        if (validated.creation_date) result.creation_date = validated.creation_date;
+                        if (validated.class) result.class = validated.class;
+                        if (validated.software_version) result.software_version = validated.software_version;
+                        if (validated.local_ip) result.local_ip = validated.local_ip;
+                        if (validated.creation_date) result.creation_date = validated.creation_date;
+                        if (validated.last_connexion_date) result.last_connexion_date = validated.last_connexion_date;
+                        if (validated.capabilities) result.capabilities = validated.capabilities;
 
                         logger.debug('result: %j', result);
                         resolve(result);

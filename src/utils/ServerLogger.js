@@ -26,12 +26,11 @@ class ServerLogger {
         let loggerOptions = {
             level: config.logs.logLevel,
             format: format.combine(
-                format.colorize(),
                 format.timestamp({
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
                 }),
                 format.splat(),
-                format.printf(info => `${info.timestamp} - ${info.level.toUpperCase()} - [${info.httpRequestId}] - ${info.source} - ${info.message}`)
+                format.printf(info => `${info.timestamp} - [${info.httpRequestId}] - ${info.level.toUpperCase()} - ${info.source} - ${info.message}`)
             ),
             transports: loggerTransport
         };

@@ -60,3 +60,4 @@ typings/
 .idea/
 IOTDBAPI.iml
 src/node_modules/
+/mochawesome-report/

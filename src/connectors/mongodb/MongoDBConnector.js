@@ -1,12 +1,15 @@
 const MongoClient = require('mongodb').MongoClient;
-const configuration = require('../../config/Configuration.js');
 
+const mongoDBError = require('./error.js');
+const configuration = require('../../config/Configuration.js');
 const serverLogger = require('../../utils/serverLogger.js');
+
+const globalPrefix = '/connectors/mongodb/MongoDBConnector.js';
 
 class MongoDBConnector {
     constructor() {
-        this.logger = serverLogger.child({
-            source: '/connectors/mongodb/MongoDBConnector.js',
+        let logger = serverLogger.child({
+            source: globalPrefix,
             httpRequestId: 'initialize'
         });
 
@@ -19,14 +22,14 @@ class MongoDBConnector {
 
     getDB(context) {
         let logger = serverLogger.child({
-            source: '/connectors/mongodb/MongoDBConnector.js:getDB',
+            source: globalPrefix + ':getDB',
             httpRequestId: context.httpRequestId
         });
 
         return new Promise((resolve, reject) => {
             try {
                 if (!this.mongodbDatabase.error) {
-                    logger.info('existing MongoDB database ...');
+                    logger.info('existing MongoDB database connection ...');
                     resolve(this.mongodbDatabase);
                 } else {
                     logger.info('connecting to MongoDB database ...');
@@ -44,13 +47,15 @@ class MongoDBConnector {
                             logger.debug('client binded to database');
                             resolve(this.mongodbDatabase);
                         })
-                        .catch(error => {
-                            logger.error('error: %j', error);
+                        .catch(mongoError => {
+                            let error = mongoDBError(context, mongoError);
+                            logger.debug('error: %j', error);
                             reject(error);
-                        });
+                        })
                 }
             } catch (exception) {
-                this.logger.error('exception: %s', exception.stack);
+                logger.debug('exception: %s', exception.stack);
+                reject(errorparsing(context, exception));
             }
         })
     }

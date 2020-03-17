@@ -1,4 +1,5 @@
 const mongoDBConnector = require('./MongoDBConnector.js');
+const mongoDBError = require('./error.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
@@ -14,40 +15,40 @@ module.exports = function (context, collectionName, query) {
             logger.debug('collectionName: %s', collectionName);
             logger.debug('query: %s', query);
 
-			mongoDBConnector.getDB(context)
+            mongoDBConnector.getDB(context)
                 .then(mongodbDatabase => {
                     let collection = mongodbDatabase.collection(collectionName);
-                    collection.findOneAndDelete(query)
-                        .then(datas => {
-                            logger.debug('datas: %j', datas);
-                            if (datas) {
-                                if (datas.ok === 1) {
-                                    if (datas.value) {
-                                        resolve(datas.value);
-                                    } else {
-                                        logger.debug('not found');
-                                        reject(errorparsing(context, {status_code: 404}));
-                                    }
-                                } else {
-                                    logger.debug('error: %j', datas);
-                                    reject(errorparsing(context, {status_code: 500}));
-                                }
+                    return collection.findOneAndDelete(query);
+                })
+                .then(datas => {
+                    logger.debug('datas: %j', datas);
+                    if (datas) {
+                        if (datas.ok === 1) {
+                            if (datas.value) {
+                                resolve(datas.value);
                             } else {
-                                logger.debug('no data');
-                                reject(errorparsing(context, {status_code: 500}));
+                                let error = errorparsing(context, 'No response');
+                                logger.debug('error: %j', error);
+                                reject(error);
                             }
-                        })
-                        .catch(error => {
-                            logger.debug( 'error: %j', error);
-                            reject(errorparsing(context, error));
-                        })
-				})
-				.catch(error => {
-					logger.debug( 'error: %j', error);
-					reject(errorparsing(context, error));
+                        } else {
+                            let error = errorparsing(context, datas);
+                            logger.debug('error: %j', error);
+                            reject(error);
+                        }
+                    } else {
+                        let error = errorparsing(context, 'No data');
+                        logger.debug('error: %j', error);
+                        reject(error);
+                    }
+                })
+                .catch(mongoError => {
+                    let error = mongoDBError(context, mongoError);
+                    logger.debug('error: %j', error);
+                    reject(error);
                 })
         } catch (exception) {
-            logger.debug( 'exception: %s', exception.stack);
+            logger.debug('exception: %s', exception.stack);
             reject(errorparsing(context, exception));
         }
     })

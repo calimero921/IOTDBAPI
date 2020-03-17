@@ -1,4 +1,5 @@
 const mongoDBConnector = require('./MongoDBConnector.js');
+const mongoDBError = require('./error.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
@@ -53,34 +54,48 @@ module.exports = function (context, converter, collectionName, query, parameters
                                     if (result.length > 0) {
                                         resolve(result);
                                     } else {
-                                        logger.debug('not correct record found');
-                                        reject(errorparsing(context, {status_code: 404}));
+                                        let error = errorparsing(context, {
+                                            status_code: 404,
+                                            status_message: 'No correct record found'
+                                        });
+                                        logger.error('error: %j', error);
+                                        reject(error);
                                     }
                                 })
                                 .catch(error => {
                                     logger.debug('error: %j', error);
-                                    reject(errorparsing(context, error));
+                                    reject(context, error);
                                 });
                         } else {
                             if (overtake) {
-                                logger.debug('no result but ok');
-                                resolve(errorparsing(context, {status_code: 404}));
+                                let error = errorparsing(context, {
+                                    status_code: 404,
+                                    status_message: 'No result but ok'
+                                });
+                                logger.error('error: %j', error);
+                                resolve(error);
                             } else {
-                                logger.debug('not found');
-                                reject(errorparsing(context, {status_code: 404}));
+                                let error = errorparsing(context, {
+                                    status_code: 404,
+                                    status_message: 'No result'
+                                });
+                                logger.error('error: %j', error);
+                                reject(error);
                             }
                         }
                     } else {
-                        logger.debug('no data');
-                        reject(errorparsing(context, {status_code: 500}));
+                        let error = errorparsing(context, 'No data');
+                        logger.error('error: %j', error);
+                        reject(error);
                     }
                 })
-                .catch((error) => {
-                    logger.debug('error: %j', error);
+                .catch(mongoError => {
+                    let error = mongoDBError(context, mongoError);
+                    logger.error('error: %j', error);
                     reject(errorparsing(context, error));
                 })
         } catch (exception) {
-            console.log('exception: %s', exception.stack);
+            logger.error('exception: %s', exception.stack);
             reject(errorparsing(context, exception));
         }
     });

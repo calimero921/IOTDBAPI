@@ -1,8 +1,9 @@
-const checkAuth = require('../../utils/checkAuth.js');
-const set = require('../../models/device/set.js');
-const get = require('../../models/device/get.js');
+const deviceSet = require('../../models/device/set.js');
+const deviceGet = require('../../models/device/get.js');
 
+const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
@@ -36,14 +37,14 @@ module.exports = function (request, response) {
                     serial: postData.serial,
                     secret: postData.secret
                 };
-                get(context, query, 0, 0, true)
+                deviceGet(context, query, 0, 0, true)
                     .then(datas => {
                         logger.debug('datas: %j', datas);
                         if (datas) {
                             if (datas.status_code) {
                                 if (datas.status_code === 404) {
                                     if (!postData.user_id) postData.user_id = userInfo.id;
-                                    return set(context, postData);
+                                    return deviceSet(context, postData);
                                 } else {
                                     return datas;
                                 }
@@ -57,7 +58,7 @@ module.exports = function (request, response) {
                         }
                     })
                     .then(datas => {
-                        logger.debug('set datas: %j', datas);
+                        logger.debug('deviceSet datas: %j', datas);
                         if (datas) {
                             //recherche d'un code erreur précédent
                             if (datas.status_code) {
@@ -70,27 +71,28 @@ module.exports = function (request, response) {
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            logger.debug('no data');
-                            responseError(context, {status_code: 500}, response, logger);
+                            let error = errorParsing(context, 'No data');
+                            logger.error('error: %j', error);
+                            responseError(context, error, response, logger);
                         }
                     })
                     .catch(error => {
-                        logger.debug('error: %j', error);
+                        logger.error('error: %j', error);
                         responseError(context, error, response, logger);
                     });
             } else {
-                return {status_code: '403'};
+                let error = errorParsing(context, {status_code: '403', status_message: 'User not admin nor owner of device'});
+                logger.error('error: %j', error);
+                responseError(context, error, response, logger);
             }
         } else {
             //aucune donnée postée
-            return {status_code: 400};
+            let error = errorParsing(context, {status_code: '400', status_message: 'Missing body'});
+            logger.error('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
-        if (exception.message === "403") {
-            responseError(context, {status_code: 403}, response, logger);
-        } else {
-            logger.error('exception: %s', exception.stack);
-            responseError(context, exception, response, logger);
-        }
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };

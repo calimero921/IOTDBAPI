@@ -1,6 +1,12 @@
-const Log4n = require('../../utils/log4n.js');
-const remove = require('../../models/device/delete.js');
+const getDevice = require('../../models/device/get.js');
+const deleteDevice = require('../../models/device/delete.js');
+
+const checkAuth = require('../../utils/checkAuth.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controllers/device/delete.js';
 
 /**
  * This function comment is parsed by doctrine
@@ -13,38 +19,106 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/device/delete');
-    // log4n.object(req.params.id,'id');
+module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
+    const logger = serverLogger.child({
+        source: globalPrefix,
+        httpRequestId: context.httpRequestId
+    });
 
-    let id = req.params.id;
+    try {
+        let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %sj', userInfo);
 
-    //traitement de recherche dans la base
-    if (typeof id === 'undefined') {
-        //aucun id
-        let error = {status_code: 400};
-        responseError(context, error, res, log4n);
-    } else {
-        //traitement de suppression dans la base
-        remove(context, id)
-            .then(datas => {
-                // log4n.object(datas, 'datas');
-                if (typeof datas === 'undefined') {
-                    return {status_code: 404};
-                } else {
-                    if (typeof datas.status_code === 'undefined') {
-                        res.status(204).send();
-                        log4n.debug('done');
+        let id = request.params.id;
+        logger.debug('device id: %s', id);
+
+        //traitement de recherche dans la base
+        if (id) {
+            accessControl(context, userInfo, id)
+                .then(() => {
+                    return deleteDevice(context, id);
+                })
+                .then(result => {
+                    if (result) {
+                        if (result.status_code) {
+                            logger.error('error: %j', result);
+                            responseError(context, result, response, logger);
+                        } else {
+                            logger.debug('result: %j', result);
+                            response.status(204).send();
+                        }
                     } else {
-                        responseError(context, datas, res, log4n);
-                        log4n.debug('done');
+                        let error = errorParsing(context, 'No result');
+                        logger.error('error: %j', error);
+                        responseError(context, error, response, logger);
                     }
-                }
-            })
-            .catch(error => {
-                responseError(context, error, res, log4n);
-                log4n.debug('done');
-            });
+                })
+                .catch(error => {
+                    logger.error('error: %j', error);
+                    responseError(context, error, response, logger);
+                });
+        } else {
+            //aucun id
+            let error = errorParsing(context, {status_code: 400, status_message: 'Missing ID'});
+            logger.error('error: %j', error);
+            responseError(context, error, response, logger);
+        }
+    } catch (exception) {
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };
+
+function accessControl(context, userInfo, device_id) {
+    const logger = serverLogger.child({
+        source: globalPrefix + ":accessControl",
+        httpRequestId: context.httpRequestId
+    });
+
+    return new Promise((resolve, reject) => {
+        try {
+            if (userInfo.admin) {
+                logger.debug('User is admin');
+                resolve();
+            } else {
+                let query = {device_id: device_id};
+                getDevice(context, query, 0, 0, false)
+                    .then(devices => {
+                        if (devices) {
+                            logger.debug('device: %j', devices);
+                            if (devices.status_code) {
+                                logger.error('error: %j', devices);
+                                reject(devices);
+                            } else {
+                                //traitement de suppression dans la base
+                                logger.debug('device: %j', devices[0]);
+                                if (devices[0].user_id === userInfo.id) {
+                                    logger.debug('User is device owner');
+                                    resolve();
+                                } else {
+                                    let error = errorParsing(context, {
+                                        status_code: 403,
+                                        status_message: 'User is not admin nor owner'
+                                    });
+                                    logger.error('error: %j', error);
+                                    reject(error)
+                                }
+                            }
+                        } else {
+                            let error = errorParsing(context, 'No result');
+                            logger.error('error: %j', error);
+                            reject(error);
+                        }
+                    })
+                    .catch(error => {
+                        logger.error('error: %j', error);
+                        reject(error);
+                    });
+            }
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            reject(errorParsing(context, exception));
+        }
+    })
+}
