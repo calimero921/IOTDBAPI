@@ -1,6 +1,6 @@
 {
   "env": {
-    "LOGLEVEL": "info",
+    "LOGLEVEL": "debug",
     "LOGDIR": "/opt/application/iam",
     "LOGTRANSPORT": ["console"],
     "MONGODBLOGIN": "admin",

@@ -16,36 +16,36 @@ const mock1 = {
     session_id: testsUtilsAccounts.defineRandomSessionId()
 };
 
-before(done => {
-    let promiseArray = [];
-    promiseArray.push(testsUtilsAccounts.create(testsUtilsAccounts.getPost(mock1)));
-
-    Promise.all(promiseArray)
-        .then(responses => {
-            accountMock1 = responses[0];
-            done();
-        })
-        .catch(errors => {
-            console.log("errors : %j", errors);
-            done(errors);
-        });
-});
-
-after(done => {
-    let promiseArray = [];
-    promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock1.id, accountMock1.token));
-
-    Promise.all(promiseArray)
-        .then(responses => {
-            done();
-        })
-        .catch(errors => {
-            console.log("errors : %j", errors);
-            done(errors);
-        });
-});
-
 describe('013 - get account ok', () => {
+    before(done => {
+        let promiseArray = [];
+        promiseArray.push(testsUtilsAccounts.create(testsUtilsAccounts.getPost(mock1)));
+
+        Promise.all(promiseArray)
+            .then(responses => {
+                accountMock1 = responses[0];
+                done();
+            })
+            .catch(errors => {
+                console.log("errors : %j", errors);
+                done(errors);
+            });
+    });
+
+    after(done => {
+        let promiseArray = [];
+        promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock1.id, accountMock1.token));
+
+        Promise.all(promiseArray)
+            .then(responses => {
+                done();
+            })
+            .catch(errors => {
+                console.log("errors : %j", errors);
+                done(errors);
+            });
+    });
+
     it(`return ${mock1.id} account by id`, done => {
         try {
             superAgent

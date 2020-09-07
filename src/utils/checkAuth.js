@@ -103,8 +103,8 @@ function getTestAccessToken() {
         acr: "0",
         allowed_origins: ["https://localhost:4443"],
         realm_access: {
-            // roles: ["users", "admins"]
-            roles: ["users"]
+            roles: ["users", "admins"]
+            // roles: ["users"]
         }
         ,
         resource_access: {

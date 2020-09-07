@@ -21,6 +21,7 @@ const mock1 = {
     last_connexion_date: null,
     token: null
 };
+
 let accountMock2;
 const mock2 = {
     id: testsUtilsAccounts.defineRandomId(),
@@ -29,21 +30,21 @@ const mock2 = {
     email: "test011.mock2@iotdb.com",
 };
 
-after(done => {
-    let promiseArray = [];
-    if (accountMock1) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock1.id, accountMock1.token));
-    if (accountMock2) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock2.id, accountMock2.token));
-    Promise.all(promiseArray)
-        .then(responses => {
-            done();
-        })
-        .catch(errors => {
-            console.log("errors : ", errors);
-            done(errors);
-        });
-});
-
 describe('011 - post /account ok', () => {
+    after(done => {
+        let promiseArray = [];
+        if (accountMock1) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock1.id, accountMock1.token));
+        if (accountMock2) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock2.id, accountMock2.token));
+        Promise.all(promiseArray)
+            .then(responses => {
+                done();
+            })
+            .catch(errors => {
+                console.log("errors : ", errors);
+                done(errors);
+            });
+    });
+
     it(`create ${mock1.id} account default basic`, done => {
         try {
             let sentBody = testsUtilsAccounts.getPost(mock1);
