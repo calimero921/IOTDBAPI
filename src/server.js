@@ -21,7 +21,7 @@ logger.info('IOTDB API server is starting ...');
 logger.debug('configuration: %j', configuration);
 logger.debug('serverPath: %s', serverPath);
 
-const session = require('express-session');
+// const session = require('express-session');
 let server = express();
 
 logger.info('Express swagger generator setup');

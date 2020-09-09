@@ -1,6 +1,6 @@
 {
   "name": "iotdbapi",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "IOT Management platform API",
   "private": true,
   "license": "Apache-2.0",

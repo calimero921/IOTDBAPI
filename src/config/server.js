@@ -13,5 +13,5 @@ module.exports = {
     session_timeout: 3600000,
     api_version: 'v' + packageJSON.version.split('.')[0],
     swagger: packageJSON.version,
-    date: '2019-09-18'
+    date: '2020-09-07'
 };
