@@ -11,12 +11,12 @@ class Configuration {
         let env = process.env;
 
         this.configurationObject.server = serverConfig;
-        // if (env.PROTOCOL) this.configurationObject.server.protocol = env.PROTOCOL;
-        // if (env.HOSTNAME) this.configurationObject.server.hostname = env.HOSTNAME;
-        // if (env.PORT) this.configurationObject.server.port = env.PORT;
-        // if (env.HTTPSCA) this.configurationObject.server.httpsCa = env.HTTPSCA;
-        // if (env.HTTPSPRIVATEKEY) this.configurationObject.server.httpsPrivateKey = env.HTTPSPRIVATEKEY;
-        // if (env.HTTPSCERTIFICATE) this.configurationObject.server.httpsCertificate = env.HTTPSCERTIFICATE;
+        if (env.PROTOCOL) this.configurationObject.server.protocol = env.PROTOCOL;
+        if (env.HOSTNAME) this.configurationObject.server.hostname = env.HOSTNAME;
+        if (env.PORT) this.configurationObject.server.port = env.PORT;
+        if (env.HTTPSCA) this.configurationObject.server.httpsCa = env.HTTPSCA;
+        if (env.HTTPSPRIVATEKEY) this.configurationObject.server.httpsPrivateKey = env.HTTPSPRIVATEKEY;
+        if (env.HTTPSCERTIFICATE) this.configurationObject.server.httpsCertificate = env.HTTPSCERTIFICATE;
         // console.log('server: %j', this.configurationObject.server);
 
         this.configurationObject.logs = logsConfig;
@@ -44,7 +44,7 @@ class Configuration {
                 this.configurationObject.logs.transport[transport].active = found;
             });
         }
-        console.log('logs: %j', this.configurationObject.logs);
+        // console.log('logs: %j', this.configurationObject.logs);
 
         if(swaggerConfig.status) this.configurationObject.swagger = swaggerConfig;
 

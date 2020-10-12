@@ -81,13 +81,13 @@ module.exports = function (request, response) {
                         responseError(context, error, response, logger);
                     });
             } else {
-                let error = errorParsing(context, {status_code: '403', status_message: 'User not admin nor owner of device'});
+                let error = errorParsing(context, {status_code: 403, status_message: 'User not admin nor owner of device'});
                 logger.error('error: %j', error);
                 responseError(context, error, response, logger);
             }
         } else {
             //aucune donnée postée
-            let error = errorParsing(context, {status_code: '400', status_message: 'Missing body'});
+            let error = errorParsing(context, {status_code: 400, status_message: 'Missing body'});
             logger.error('error: %j', error);
             responseError(context, error, response, logger);
         }

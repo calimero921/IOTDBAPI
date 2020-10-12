@@ -1,12 +1,14 @@
 const checkAuth = require('../../utils/checkAuth.js');
-const patch = require('../../models/account/patch.js');
-const get = require('../../models/account/get.js');
+const patchAccount = require('../../models/account/patch.js');
+const getAccount = require('../../models/account/get.js');
 
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route PATCH /v0/account/{id}/{token}
+ * @route PATCH /account/{id}/{token}
  * @group Account - Operations about account
  * @param {string} id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
  * @param {string} token.path.required - eg: FCB108968C990419BD5403D1F12E60C4
@@ -18,60 +20,54 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
     const logger = serverLogger.child({
         source: '/controllers/account/patch.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
         logger.debug('id: %s', id);
         let token = request.params.token;
         logger.debug('token: %s', token);
+        let requestBody = request.body;
+        logger.debug('requestBody: %j', requestBody);
 
-        if (id && token && request.body) {
+        if (id && token && requestBody) {
             if (userInfo.admin || (id === userInfo.id)) {
-                let updatedata = request.body;
-                logger.debug('updatedata: %j', updatedata);
+                if (requestBody.id) delete requestBody.id;
+                if (requestBody.token) delete requestBody.token;
+                logger.debug('requestBody: %j', requestBody);
 
-                //supprime les champs id et token des données pouvant être mise à jour
-                if (updatedata.id) {
-                    delete updatedata.id;
-                }
-                if (updatedata.token) {
-                    delete updatedata.token;
-                }
-                logger.debug('updatedata: %j', updatedata);
-                get(context, {id: id}, 0, 0, false)
-                    .then(datas => {
-                        logger.debug('datas: %j', datas);
-                        if (typeof datas.status_code === 'undefined') {
-                            logger.debug(datas, 'datas');
-                            let newdata = datas[0];
-                            if (typeof newdata != 'undefined') {
-                                for (let key in updatedata) {
-                                    logger.debug('key: %s', key);
-                                    newdata[key] = updatedata[key];
-                                }
-                                logger.debug('newdata: %j', newdata);
-                                return patch(context, id, token, newdata)
-                            } else {
-                                return {status_code: '404'};
-                            }
+                getAccount(context, {id: id}, 0, 0, false)
+                    .then(accounts => {
+                        logger.debug('accounts: %j', accounts);
+                        if (accounts.status_code) {
+                            return (accounts)
                         } else {
-                            return (datas)
+                            let newAccount = accounts[0];
+                            if (newAccount) {
+                                for (let key in requestBody) {
+                                    logger.debug('key: %s', key);
+                                    newAccount[key] = requestBody[key];
+                                }
+                                logger.debug('newAccount: %j', newAccount);
+                                return patchAccount(context, id, token, newAccount)
+                            } else {
+                                return {status_code: 404};
+                            }
                         }
                     })
-                    .then(datas => {
-                        logger.debug('datas: %j', datas);
-                        if (typeof datas.status_code === 'undefined') {
-                            response.status(200).send(datas);
+                    .then(patchedAccount => {
+                        logger.debug('patchedAccount: %j', patchedAccount);
+                        if (patchedAccount.status_code) {
+                            responseError(context, patchedAccount, response, logger);
                         } else {
-                            logger.debug('response error');
-                            responseError(context, datas, response, logger);
+                            response.status(200).send(patchedAccount);
                         }
                     })
                     .catch(error => {
@@ -79,12 +75,14 @@ module.exports = function (request, response) {
                         responseError(context, error, response, logger);
                     })
             } else {
-                logger.debug('Forbidden');
-                responseError(context, {status_code: 403}, response, logger);
+                let error = errorParsing(context, {statusCode: 403})
+                logger.error('error: %j', error);
+                responseError(context, error, response, logger);
             }
         } else {
-            logger.debug('missing parameters');
-            responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
+            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameters'})
+            logger.error('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
         logger.error('exception: %s', exception.stack);

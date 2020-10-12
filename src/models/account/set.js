@@ -1,6 +1,6 @@
 const moment = require('moment');
 
-const mongoClientInsert = require('../../connectors/mongodb/insert.js');
+const mongoInsert = require('../../connectors/mongodb/insert.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/Converter.js');
 const Generator = require('../utils/Generator.js');
@@ -13,66 +13,71 @@ module.exports = function (context, account) {
         source: '/models/account/set.js',
         httpRequestId: context.httpRequestId
     });
-    logger.debug( 'account: %j', account);
 
-    //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug('storing account');
-            const generator = new Generator(context);
-            const converter = new Converter(context);
-            if (typeof account === 'undefined') {
-                logger.debug('missing parameter');
-                reject(errorparsing(context, {status_code: '400'}));
-            } else {
+            logger.debug('account: %j', account);
+            if (account) {
                 let query = {};
+                const generator = new Generator(context);
+                const converter = new Converter(context);
                 converter.json2db(account)
-                    .then(datas => {
-                        query = datas;
+                    .then(convertedAccount => {
+                        logger.debug('convertedAccount: %j', convertedAccount);
+                        let timestamp = parseInt(moment().format('x'));
+                        query = convertedAccount;
                         query.id = generator.idgen();
                         query.active = true;
                         query.admin = false;
-                        query.current_connexion_date = parseInt(moment().format('x'));
-                        query.last_connexion_date = parseInt(moment().format('x'));
-                        query.creation_date = parseInt(moment().format('x'));
-                        query.session_id = datas.session_id ? datas.session_id : "no session";
+                        query.current_connexion_date = timestamp;
+                        query.last_connexion_date = timestamp;
+                        query.creation_date = timestamp;
+                        query.session_id = convertedAccount.session_id ? convertedAccount.session_id : "no session";
                         query.token = generator.keygen();
-                        logger.debug(query, 'query');
+                        logger.debug('query: %j', query);
 
-                        //recherche d'un compte pré-existant
-                        let search = {$or: [{email: query.email}]};
-                        return mongoFind(context, converter,'account', search, {offset:0, limit: 0}, true);
+                        let filter = {$or: [{email: query.email}]};
+                        return mongoFind(context, 'account', filter, {offset: 0, limit: 0}, true);
                     })
-                    .then(datas => {
-                        if (datas.length > 0) {
-                            logger.debug('account already exists');
-                            return errorparsing(context, {status_code: '409'});
+                    .then(foundAccount => {
+                        logger.debug('foundAccount: %j', foundAccount);
+                        if (foundAccount.status_code) {
+                            if (foundAccount.status_code === 404) {
+                                return mongoInsert(context, 'account', query);
+                            } else {
+                                return foundAccount;
+                            }
                         } else {
-                            return mongoClientInsert(context, 'account', query);
+                            return errorparsing(context, {
+                                status_code: 409,
+                                status_message: 'account already exists'
+                            });
                         }
                     })
-                    .then(datas => {
-                        if (datas.status_code) {
-                            //renvoi l'erreur de l'étape précédente
-                            return datas;
+                    .then(insertedAccount => {
+                        if (insertedAccount.status_code) {
+                            return insertedAccount;
                         } else {
-                            logger.debug('datas: %j', datas);
-                            //renvoi la fiche complète
-                            return converter.db2json(datas[0]);
+                            logger.debug('insertedAccount: %j', insertedAccount);
+                            return converter.db2json(insertedAccount[0]);
                         }
                     })
-                    .then(datas => {
-                        // logger.debug(datas, 'datas');
-                        if (datas.status_code) {
-                            reject(datas);
+                    .then(finalAccount => {
+                        logger.debug('finalAccount: %j', finalAccount);
+                        if (finalAccount.status_code) {
+                            reject(finalAccount);
                         } else {
-                            resolve(datas);
+                            resolve(finalAccount);
                         }
                     })
                     .catch(error => {
-                        logger.debug( 'error: %j', error);
+                        logger.debug('error: %j', error);
                         reject(errorparsing(context, error));
                     });
+            } else {
+                let error = errorparsing(context, {status_code: 400, status_message: 'missing parameter'})
+                logger.debug('error: %j', error);
+                reject(error);
             }
         } catch (exception) {
             logger.debug('exception: %s', exception.stack);

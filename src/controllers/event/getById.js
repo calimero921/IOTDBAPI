@@ -1,7 +1,8 @@
-const Log4n = require('../../utils/log4n.js');
-const checkAuth = require('../../utils/checkAuth.js');
-const measureGet = require('../../models/event/get.js');
 const deviceGet = require('../../models/device/get.js');
+const measureGet = require('../../models/event/get.js');
+
+const checkAuth = require('../../utils/checkAuth.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
@@ -15,32 +16,28 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/event/get');
+module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
+    const logger = serverLogger.child({
+        source: '/controllers/event/getById.js',
+        httpRequestId: context.httpRequestId
+    });
 
     try {
-        let userInfo = checkAuth(context, req, res);
+        let userInfo = checkAuth(context, request, response);
 
-        log4n.object(req.params.id, 'id');
-        let device_id = req.params.id;
+        logger.debug('id: %j', request.params.id);
+        let device_id = request.params.id;
 
         //traitement de recherche dans la base
         if (typeof device_id === 'undefined') {
-            //aucun device_id
-            responseError(context,{status_code: 400}, res, log4n);
-            log4n.debug('done - missing parameter(id)');
-        } else  {
             let query = {device_id: device_id};
-            if (!userInfo.admin) {
-                query.user_id = userInfo.id;
-            }
             //traitement de recherche dans la base
             deviceGet(context, query, 0, 0)
-                .then(datas => {
-                    if (typeof datas !== 'undefined') {
-                        if (typeof datas.status_code !== 'undefined') {
-                            return datas;
+                .then(device => {
+                    if (device) {
+                        if (device.status_code) {
+                            return device;
                         } else {
                             return measureGet(context, query, 0, 100);
                         }
@@ -48,32 +45,35 @@ module.exports = function (req, res) {
                         return {status_code: 404};
                     }
                 })
-                .then(datas => {
-                    if (typeof datas === 'undefined') {
-                        responseError(context, {status_code: 404}, res, log4n);
-                        log4n.debug('done - not found');
-                    } else {
-                        if (typeof datas.status_code !== 'undefined') {
-                            responseError(context, datas, res, log4n);
-                            log4n.debug('done - error');
+                .then(measure => {
+                    if (measure) {
+                        if (measure.status_code) {
+                            logger.error('error: %j', measure);
+                            responseError(context, measure, response, logger);
                         } else {
-                            // log4n.object(datas, 'datas');
-                            res.status(200).send(datas);
-                            log4n.debug('done - ok');
+                            logger.debug('measure: %j', measure);
+                            response.status(200).send(measure);
                         }
+                    } else {
+                        logger.error('error: measure not found');
+                        responseError(context, {status_code: 404}, response, logger);
                     }
                 })
                 .catch(error => {
-                    responseError(context, error, res, log4n);
-                    log4n.debug('done - global catch');
+                    logger.error('error: %j', error);
+                    responseError(context, error, response, logger);
                 });
+        } else {
+            //aucun device_id
+            logger.error('error: missing parameter');
+            responseError(context, {status_code: 400}, response, logger);
         }
     } catch (exception) {
+        logger.error(exception.stack);
         if (exception.message === "403") {
-            responseError(context, {status_code: 403}, res, log4n);
+            responseError(context, {status_code: 403}, response, logger);
         } else {
-            log4n.error(exception.stack);
-            responseError(context, {status_code: 500}, res, log4n);
+            responseError(context, exception, response, logger);
         }
     }
 };

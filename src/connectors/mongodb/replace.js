@@ -1,5 +1,4 @@
-const mongoDBConnector = require('./MongoDBConnector.js');
-const mongoDBError = require('./error.js');
+const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
@@ -44,7 +43,7 @@ module.exports = function (context, collectionName, query, parameter) {
                     }
                 })
                 .catch(mongoError => {
-                    let error = mongoDBError(context, mongoError);
+                    let error = mongoDBConnector.getError(context, mongoError);
                     logger.debug('error: %j', error);
                     reject(error);
                 })

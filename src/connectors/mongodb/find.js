@@ -1,10 +1,9 @@
-const mongoDBConnector = require('./MongoDBConnector.js');
-const mongoDBError = require('./error.js');
+const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
-module.exports = function (context, converter, collectionName, query, parameters, overtake) {
+module.exports = function (context, collectionName, query, parameters, overtake) {
     const logger = serverLogger.child({
         source: '/connectors/mongodb/find.js',
         httpRequestId: context.httpRequestId
@@ -13,10 +12,10 @@ module.exports = function (context, converter, collectionName, query, parameters
     return new Promise((resolve, reject) => {
         try {
             logger.debug('collectionName: %s', collectionName);
-            logger.debug('query: %s', query);
-            logger.debug('parameter: %s', parameters);
+            logger.debug('query: %j', query);
+            logger.debug('parameter: %j', parameters);
 
-            if (typeof overtake === 'undefined') overtake = false;
+            if (!overtake) overtake = false;
             logger.debug('overtake: %s', overtake);
 
             //initialisation des parametres offset et limit
@@ -38,61 +37,35 @@ module.exports = function (context, converter, collectionName, query, parameters
                         .sort(sort)
                         .toArray()
                 })
-                .then(datas => {
-                    logger.debug('datas: %j', datas);
-                    if (datas) {
-                        if (datas.length > 0) {
-                            let promises = [];
-                            for (let idx1 = 0; idx1 < datas.length; idx1++) {
-                                if (datas.hasOwnProperty(idx1)) {
-                                    promises.push(converter.db2json(datas[idx1]));
-                                }
-                            }
-                            Promise.all(promises)
-                                .then(result => {
-                                    logger.debug('result: %j', result);
-                                    if (result.length > 0) {
-                                        resolve(result);
-                                    } else {
-                                        let error = errorparsing(context, {
-                                            status_code: 404,
-                                            status_message: 'No correct record found'
-                                        });
-                                        logger.error('error: %j', error);
-                                        reject(error);
-                                    }
-                                })
-                                .catch(error => {
-                                    logger.debug('error: %j', error);
-                                    reject(context, error);
-                                });
-                        } else {
+                .then(queryResults => {
+                    logger.debug('queryResults: %j', queryResults);
+                    if (Array.isArray(queryResults)) {
+                        if (queryResults.length === 0) {
+                            let error = errorparsing(context, {status_code: 404, status_message: 'not found'});
                             if (overtake) {
-                                let error = errorparsing(context, {
-                                    status_code: 404,
-                                    status_message: 'No result but ok'
-                                });
-                                logger.error('error: %j', error);
+                                logger.debug('error: %j', error);
                                 resolve(error);
                             } else {
-                                let error = errorparsing(context, {
-                                    status_code: 404,
-                                    status_message: 'No result'
-                                });
                                 logger.error('error: %j', error);
                                 reject(error);
                             }
+                        } else {
+                            resolve(queryResults);
                         }
                     } else {
-                        let error = errorparsing(context, 'No data');
-                        logger.error('error: %j', error);
-                        reject(error);
+                        let error = errorparsing(context, {status_code: 404, status_message: 'not found'});
+                        if (overtake) {
+                            logger.debug('error: %j', error);
+                            resolve(error);
+                        } else {
+                            logger.error('error: %j', error);
+                            reject(error);
+                        }
                     }
                 })
-                .catch(mongoError => {
-                    let error = mongoDBError(context, mongoError);
+                .catch(error => {
                     logger.error('error: %j', error);
-                    reject(errorparsing(context, error));
+                    reject(errorparsing(context, mongoDBConnector.getError(context, error)));
                 })
         } catch (exception) {
             logger.error('exception: %s', exception.stack);

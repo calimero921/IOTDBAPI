@@ -1,59 +1,65 @@
 const checkAuth = require('../../utils/checkAuth.js');
-const accountGet = require('../../models/account/get.js');
+const getAccount = require('../../models/account/get.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /v0/account/email/{email}
+ * @route GET /account/email/{email}
  * @group Account - Operations about account
  * @param {string} email.path.required - eg: emmanuel.david@orange.com
  * @returns {Account.model} 200 - User info
- * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
     const logger = serverLogger.child({
         source: '/controllers/account/getByEmail.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %j', userInfo);
 
         let email = request.params.email;
         logger.debug('email: %s', email);
-        if (userInfo.admin || email === userInfo.email) {
-            let query = {email: email};
+
+        //traitement de recherche dans la base
+        if (email) {
+            let filter = {email: email};
+            if (!userInfo.admin) filter.id = userInfo.id;
+            logger.debug('filter: %s', filter);
             let skip = request.query.skip;
-            if (typeof skip === 'undefined') skip = 0;
+            if (!skip) skip = 0;
             logger.debug('skip: %s', skip);
             let limit = request.query.limit;
-            if (typeof limit === 'undefined') limit = 0;
+            if (!limit) limit = 0;
             logger.debug('limit: %s', limit);
 
             //traitement de recherche dans la base
-            if (typeof email === 'undefined') {
-                logger.debug('missing parameter');
-                responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
-            } else {
-                //traitement de recherche dans la base
-                accountGet(context, query, skip, limit, false)
-                    .then(datas => {
-                        logger.debug( 'datas: %j', datas);
-                        response.status(200).send(datas);
-                    })
-                    .catch(error => {
-                        logger.debug('error: %j', error);
-                        responseError(context, error, response, logger);
-                    });
-            }
+            getAccount(context, filter, skip, limit, false)
+                .then(accounts => {
+                    if (accounts.status_code) {
+                        logger.error('error: %j', accounts);
+                        responseError(context, accounts, response, logger);
+                    } else {
+                        logger.debug('accounts: %j', accounts);
+                        response.status(200).send(accounts);
+                    }
+                })
+                .catch(error => {
+                    logger.error('error: %j', error);
+                    responseError(context, error, response, logger);
+                });
         } else {
-            responseError(context, {status_code: 403, status_message: 'user must be admin or account owner for this action'}, response, logger);
+            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
+            logger.debug('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
         logger.error('exception: %s', exception.stack);

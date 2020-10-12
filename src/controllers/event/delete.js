@@ -1,5 +1,7 @@
-const Log4n = require('../../utils/log4n.js');
 const remove = require('../../models/event/delete.js');
+
+const checkAuth = require('../../utils/checkAuth.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
@@ -13,38 +15,52 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
-module.exports = function (req, res) {
-    let context = {httpRequestId: req.httpRequestId};
-    const log4n = new Log4n(context, '/routes/api/event/delete');
-    // log4n.object(req.params.id,'id');
+module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
+    const logger = serverLogger.child({
+        source: '/controllers/event/delete.js',
+        httpRequestId: context.httpRequestId
+    });
 
-    let device_id = req.params.id;
+    try {
+        let userInfo = checkAuth(context, request, response);
 
-    //traitement de recherche dans la base
-    if (typeof device_id === 'undefined') {
-        //aucun id
-        let error = {status_code: 400};
-        responseError(context, error, res, log4n);
-    } else {
-        //traitement de suppression dans la base
-        remove(context, device_id)
-            .then(datas => {
-                // log4n.object(datas, 'datas');
-                if (typeof datas === 'undefined') {
-                    return {status_code: 404};
-                } else {
-                    if (typeof datas.status_code === 'undefined') {
-                        res.status(204).send();
-                        log4n.debug('done');
+        logger.debug('id: %j', request.params.id);
+        let device_id = request.params.id;
+
+        //traitement de recherche dans la base
+        if (device_id) {
+            //traitement de suppression dans la base
+            remove(context, device_id)
+                .then(removedData => {
+                    logger.debug('removedData: %j', removedData);
+                    if (removedData) {
+                        if (removedData.status_code) {
+                            logger.error('error: %j', removedData);
+                            responseError(context, removedData, response, logger);
+                        } else {
+                            logger.debug('removedData: %j', removedData);
+                            response.status(204).send();
+                        }
                     } else {
-                        responseError(context, datas, res, log4n);
-                        log4n.debug('done');
+                        responseError(context, {status_code: 404}, response, logger);
                     }
-                }
-            })
-            .catch(error => {
-                responseError(context, error, res, log4n);
-                log4n.debug('done');
-            });
+                })
+                .catch(error => {
+                    logger.error('error: %j', error);
+                    responseError(context, error, response, logger);
+                });
+        } else {
+            //aucun id
+            logger.error('missing parameter');
+            responseError(context, {status_code: 400}, response, logger);
+        }
+    } catch (exception) {
+        logger.error(exception.stack);
+        if (exception.message === "403") {
+            responseError(context, {status_code: 403}, response, logger);
+        } else {
+            responseError(context, exception, response, logger);
+        }
     }
 };

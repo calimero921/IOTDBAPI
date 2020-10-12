@@ -1,5 +1,6 @@
 const path = require('path');
 
+const packageJSON = require('../../package.json');
 const serverConfig = require('./server.js');
 
 module.exports = {
@@ -27,8 +28,8 @@ module.exports = {
         //     }
         // },
         contact: {
-            name: 'Emmanuel David',
-            email: 'emmanuel.david@orange.com'
+            name: packageJSON.author.name,
+            email: packageJSON.author.email
         }
     },
     basedir: __dirname, //app absolute path

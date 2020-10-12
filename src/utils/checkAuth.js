@@ -23,14 +23,10 @@ module.exports = function (context, request, response) {
                 id: userInfo.sub,
                 firstname: userInfo.given_name,
                 lastname: userInfo.family_name,
-                email: "",
+                email: userInfo.email,
                 admin: false,
                 active: false
             };
-
-            if (resultUserInfo.email_verified) {
-                resultUserInfo.email = resultUserInfo.email;
-            }
 
             let client = accessToken.azp;
             logger.debug('client: %j', client);

@@ -16,7 +16,7 @@ module.exports = function (context, id, token, session_id) {
         try{
             log4n.debug('storing session_id');
             if (typeof id === 'undefined' || typeof session_id === 'undefined') {
-                reject(errorparsing(context, {status_code: '400'}));
+                reject(errorparsing(context, {status_code: 400}));
                 log4n.debug('done - missing parameter');
             } else {
                 getAccount(context, {id: id, token: token}, 0, 0, false)
@@ -32,7 +32,7 @@ module.exports = function (context, id, token, session_id) {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            reject(errorparsing(context, {status_code: '500'}));
+                            reject(errorparsing(context, 'no data'));
                         } else {
                             if(typeof datas.status_code === "undefined") {
                                 resolve(datas);

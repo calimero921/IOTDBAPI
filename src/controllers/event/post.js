@@ -1,8 +1,8 @@
-const checkAuth = require('../../utils/checkAuth.js');
-const set = require('../../models/event/set.js');
-const update = require('../../models/device/patch.js');
-const get = require('../../models/device/get.js');
+const getDevice = require('../../models/device/get.js');
+const patchDevice = require('../../models/device/patch.js');
+const setEvent = require('../../models/event/set.js');
 
+const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
@@ -18,11 +18,11 @@ const globalPrefix = '/routes/api/event/post.js';
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
     const logger = serverLogger.child({
         source: globalPrefix,
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
@@ -36,42 +36,42 @@ module.exports = function (request, response) {
             //lecture des données postées
             if (userInfo.admin || userInfo.id === postData.user_id) {
                 let query = {device_id: postData.device_id};
-                get(context, query, 0, 0, true)
-                    .then(datas => {
-                        logger.debug('get device: %j', datas);
-                        if (datas) {
-                            if (datas.status_code) {
-                                return datas;
+                getDevice(context, query, 0, 0, true)
+                    .then(devices => {
+                        logger.debug('Device: %j', devices);
+                        if (devices) {
+                            if (devices.status_code) {
+                                return devices;
                             } else {
-                                device = datas[0];
-                                return set(context, postData);
+                                device = devices[0];
+                                return setEvent(context, postData);
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            return errorparsing(context,{status_code: 500, status_message: 'No datas'});
+                            return errorparsing(context, 'Device not found');
                         }
                     })
-                    .then(datas => {
-                        logger.debug('set measure: %j', datas);
-                        if (datas) {
-                            if (datas.status_code) {
-                                return datas;
+                    .then(event => {
+                        logger.debug('event: %j', event);
+                        if (event) {
+                            if (event.status_code) {
+                                return event;
                             } else {
-                                postData = datas;
+                                postData = event;
                                 return updateDevice(context, device, postData);
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            return errorparsing(context, {status_code: 500, status_message: 'No datas'});
+                            return errorparsing(context, 'No event');
                         }
                     })
                     .then(datas => {
-                        // logger.debug(datas, 'set measure');
+                        // logger.debug(datas, 'setEvent measure');
                         if (datas) {
                             if (datas.status_code) {
                                 return datas;
                             } else {
-                                return update(context, postData.device_id, datas);
+                                return patchDevice(context, postData.device_id, datas);
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
@@ -79,7 +79,7 @@ module.exports = function (request, response) {
                         }
                     })
                     .then(datas => {
-                        // logger.debug(datas, 'update device');
+                        // logger.debug(datas, 'updateDevice device');
                         if (datas) {
                             //recherche d'un code erreur précédent
                             if (datas.status_code) {
@@ -101,7 +101,7 @@ module.exports = function (request, response) {
                         responseError(context, error, response, logger);
                     });
             } else {
-                return errorparsing(context,{status_code: '403'});
+                return errorparsing(context,{status_code: 403});
             }
 
         } else {
@@ -110,14 +110,18 @@ module.exports = function (request, response) {
         }
     } catch (exception) {
         logger.error(exception.stack);
-        responseError(context, exception, response, logger);
+        if (exception.message === "403") {
+            responseError(context, {status_code: 403}, response, logger);
+        } else {
+            responseError(context, exception, response, logger);
+        }
     }
 };
 
 function updateDevice(context, device, measure) {
     const logger = serverLogger.child({
         source: globalPrefix + ':updateDevice',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
 
     return new Promise((resolve, reject) => {

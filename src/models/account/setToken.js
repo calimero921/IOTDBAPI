@@ -15,7 +15,7 @@ module.exports = function (context, id, token) {
         try {
             log4n.debug('storing token');
             if (typeof id === 'undefined') {
-                reject(errorparsing({status_code: '400'}));
+                reject(errorparsing({status_code: 400}));
                 log4n.debug('done - missing parameter');
             } else {
                 let newAccount;

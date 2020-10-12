@@ -1,12 +1,13 @@
 const checkAuth = require('../../utils/checkAuth.js');
-const accountGet = require('../../models/account/get.js');
+const getAccount = require('../../models/account/get.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /v0/account/session/{session_id}
+ * @route GET /account/session/{session_id}
  * @group Account - Operations about account
  * @param {string} session_id.path.required - eg: 2lPe21SQcHJoD_1UY7l3I82NOrS_Hzw9
  * @returns {Account.model} 200 - User info
@@ -16,37 +17,49 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
     const logger = serverLogger.child({
         source: '/controllers/account/getBySession.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %j', userInfo);
 
-        if (userInfo.admin) {
-            let session_id = request.params.session_id;
-            logger.debug( 'session_id: %s', session_id);
+        let session_id = request.params.session_id;
+        logger.debug('session_id: %s', session_id);
 
-            //traitement de recherche dans la base
-            if (typeof session_id === 'undefined') {
-                logger.debug('missing parameter');
-                responseError(context, {status_code: 400, status_message: 'Missing parameters'}, response, logger);
-            } else {
-                //traitement de recherche dans la base
-                accountGet(context, {session_id: session_id}, 0, 0, false)
-                    .then(datas => {
-                        logger.debug( 'datas: %j', datas);
-                        response.status(200).send(datas);
-                    })
-                    .catch(error => {
-                        logger.error( 'error: %j', error);
-                        responseError(context, error, response, logger);
-                    });
-            }
+        //traitement de recherche dans la base
+        if (session_id) {
+            let filter = {session_id: session_id};
+            if (!userInfo.admin) filter.id = userInfo.id;
+            logger.debug('filter: %s', filter);
+            let skip = request.query.skip;
+            if (!skip) skip = 0;
+            logger.debug('skip: %s', skip);
+            let limit = request.query.limit;
+            if (!limit) limit = 0;
+            logger.debug('limit: %s', limit);
+
+            getAccount(context, filter, 0, 0, false)
+                .then(accounts => {
+                    if (accounts.status_code) {
+                        logger.error('error: %j', accounts);
+                        responseError(context, accounts, response, logger);
+                    } else {
+                        logger.debug('accounts: %j', accounts);
+                        response.status(200).send(accounts);
+                    }
+                })
+                .catch(error => {
+                    logger.error('error: %j', error);
+                    responseError(context, error, response, logger);
+                });
         } else {
-            responseError(context, {status_code: 403, status_message: 'user must be admin for this action'}, response, logger);
+            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
+            logger.debug('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
         logger.error(exception.stack);

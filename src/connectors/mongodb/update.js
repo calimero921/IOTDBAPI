@@ -1,10 +1,9 @@
-const mongoDBConnector = require('./MongoDBConnector.js');
-const mongoDBError = require('./error.js');
+const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
-module.exports = function (context, converter, collectionName, query, parameters) {
+module.exports = function (context, collectionName, query, newValue) {
     const logger = serverLogger.child({
         source: '/connectors/mongodb/update.js',
         httpRequestId: context.httpRequestId
@@ -14,63 +13,48 @@ module.exports = function (context, converter, collectionName, query, parameters
         try {
             logger.debug('collectionName: %s', collectionName);
             logger.debug('query: %s', query);
-            logger.debug('parameter: %s', parameters);
+            logger.debug('parameter: %s', newValue);
 
             mongoDBConnector.getDB(context)
                 .then(mongodbDatabase => {
                     let collection = mongodbDatabase.collection(collectionName);
-                    let operators = {"$set": parameters};
+                    let operators = {"$set": newValue};
                     let options = {
                         returnOriginal: false,
                         upsert: true
                     };
                     return collection.findOneAndUpdate(query, operators, options);
                 })
-                .then(datas => {
-                    logger.debug('datas: %j', datas);
-                    if (datas) {
-                        if (datas.ok === 1) {
-                            if (datas.value) {
-                                return converter.db2json(datas.value);
+                .then(updatedValue => {
+                    logger.debug('updatedValue: %j', updatedValue);
+                    if (updatedValue) {
+                        if (updatedValue.ok === 1) {
+                            if (updatedValue.value) {
+                                resolve(updatedValue.value);
                             } else {
-                                let error = errorparsing(context, 'No response');
+                                let error = errorParsing(context, 'no response');
                                 logger.debug('error: %j', error);
                                 reject(error);
                             }
                         } else {
-                            let error = errorparsing(context, datas);
+                            let error = errorParsing(context, updatedValue);
                             logger.debug('error: %j', error);
                             reject(error);
                         }
                     } else {
-                        let error = errorparsing(context, 'No data');
-                        logger.debug('error: %j', error);
-                        reject(error);
-                    }
-                })
-                .then(datas => {
-                    if (datas) {
-                        if (datas.status_code) {
-                            logger.debug('error: %j', datas);
-                            reject(datas);
-                        } else {
-                            logger.debug('datas: %j', datas);
-                            resolve(datas);
-                        }
-                    } else {
-                        let error = errorparsing(context, 'No data');
+                        let error = errorParsing(context, 'no data');
                         logger.debug('error: %j', error);
                         reject(error);
                     }
                 })
                 .catch(mongoError => {
-                    let error = mongoDBError(context, mongoError);
+                    let error = mongoDBConnector.getError(context, mongoError);
                     logger.debug('error: %j', error);
                     reject(error);
                 })
         } catch (exception) {
             console.log('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     })
 };

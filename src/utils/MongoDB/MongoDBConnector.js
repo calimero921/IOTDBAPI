@@ -1,8 +1,8 @@
 const MongoClient = require('mongodb').MongoClient;
 
-const mongoDBError = require('./error.js');
 const configuration = require('../../config/Configuration.js');
-const serverLogger = require('../../utils/serverLogger.js');
+const serverLogger = require('../ServerLogger.js');
+const errorParsing = require('../errorParsing.js');
 
 const globalPrefix = '/connectors/mongodb/MongoDBConnector.js';
 
@@ -48,16 +48,47 @@ class MongoDBConnector {
                             resolve(this.mongodbDatabase);
                         })
                         .catch(mongoError => {
-                            let error = mongoDBError(context, mongoError);
+                            let error = this.getError(context, mongoError);
                             logger.debug('error: %j', error);
                             reject(error);
                         })
                 }
             } catch (exception) {
                 logger.debug('exception: %s', exception.stack);
-                reject(errorparsing(context, exception));
+                reject(errorParsing(context, exception));
             }
         })
+    }
+
+    getError(context, error) {
+        const logger = serverLogger.child({
+            source: globalPrefix + ':getError',
+            httpRequestId: context.httpRequestId
+        });
+
+        try {
+            logger.debug('error: %j', error);
+            let result = {};
+            if (error.status_code) {
+                result = error;
+            } else {
+                switch (error.code) {
+                    case 11000:
+                        result.status_code = 409;
+                        result.status_message = "Duplicate entry";
+                        break;
+                    default:
+                        result.status_code = error.code;
+                        result.status_message = error.message;
+                        break;
+                }
+            }
+            logger.debug('result: %j', result);
+            return errorParsing(context, result);
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            return errorParsing(context, exception);
+        }
     }
 }
 

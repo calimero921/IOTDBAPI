@@ -1,5 +1,5 @@
 const checkAuth = require('../../utils/checkAuth.js');
-const accountDelete = require('../../models/account/delete.js');
+const deleteAccount = require('../../models/account/delete.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
@@ -7,47 +7,49 @@ const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route DELETE /v0/account/{id}/{token}
+ * @route DELETE /account/{id}/{token}
  * @group Account - Operations about account
  * @param {string} id.path.required - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
  * @param {string} token.path.required - eg: FCB108968C990419BD5403D1F12E60C4
  * @returns {Error} 204
- * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {httpRequestId: request.httpRequestId};
     const logger = serverLogger.child({
         source: '/controllers/account/delete.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
         let userInfo = checkAuth(context, request, response);
+        logger.debug('userInfo: %j', userInfo);
 
-        let id;
-        let token;
-        if (typeof request.params !== 'undefined') {
-            id = request.params.id;
-            token = request.params.token;
-        }
+        let id = request.params.id;
         logger.debug('id: %s', id);
+        let token = request.params.token;
         logger.debug('token: %s', token);
 
-        //traitement de recherche dans la base
-        if (!id || !token) {
-            let error = errorParsing(context, {status_code: 400, status_message: 'Missing parameters'});
-            logger.debug('error: %j', error);
-            responseError(context, error, response, logger);
-        } else {
+        //traitement de suppression dans la base
+        if (id && token) {
             if (userInfo.admin || (id === userInfo.id)) {
-                //traitement de suppression dans la base
-                accountDelete(context, id, token)
-                    .then(datas => {
-                        logger.debug('datas: %j', datas);
-                        response.status(204).send();
+                deleteAccount(context, id, token)
+                    .then(deletedAccount => {
+                        if (deletedAccount) {
+                            if (deletedAccount.status_code) {
+                                logger.error('error: %j', error);
+                                responseError(context, deletedAccount, response, logger);
+                            } else {
+                                logger.debug('deleted accounts: %j', deletedAccount);
+                                response.status(200).send(deletedAccount);
+                            }
+                        } else {
+                            let error = errorParsing(context, {status_code: 404, status_message: 'no account found'});
+                            logger.debug('error: %j', error);
+                            responseError(context, error, response, logger);
+                        }
                     })
                     .catch(error => {
                         logger.debug('error: %j', error);
@@ -61,6 +63,10 @@ module.exports = function (request, response) {
                 logger.error('error : %j', error);
                 responseError(context, error, response, logger);
             }
+        } else {
+            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameters'});
+            logger.debug('error: %j', error);
+            responseError(context, error, response, logger);
         }
     } catch (exception) {
         logger.debug('exception: %s', exception.stack);

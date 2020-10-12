@@ -13,7 +13,7 @@ module.exports = function (context, event) {
             log4n.debug('storing device');
             const converter = new Converter(context);
             if (typeof event === 'undefined') {
-                reject(errorparsing({status_code: '400', status_message: 'Missing parameter'}));
+                reject(errorparsing({status_code: 400, status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');

@@ -1,5 +1,5 @@
+const configuration = require('../config/Configuration.js');
 const serverLogger = require('../utils/serverLogger.js');
-const config = require('../config/server.js');
 const responseError = require('../utils/responseError.js');
 
 /**
@@ -23,8 +23,7 @@ module.exports = function (request, response) {
         // logger.debug(request.body, 'body');
 
         let result = {};
-        result.swagger_version = config.swagger;
-        result.last_update = config.date;
+        result.swagger_version = configuration.server.swagger;
         logger.debug('result: %j', result);
 
         response.status(200).send(result);

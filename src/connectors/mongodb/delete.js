@@ -1,8 +1,7 @@
-const mongoDBConnector = require('./MongoDBConnector.js');
-const mongoDBError = require('./error.js');
+const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, collectionName, query) {
     const logger = serverLogger.child({
@@ -13,43 +12,43 @@ module.exports = function (context, collectionName, query) {
     return new Promise((resolve, reject) => {
         try {
             logger.debug('collectionName: %s', collectionName);
-            logger.debug('query: %s', query);
+            logger.debug('query: %j', query);
 
             mongoDBConnector.getDB(context)
                 .then(mongodbDatabase => {
                     let collection = mongodbDatabase.collection(collectionName);
                     return collection.findOneAndDelete(query);
                 })
-                .then(datas => {
-                    logger.debug('datas: %j', datas);
-                    if (datas) {
-                        if (datas.ok === 1) {
-                            if (datas.value) {
-                                resolve(datas.value);
+                .then(deletedAccount => {
+                    logger.debug('deletedAccount: %j', deletedAccount);
+                    if (deletedAccount) {
+                        if (deletedAccount.ok === 1) {
+                            if (deletedAccount.lastErrorObject.n > 0) {
+                                resolve(deletedAccount.value);
                             } else {
-                                let error = errorparsing(context, 'No response');
+                                let error = errorParsing(context, {status_code: 404, status_message: 'no response'});
                                 logger.debug('error: %j', error);
                                 reject(error);
                             }
                         } else {
-                            let error = errorparsing(context, datas);
+                            let error = errorParsing(context, deletedAccount);
                             logger.debug('error: %j', error);
                             reject(error);
                         }
                     } else {
-                        let error = errorparsing(context, 'No data');
+                        let error = errorParsing(context, 'no data');
                         logger.debug('error: %j', error);
                         reject(error);
                     }
                 })
                 .catch(mongoError => {
-                    let error = mongoDBError(context, mongoError);
+                    let error = mongoDBConnector.getError(context, mongoError);
                     logger.debug('error: %j', error);
                     reject(error);
                 })
         } catch (exception) {
             logger.debug('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     })
 };

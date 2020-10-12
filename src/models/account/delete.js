@@ -1,36 +1,37 @@
-const mongoClient = require('../../connectors/mongodb/delete.js');
+const mongoDelete = require('../../connectors/mongodb/delete.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, id, token) {
-	const logger = serverLogger.child({
-		source: '/models/account/delete.js',
-		httpRequestId: context.httpRequestId
-	});
-	logger.debug(id,'id');
-	logger.debug(token,'token');
+    const logger = serverLogger.child({
+        source: '/models/account/delete.js',
+        httpRequestId: context.httpRequestId
+    });
+    logger.debug(id, 'id');
+    logger.debug(token, 'token');
 
-	//traitement de suppression dans la base
-	return new Promise((resolve, reject) => {
-		if (typeof id === 'undefined') {
-			logger.debug('missing paramater');
-			reject(errorparsing(context, {status_code: 400}));
-		} else {
-			let query = {id: id, token: token};
-			mongoClient(context,'account', query)
-				.then(datas => {
-					if (datas.status_code) {
-						logger.debug('error: %j', datas);
-						reject(errorparsing(context, datas));
-					} else {
-						resolve(datas);
-					}
-				})
-				.catch(error => {
-					logger.debug( 'error: %j', error);
-					reject(errorparsing(context, error));
-				})
-		}
-	})
+    //traitement de suppression dans la base
+    return new Promise((resolve, reject) => {
+        if (id) {
+            let query = {id: id, token: token};
+            mongoDelete(context, 'account', query)
+                .then(deletedAccount => {
+                    if (deletedAccount.status_code) {
+                        logger.debug('error: %j', deletedAccount);
+                        reject(errorParsing(context, deletedAccount));
+                    } else {
+                        resolve(deletedAccount);
+                    }
+                })
+                .catch(error => {
+                    logger.debug('error: %j', error);
+                    reject(error);
+                })
+        } else {
+            let error = errorParsing(context, {status_code: 400,status_message:'missing paramater'})
+            logger.debug('error: %j', error);
+            reject(error);
+        }
+    })
 };

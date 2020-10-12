@@ -16,7 +16,7 @@ module.exports = function (context, device) {
             logger.debug('device: %j', device);
             const converter = new Converter(context);
             if (typeof device === 'undefined') {
-                let error = errorparsing({status_code: '400', status_message: 'Missing parameter'});
+                let error = errorparsing({status_code: 400, status_message: 'Missing parameter'});
                 logger.error('error: %j', error);
                 reject(error);
             } else {

@@ -1,80 +1,79 @@
-const Log4n = require('../../utils/log4n.js');
-const errorparsing = require('../../utils/errorParsing.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
 const mongoUpdate = require('../../connectors/mongodb/update.js');
 const Converter = require('./utils/Converter.js');
 
-module.exports = function (context, id, token, new_account) {
-    const log4n = new Log4n(context, '/models/account/patch');
-    log4n.object(id, 'id');
-    log4n.object(token, 'token');
-    log4n.object(new_account, 'new_account');
+const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
-    //traitement de recherche dans la base
+module.exports = function (context, id, token, newAccount) {
+    const logger = serverLogger.child({
+        source: '/models/account/patch.js',
+        httpRequestId: context.httpRequestId
+    });
+
     return new Promise((resolve, reject) => {
         try {
-            log4n.debug('storing account');
-            let converter = new Converter(context);
-            if (typeof id === 'undefined' || typeof token === 'undefined' || typeof new_account === 'undefined') {
-                reject(errorparsing(context, {status_code: 400}));
-                log4n.debug('done - missing paramater')
-            } else {
-                let query = {id: id, token: token};
-                let parameter = {};
-                log4n.debug('converting json data to db');
-                converter.json2db(new_account)
-                    .then(datas => {
-                        // log4n.object(datas,'datas');
-                        if (typeof datas.status_code === 'undefined') {
-                            parameter = datas;
-                            //recherche d'un compte pré-existant
-                            return mongoFind(context, 'account', query, {offset: 0, limit: 0}, true)
+            logger.debug('id: %s', id);
+            logger.debug('token: %s', token);
+            logger.debug('newAccount: %j', newAccount);
+
+            if (id && token && newAccount) {
+                let converter = new Converter(context);
+                let filter = {id: id, token: token};
+                let parameters = {offset: 0, limit: 0};
+                let updateAccount = {};
+                converter.json2db(newAccount)
+                    .then(convertedAccount => {
+                        logger.debug('convertedAccount: %j', convertedAccount);
+                        if (convertedAccount.status_code) {
+                            return convertedAccount;
                         } else {
-                            return datas;
+                            updateAccount = convertedAccount;
+                            return mongoFind(context, 'account', filter, parameters, true)
                         }
                     })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas.status_code === 'undefined') {
-                            if (datas.length > 0) {
-                                return mongoUpdate(context, 'account', query, parameter);
+                    .then(foundAccount => {
+                        logger.debug('foundAccount: %j', foundAccount);
+                        if (foundAccount.status_code) {
+                            return foundAccount;
+                        } else {
+                            if (foundAccount.length > 0) {
+                                return mongoUpdate(context, 'account', filter, updateAccount);
                             } else {
-                                log4n.debug('account doesn\'t exist');
-                                return errorparsing(context, {status_code: '404'});
+                                return errorParsing(context, {status_code: 404});
                             }
-                        } else {
-                            return datas;
                         }
                     })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas.status_code === 'undefined') {
-                            log4n.debug('converting db data to json');
-                            return converter.db2json(datas);
+                    .then(updatedAccount => {
+                        logger.debug('updatedAccount: %j', updatedAccount);
+                        if (updatedAccount.status_code) {
+                            return updatedAccount;
                         } else {
-                            return datas;
+                            return converter.db2json(updatedAccount);
                         }
                     })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas.status_code === 'undefined') {
-                            resolve(datas);
-                            log4n.debug('done - ok');
+                    .then(convertedUpdatedAccount => {
+                        if (convertedUpdatedAccount.status_code) {
+                            logger.error('error: %j', convertedUpdatedAccount);
+                            reject(convertedUpdatedAccount);
                         } else {
-                            reject(errorparsing(context, datas));
-                            log4n.debug('done - error');
+                            logger.debug('convertedUpdatedAccount: %j', convertedUpdatedAccount);
+                            resolve(convertedUpdatedAccount);
                         }
                     })
                     .catch(error => {
-                        log4n.object(error, 'error');
-                        reject(errorparsing(context, error));
-                        log4n.debug('done - promise catch');
+                        logger.error('error: %j', error);
+                        reject(error);
                     })
+            } else {
+                let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'})
+                logger.error('error: %j', error);
+                reject(error);
             }
-        } catch (error) {
-            log4n.object(error, 'error');
-            reject(errorparsing(context, error));
-            log4n.debug('done - global catch');
+        } catch (exception) {
+            logger.error('exception: %s', exception.stack);
+            reject(errorParsing(context, exception));
         }
     })
 };

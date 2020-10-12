@@ -56,10 +56,10 @@ server.set('port', port);
  */
 logger.info('HTTPS server setup');
 let httpsServer = {};
-if ((configuration.server.ca_crt) && (configuration.server.server_key) && (configuration.server.server_crt)) {
-    let caKeyPath = path.join(serverPath, configuration.server.ca_crt);
-    let privateKeyPath = path.join(serverPath, configuration.server.server_key);
-    let certificatePath = path.join(serverPath, configuration.server.server_crt);
+if ((configuration.server.httpsCa) && (configuration.server.httpsPrivateKey) && (configuration.server.httpsCertificate)) {
+    let caKeyPath = path.join(serverPath, configuration.server.httpsCa);
+    let privateKeyPath = path.join(serverPath, configuration.server.httpsPrivateKey);
+    let certificatePath = path.join(serverPath, configuration.server.httpsCertificate);
 
     if ((fs.existsSync(privateKeyPath)) && (fs.existsSync(certificatePath))) {
         let httpsOptions = {
