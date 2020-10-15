@@ -6,7 +6,8 @@ const errorparsing = require('../../utils/errorParsing.js');
 module.exports = function (context, collectionName, query, parameters, overtake) {
     const logger = serverLogger.child({
         source: '/connectors/mongodb/find.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     return new Promise((resolve, reject) => {

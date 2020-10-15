@@ -2,12 +2,19 @@ const {JWT} = require('jose');
 
 const serverLogger = require('../utils/serverLogger.js');
 const errorParsing = require('../utils/errorParsing.js');
+const responseError = require('../utils/responseError.js')
 
-module.exports = function (context, request, response) {
+module.exports = function (request, response, next) {
+    let context = {
+        httpRequestId: 'authorization',
+        authorizedClient: 'internal'
+    }
     const logger = serverLogger.child({
         source: '/utils/checkauth.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
+    logger.debug('context: %j', context);
 
     try {
         // let accessToken = request.openIDConnect.accessToken;
@@ -71,16 +78,19 @@ module.exports = function (context, request, response) {
             logger.debug('userInfo: %j', resultUserInfo);
 
             if (resultUserInfo.active) {
-                logger.debug('done - ok');
-                return resultUserInfo;
+                request.authorizedClient = resultUserInfo.id;
+                request.userinfo = resultUserInfo;
+                logger.info('user %s authorized, %s and %s', resultUserInfo.id, resultUserInfo.active ? 'active' : 'inactive', resultUserInfo.admin ? 'admin' : 'user');
+                next();
             } else {
-                logger.error('done - Unauthorized user');
-                throw new Error('403');
+                let error = errorParsing(context, {status_code: 403, status_message: 'unauthorized user'})
+                logger.error('error: %j', error);
+                responseError(context, error, response, logger);
             }
         }
     } catch (exception) {
-        logger.error(exception.stack);
-        throw new Error('500')
+        logger.error('exception: %s', exception.stack);
+        responseError(context, exception, response, logger);
     }
 };
 

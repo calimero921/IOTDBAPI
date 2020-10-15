@@ -1,3 +1,4 @@
+const checkAuth = require('../utils/checkAuth.js')
 const configuration = require('../config/Configuration.js');
 const serverLogger = require('../utils/ServerLogger.js');
 
@@ -23,9 +24,14 @@ const measurePost = require('../controllers/event/post.js');
 const measureDelete = require('../controllers/event/delete.js');
 
 module.exports = function (server) {
+    let context = {
+        httpRequestId: 'initialize',
+        authorizedClient: 'internal'
+    }
     const logger = serverLogger.child({
         source: '/routes/main.js',
-        httpRequestId: 'initialize'
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     logger.info('Router starting ...');
@@ -35,15 +41,15 @@ module.exports = function (server) {
         next();
     });
 
-    server.get('/status', status);
+    server.get('/status', checkAuth, status);
 
-    server.get('/' + configuration.server.api_version + '/account', accountGet);
-    server.get('/' + configuration.server.api_version + '/account/id/:id', accountGetByID);
-    server.get('/' + configuration.server.api_version + '/account/email/:email', accountGetByEmail);
-    server.get('/' + configuration.server.api_version + '/account/session/:session_id', accountGetBySession);
+    server.get('/' + configuration.server.api_version + '/account', checkAuth, accountGet);
+    server.get('/' + configuration.server.api_version + '/account/id/:id', checkAuth, accountGetByID);
+    server.get('/' + configuration.server.api_version + '/account/email/:email', checkAuth, accountGetByEmail);
+    server.get('/' + configuration.server.api_version + '/account/session/:session_id', checkAuth, accountGetBySession);
     server.post('/' + configuration.server.api_version + '/account', accountPost);
-    server.patch('/' + configuration.server.api_version + '/account/:id/:token', accountPatch);
-    server.delete('/' + configuration.server.api_version + '/account/:id/:token', accountDelete);
+    server.patch('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountPatch);
+    server.delete('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountDelete);
 
     server.get('/' + configuration.server.api_version + '/device/:id', deviceGetById);
     server.get('/' + configuration.server.api_version + '/device/user/:id', deviceGetByUser);

@@ -1,4 +1,3 @@
-const checkAuth = require('../../utils/checkAuth.js');
 const patchAccount = require('../../models/account/patch.js');
 const getAccount = require('../../models/account/get.js');
 
@@ -20,14 +19,18 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/controllers/account/patch.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
@@ -67,6 +70,7 @@ module.exports = function (request, response) {
                         if (patchedAccount.status_code) {
                             responseError(context, patchedAccount, response, logger);
                         } else {
+                            logger.debug('account patched for id %s', patchedAccount.id);
                             response.status(200).send(patchedAccount);
                         }
                     })

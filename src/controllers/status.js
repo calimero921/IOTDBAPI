@@ -10,9 +10,14 @@ const responseError = require('../utils/responseError.js');
  */
 
 module.exports = function (request, response) {
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    }
     const logger = serverLogger.child({
         source: '/controllers/status.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
@@ -29,6 +34,6 @@ module.exports = function (request, response) {
         response.status(200).send(result);
     } catch (exception) {
         logger.error('exception: %s', exception.stack);
-        responseError({status_code: 500}, response, logger);
+        responseError(context, exception, response, logger);
     }
 };

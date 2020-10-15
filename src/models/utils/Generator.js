@@ -12,7 +12,8 @@ class Generator {
     idgen() {
         const logger = serverLogger.child({
             source: globalPrefix + ':idgen',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         logger.debug('idgen starting');
@@ -31,7 +32,8 @@ class Generator {
     keygen() {
         const logger = serverLogger.child({
             source: globalPrefix + ':keygen',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
         logger.debug('keygen starting');
         const dictionnary = "0123456789ABCDEF";

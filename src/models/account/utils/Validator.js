@@ -14,7 +14,8 @@ class AccountValidator  extends Validator {
         this.context = context;
         let logger = serverLogger.child({
             source: globalPrefix + ':constructor:',
-            httpRequestId: context.httpRequestId
+            httpRequestId: context.httpRequestId,
+            authorizedClient: context.authorizedClient
         });
 
         logger.debug('AccountValidator created');

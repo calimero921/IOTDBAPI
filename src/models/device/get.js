@@ -2,9 +2,9 @@ const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/Converter.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
-module.exports = function (context, query, offset, limit, overtake) {
+module.exports = function (context, filter, skip, limit, overtake) {
     const logger = serverLogger.child({
         source: '/models/device/get.js',
         httpRequestId: context.httpRequestId
@@ -13,35 +13,93 @@ module.exports = function (context, query, offset, limit, overtake) {
     //traitement de recherche dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug('query: %s', query);
-            logger.debug('offset: %s', offset);
+            if (!limit) limit = 0;
             logger.debug('limit: %s', limit);
+            if (!skip) skip = 0;
+            logger.debug('skip: %s', skip);
             if (!overtake) overtake = false;
             logger.debug('overtake: %s', overtake);
 
+            logger.debug('filter: %s', filter);
             let parameter = {};
-            if (offset) parameter.offset = offset;
+            if (skip) parameter.skip = skip;
             if (limit) parameter.limit = limit;
+            logger.debug('parameter: %j', parameter);
 
-            const converter = new Converter(context);
-            mongoFind(context, converter, 'device', query, parameter, overtake)
-                .then(datas => {
-                    if (datas) {
-                        if (datas.status_code) {
-                            logger.error('error: %j', datas);
+            mongoFind(context, 'device', filter, parameter, overtake)
+                .then(devices => {
+                    if (devices) {
+                        if (devices.status_code) {
                             if (overtake) {
-                                resolve(datas);
+                                logger.debug('devices: %j', devices);
+                                resolve(devices);
                             } else {
-                                reject(datas);
+                                logger.error('error: %j', devices);
+                                reject(devices);
                             }
                         } else {
-                            logger.debug('datas: %j', datas);
-                            resolve(datas);
+                            if (Array.isArray(devices)) {
+                                let promises = [];
+                                const converter = new Converter(context);
+                                for (let idx = 0; idx < devices.length; idx++) {
+                                    promises.push(converter.db2json(devices[idx]));
+                                }
+                                if (promises.length > 0) {
+                                    Promise.all(promises)
+                                        .then(result => {
+                                            logger.debug('result: %j', result);
+                                            if (result.length > 0) {
+                                                resolve(result);
+                                            } else {
+                                                let error = errorParsing(context, {
+                                                    status_code: 404,
+                                                    status_message: 'no correct record found'
+                                                });
+                                                logger.error('error: %j', error);
+                                                reject(error);
+                                            }
+                                        })
+                                        .catch(error => {
+                                            logger.debug('error: %j', error);
+                                            reject(context, error);
+                                        });
+                                } else {
+                                    let error = errorParsing(context, {
+                                        status_code: 404,
+                                        status_message: 'no device found'
+                                    })
+                                    logger.error('error: %j', error);
+                                    if (overtake) {
+                                        logger.debug('error: %j', error);
+                                        resolve(error);
+                                    } else {
+                                        logger.error('error: %j', error);
+                                        reject(error);
+                                    }
+                                }
+                            } else {
+                                let error = errorParsing(context, {
+                                    status_code: 404,
+                                    status_message: 'no account found'
+                                })
+                                if (overtake) {
+                                    logger.debug('error: %j', error);
+                                    resolve(error);
+                                } else {
+                                    logger.error('error: %j', error);
+                                    reject(error);
+                                }
+                            }
                         }
                     } else {
-                        let error = errorparsing(context, 'No datas found');
-                        logger.error('error: %j', error);
-                        reject(error);
+                        let error = errorParsing(context, {status_code: 404, status_message: 'no device found'})
+                        if (overtake) {
+                            logger.debug('error: %j', error);
+                            resolve(error);
+                        } else {
+                            logger.error('error: %j', error);
+                            reject(error);
+                        }
                     }
                 })
                 .catch(error => {
@@ -50,7 +108,7 @@ module.exports = function (context, query, offset, limit, overtake) {
                 });
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

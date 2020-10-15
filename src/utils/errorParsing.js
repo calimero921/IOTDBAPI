@@ -3,7 +3,8 @@ const serverLogger = require('./ServerLogger.js');
 module.exports = function (context, error, reset) {
     const logger = serverLogger.child({
         source: '/utils/errorParsing.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     if(!reset) reset = false;

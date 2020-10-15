@@ -3,56 +3,61 @@ const moment = require('moment');
 const patchAccount = require('./patch.js');
 const getAccount = require('./get.js');
 
-const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../utils/ServerLogger.js');
 const errorparsing = require('../../utils/errorParsing.js');
 
+let globalPrefix = '/models/account/setSession.js';
+
 module.exports = function (context, id, token, session_id) {
-    const log4n = new Log4n(context, '/models/account/setSession');
-    log4n.object(id, 'id');
-    log4n.object(token, 'token');
-    log4n.object(session_id, 'session_id');
+    const logger = serverLogger.child({
+        source: globalPrefix,
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
+    });
 
     return new Promise((resolve, reject) => {
-        try{
-            log4n.debug('storing session_id');
-            if (typeof id === 'undefined' || typeof session_id === 'undefined') {
-                reject(errorparsing(context, {status_code: 400}));
-                log4n.debug('done - missing parameter');
-            } else {
+        try {
+            logger.debug('id: %s', id);
+            logger.debug('token: %s', token);
+            logger.debug('session_id: %s', session_id);
+            if (id && session_id) {
                 getAccount(context, {id: id, token: token}, 0, 0, false)
-                    .then(account => {
-                        let newAccount = account[0];
+                    .then(foundAccount => {
+                        logger.debug( 'foundAccount: %j', foundAccount);
+                        let newAccount = foundAccount[0];
                         newAccount.session_id = session_id;
                         newAccount.last_connexion_date = newAccount.current_connexion_date;
                         newAccount.current_connexion_date = parseInt(moment().format('x'));
-                        // log4n.object(query, 'query');
+                        logger.debug( 'newAccount: %j', newAccount);
                         return patchAccount(context, id, token, newAccount);
                     })
-                    .then(datas => {
-                        // log4n.object(datas, 'datas');
-                        if (typeof datas === 'undefined') {
-                            log4n.debug('done - no data');
-                            reject(errorparsing(context, 'no data'));
-                        } else {
-                            if(typeof datas.status_code === "undefined") {
-                                resolve(datas);
-                                log4n.debug('done - ok');
+                    .then(patchedAccount => {
+                        if (patchedAccount) {
+                            if (patchedAccount.status_code) {
+                                logger.error('error: %j', patchedAccount);
+                                reject(patchedAccount);
                             } else {
-                                reject(datas);
-                                log4n.debug('done - wrong data');
+                                logger.debug('patchedAccount: %j', patchedAccount);
+                                resolve(patchedAccount);
                             }
+                        } else {
+                            let error = errorparsing(context, 'no data');
+                            logger.error('error: %j', error);
+                            reject(error);
                         }
                     })
                     .catch(error => {
-                        log4n.object(error, 'error');
-                        reject(errorparsing(context, error));
-                        log4n.debug('done - promise catch')
+                        logger.error('error: %j', error);
+                        reject(error);
                     });
+            } else {
+                let error = errorparsing(context, {status_code: 400, status_message: 'missing parameter'});
+                logger.error('error: %j', error);
+                reject(error);
             }
-        } catch(error) {
-            log4n.debug('done - global catch');
-            log4n.object(error, 'error');
-            reject(errorparsing(context, error));
+        } catch (exception) {
+            logger.error( 'exception: %s', exception.stack);
+            reject(errorparsing(context, exception));
         }
     });
 };

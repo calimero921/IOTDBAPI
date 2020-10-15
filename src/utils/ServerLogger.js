@@ -30,7 +30,7 @@ class ServerLogger {
                     format: 'YYYY-MM-DD HH:mm:ss.SSS'
                 }),
                 format.splat(),
-                format.printf(info => `${info.timestamp} - [${info.httpRequestId}] - ${info.level.toUpperCase()} - ${info.source} - ${info.message}`)
+                format.printf(info => `${info.timestamp} - [${info.authorizedClient}] - [${info.httpRequestId}] - ${info.level.toUpperCase()} - ${info.source} - ${info.message}`)
             ),
             transports: loggerTransport
         };

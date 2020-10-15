@@ -4,13 +4,14 @@ const configuration = require('../../config/Configuration.js');
 const serverLogger = require('../ServerLogger.js');
 const errorParsing = require('../errorParsing.js');
 
-const globalPrefix = '/connectors/mongodb/MongoDBConnector.js';
+const globalPrefix = '/utils/MongoDB/MongoDBConnector.js';
 
 class MongoDBConnector {
     constructor() {
         let logger = serverLogger.child({
             source: globalPrefix,
-            httpRequestId: 'initialize'
+            httpRequestId: 'initialize',
+            authorizedClient: 'internal'
         });
 
         try {
@@ -23,16 +24,17 @@ class MongoDBConnector {
     getDB(context) {
         let logger = serverLogger.child({
             source: globalPrefix + ':getDB',
-            httpRequestId: context.httpRequestId
+            httpRequestId: context.httpRequestId,
+            authorizedClient: context.authorizedClient
         });
 
         return new Promise((resolve, reject) => {
             try {
                 if (!this.mongodbDatabase.error) {
-                    logger.info('existing MongoDB database connection ...');
+                    logger.debug('existing MongoDB database connection ...');
                     resolve(this.mongodbDatabase);
                 } else {
-                    logger.info('connecting to MongoDB database ...');
+                    logger.debug('connecting to MongoDB database ...');
                     let url = configuration.mongodb.url;
                     logger.debug('url: %s', url);
                     let options = configuration.mongodb.options;
@@ -63,7 +65,8 @@ class MongoDBConnector {
     getError(context, error) {
         const logger = serverLogger.child({
             source: globalPrefix + ':getError',
-            httpRequestId: context.httpRequestId
+            httpRequestId: context.httpRequestId,
+            authorizedClient: context.authorizedClient
         });
 
         try {

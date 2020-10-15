@@ -1,4 +1,3 @@
-const checkAuth = require('../../utils/checkAuth.js');
 const setAccount = require('../../models/account/set.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
@@ -14,39 +13,36 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/controllers/account/post.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
-        logger.debug('userInfo: %j', userInfo);
         let requestBody = request.body;
         logger.debug('requestBody: %j', requestBody);
 
         if (requestBody) {
-            if (userInfo.admin || ((requestBody.email === userInfo.email) && (requestBody.firstname === userInfo.firstname) && (requestBody.lastname === userInfo.lastname))) {
-                setAccount(context, requestBody)
-                    .then(createdAccount => {
-                        if (createdAccount.status_code) {
-                            logger.debug('error: %j', createdAccount);
-                            responseError(context, createdAccount, response, logger);
-                        } else {
-                            logger.debug('createdAccount: %j', createdAccount);
-                            response.status(201).send(createdAccount);
-                        }
-                    })
-                    .catch(error => {
-                        logger.debug('error: %j', requestBody);
-                        responseError(context, error, response, logger);
-                    });
-            } else {
-                let error = errorParsing(context, {status_code: 403, status_message: 'user must be admin or account owner for this action'});
-                logger.debug('error: %j', error);
-                responseError(context, error, response, logger);
-            }
+            setAccount(context, requestBody)
+                .then(createdAccount => {
+                    if (createdAccount.status_code) {
+                        logger.debug('error: %j', createdAccount);
+                        responseError(context, createdAccount, response, logger);
+                    } else {
+                        logger.debug('createdAccount: %j', createdAccount);
+                        logger.debug('account created for id %s', createdAccount.id);
+                        response.status(201).send(createdAccount);
+                    }
+                })
+                .catch(error => {
+                    logger.debug('error: %j', requestBody);
+                    responseError(context, error, response, logger);
+                });
         } else {
             let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
             logger.debug('error: %j', error);

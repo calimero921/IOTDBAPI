@@ -11,13 +11,13 @@ class Validator {
         this.context = context;
         let logger = serverLogger.child({
             source: globalPrefix + ':constructor:',
-            httpRequestId: context.httpRequestId
+            httpRequestId: context.httpRequestId,
+            authorizedClient: context.authorizedClient
         });
-        logger.info('creating validator');
         this.jsonSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', jsonSchema)));
-        logger.debug('jsonSchema: %j', jsonSchema);
+        logger.debug('jsonSchema: %s', jsonSchema);
         this.mongoSchema = JSON.parse(fs.readFileSync(path.join(__dirname, '..', mongoSchema)));
-        logger.debug('mongoSchema: %j', mongoSchema);
+        logger.debug('mongoSchema: %s', mongoSchema);
 
         let ajvOptions = {
             useDefaults: true,
@@ -29,31 +29,32 @@ class Validator {
     getJsonSchema() {
         let logger = serverLogger.child({
             source: globalPrefix + ':getJsonSchema:',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
-        logger.info('getting JSON schema');
         let schema = this.jsonSchema;
-        logger.debug('schema: %s', schema);
+        logger.debug('schema: %j', schema);
         return schema;
     }
 
     getMongoSchema() {
         let logger = serverLogger.child({
             source: globalPrefix + ':getMongoSchema:',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
-        logger.info('getting Mongo schema');
         let schema = this.mongoSchema;
-        logger.debug('schema: %s', schema);
+        logger.debug('schema: %j', schema);
         return schema;
     }
 
     jsonValidator(jsonObject) {
         let logger = serverLogger.child({
             source: globalPrefix + ':jsonValidator:',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         return new Promise((resolve, reject) => {
@@ -81,7 +82,8 @@ class Validator {
     mongoValidator(mongoObject) {
         let logger = serverLogger.child({
             source: globalPrefix + ':mongoValidator:',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         return new Promise((resolve, reject) => {

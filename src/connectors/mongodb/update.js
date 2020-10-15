@@ -6,14 +6,15 @@ const errorParsing = require('../../utils/errorParsing.js');
 module.exports = function (context, collectionName, query, newValue) {
     const logger = serverLogger.child({
         source: '/connectors/mongodb/update.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     return new Promise((resolve, reject) => {
         try {
             logger.debug('collectionName: %s', collectionName);
-            logger.debug('query: %s', query);
-            logger.debug('parameter: %s', newValue);
+            logger.debug('query: %j', query);
+            logger.debug('parameter: %j', newValue);
 
             mongoDBConnector.getDB(context)
                 .then(mongodbDatabase => {

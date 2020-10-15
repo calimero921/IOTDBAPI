@@ -7,9 +7,9 @@ module.exports = {
     hostname: 'localhost',
     port: '3443',
     api_version: 'v' + packageJSON.version.split('.')[0],
-    httpsCa: 'ca-dev-crt.pem',
-    httpsPrivateKey: 'server-key.pem',
-    httpsCertificate: 'server-crt.pem',
+    httpsCa: 'keystore/ca-dev-crt.pem',
+    httpsPrivateKey: 'keystore/server-key.pem',
+    httpsCertificate: 'keystore/server-crt.pem',
     session_timeout: 3600000,
     swagger: packageJSON.version,
 };

@@ -15,7 +15,8 @@ const serverLogger = require('./utils/ServerLogger.js');
 
 const logger = serverLogger.child({
     source: '/server.js',
-    httpRequestId: 'initialize'
+    httpRequestId: 'initialize',
+    authorizedClient: 'internal'
 });
 logger.info('IOTDB API server is starting ...');
 logger.debug('configuration: %j', configuration);

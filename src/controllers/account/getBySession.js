@@ -1,4 +1,3 @@
-const checkAuth = require('../../utils/checkAuth.js');
 const getAccount = require('../../models/account/get.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
@@ -17,14 +16,18 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/controllers/account/getBySession.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %j', userInfo);
 
         let session_id = request.params.session_id;
@@ -49,6 +52,7 @@ module.exports = function (request, response) {
                         responseError(context, accounts, response, logger);
                     } else {
                         logger.debug('accounts: %j', accounts);
+                        logger.info('account(s) found for session %s', filter.session_id);
                         response.status(200).send(accounts);
                     }
                 })

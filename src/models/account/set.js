@@ -6,12 +6,13 @@ const Converter = require('./utils/Converter.js');
 const Generator = require('../utils/Generator.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, account) {
     const logger = serverLogger.child({
         source: '/models/account/set.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     return new Promise((resolve, reject) => {
@@ -48,40 +49,41 @@ module.exports = function (context, account) {
                                 return foundAccount;
                             }
                         } else {
-                            return errorparsing(context, {
+                            return errorParsing(context, {
                                 status_code: 409,
                                 status_message: 'account already exists'
                             });
                         }
                     })
                     .then(insertedAccount => {
+                        logger.debug('insertedAccount: %j', insertedAccount);
                         if (insertedAccount.status_code) {
                             return insertedAccount;
                         } else {
-                            logger.debug('insertedAccount: %j', insertedAccount);
                             return converter.db2json(insertedAccount[0]);
                         }
                     })
                     .then(finalAccount => {
-                        logger.debug('finalAccount: %j', finalAccount);
                         if (finalAccount.status_code) {
+                            logger.error('error: %j', finalAccount);
                             reject(finalAccount);
                         } else {
+                            logger.debug('finalAccount: %j', finalAccount);
                             resolve(finalAccount);
                         }
                     })
                     .catch(error => {
                         logger.debug('error: %j', error);
-                        reject(errorparsing(context, error));
+                        reject(error);
                     });
             } else {
-                let error = errorparsing(context, {status_code: 400, status_message: 'missing parameter'})
+                let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'})
                 logger.debug('error: %j', error);
                 reject(error);
             }
         } catch (exception) {
             logger.debug('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

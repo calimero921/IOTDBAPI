@@ -10,7 +10,8 @@ class Converter {
         this.context = context;
         const logger = serverLogger.child({
             source: globalPrefix + ':json2db',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         logger.debug('Converter created');
@@ -20,7 +21,8 @@ class Converter {
     json2db(data) {
         const logger = serverLogger.child({
             source: globalPrefix + ':json2db',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         return new Promise((resolve, reject) => {
@@ -66,7 +68,8 @@ class Converter {
     db2json(data) {
         const logger = serverLogger.child({
             source: globalPrefix + ':db2json',
-            httpRequestId: this.context.httpRequestId
+            httpRequestId: this.context.httpRequestId,
+            authorizedClient: this.context.authorizedClient
         });
 
         return new Promise((resolve, reject) => {

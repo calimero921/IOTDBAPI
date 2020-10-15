@@ -7,9 +7,11 @@ const responseError = require('../../utils/responseError.js');
 
 /**
  * This function comment is parsed by doctrine
- * @route GET /v0/device/user/{id}
+ * @route GET /device/user/{id}
  * @group Device - Operations about device
  * @param {string} id.path.required - user id - eg: 23df8bad-ca36-4dba-90e0-1a69f0f016b8
+ * @param {number} skip.query - Record to skip
+ * @param {number} limit.query - Nb record to show
  * @returns {Device.model} 200 - Device info
  * @returns {Error} 403 - Forbidden
  * @returns {Error} 404 - Not found
@@ -28,14 +30,19 @@ module.exports = function (request, response) {
         logger.debug('userInfo: %sj', userInfo);
 
         let id = request.params.id;
-        logger.debug( 'user id: %s', id);
+        logger.debug('user id: %s', id);
+        let skip = request.query.skip;
+        if (!skip) skip = 0;
+        logger.debug('skip: %s', skip);
+        let limit = request.query.limit;
+        if (!limit) limit = 0;
+        logger.debug('limit: %s', limit);
 
         //traitement de recherche dans la base
         if (id) {
             if (userInfo.admin || id === userInfo.id) {
-                //traitement de recherche dans la base
-                let query = {user_id: id};
-                deviceGet(context, query, 0, 0, false)
+                let filter = {user_id: id};
+                deviceGet(context, filter, skip, limit, false)
                     .then(devices => {
                         if (devices) {
                             if (devices.status_code) {

@@ -1,4 +1,3 @@
-const checkAuth = require('../../utils/checkAuth.js');
 const deleteAccount = require('../../models/account/delete.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
@@ -17,14 +16,18 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/controllers/account/delete.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
@@ -43,6 +46,7 @@ module.exports = function (request, response) {
                                 responseError(context, deletedAccount, response, logger);
                             } else {
                                 logger.debug('deleted accounts: %j', deletedAccount);
+                                logger.info('account deleted for id %s', deletedAccount.id);
                                 response.status(200).send(deletedAccount);
                             }
                         } else {

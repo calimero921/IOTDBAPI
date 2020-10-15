@@ -3,85 +3,88 @@ const moment = require('moment');
 const getAccount = require('./get.js');
 const patchAccount = require('./patch.js');
 
-const Log4n = require('../../utils/log4n.js');
-const errorparsing = require('../../utils/errorParsing.js');
 const Generator = require('../utils/Generator.js');
+const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing = require('../../utils/errorParsing.js');
+
+let globalPrefix = '/models/account/setToken.js';
 
 module.exports = function (context, id, token) {
-    const log4n = new Log4n(context, '/models/account/setToken');
-    log4n.object(id, 'id');
+    const logger = serverLogger.child({
+        source: globalPrefix,
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
+    });
 
     return new Promise((resolve, reject) => {
         try {
-            log4n.debug('storing token');
-            if (typeof id === 'undefined') {
-                reject(errorparsing({status_code: 400}));
-                log4n.debug('done - missing parameter');
-            } else {
+            logger.debug('id: %s', id);
+            logger.debug('token: %s', token);
+            if (id) {
                 let newAccount;
                 getAccount(context, {id: id, token: token}, 0, 0, false)
                     .then(account => {
-                        log4n.object(account[0], 'account');
+                        logger.debug('account: %j', account[0]);
                         newAccount = account[0];
                         newAccount.last_connexion_date = newAccount.current_connexion_date;
                         newAccount.current_connexion_date = parseInt(moment().format('x'));
                         return createToken(context);
                     })
                     .then(newToken => {
-                        log4n.object(newToken, 'token');
+                        logger.debug('newToken: %s', newToken);
                         newAccount.token = newToken;
-                        log4n.debug('updating account');
                         return patchAccount(context, id, token, newAccount);
-                        // return newAccount;
                     })
-                    .then(datas => {
-                        log4n.object(datas, 'datas');
-                        if (typeof datas.status_code === 'undefined') {
-                            resolve(datas.token);
-                            log4n.debug('done - ok');
+                    .then(patchedAccount => {
+                        if (patchedAccount.status_code) {
+                            logger.error('error: %j', patchedAccount);
+                            reject(patchedAccount);
                         } else {
-                            reject(datas);
-                            log4n.debug('done - wrong data');
+                            logger.debug('patchedAccount: %j', patchedAccount);
+                            resolve(patchedAccount.token);
                         }
                     })
                     .catch(error => {
-                        log4n.debug('promise catch');
-                        log4n.object(error, 'error');
-                        reject(errorparsing(context, error));
-                        log4n.debug('done - promise catch');
+                        logger.error('error: %j', error);
+                        reject(error);
                     })
+            } else {
+                let error = errorParsing({status_code: 400, status_message: 'missing parameter'})
+                logger.debug('error: %j', error);
+                reject(error);
             }
         } catch (exception) {
-            log4n.debug('global catch');
-            log4n.object(exception, 'exception');
-            reject(errorparsing(exception));
-            log4n.debug('done - global catch');
+            logger.debug('exception: %s', exception.stack);
+            reject(errorParsing(context, exception));
         }
     })
 };
 
 function createToken(context) {
-    const log4n = new Log4n(context, '/models/account/setToken/createToken');
+    const logger = serverLogger.child({
+        source: globalPrefix + ':createToken',
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
+    });
 
     return new Promise((resolve, reject) => {
         let generator = new Generator();
         let token = generator.keygen();
-        log4n.object(token, 'token');
+        logger.debug('token: %s', token);
         getAccount(context, {token: token}, 0, 0, true)
-            .then(data => {
-                // log4n.object(data, 'data');
-                if (data.length > 0) {
-                    log4n.object(token, 'token');
+            .then(foundAccounts => {
+                logger.debug('foundAccounts: %j', foundAccounts);
+                if (foundAccounts.length > 0) {
+                    logger.debug('token: %s', token);
                     return createToken(context);
                 } else {
-                    log4n.debug('done - no account found for this token');
+                    logger.debug('no account found for this token');
                     resolve(token);
                 }
             })
             .catch(error => {
-                log4n.object(error, 'Error');
+                logger.error('error: %j', error);
                 reject(error);
-                log4n.debug('done - promise catch');
             })
     })
 }

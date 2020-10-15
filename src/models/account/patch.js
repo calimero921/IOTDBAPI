@@ -2,14 +2,14 @@ const mongoFind = require('../../connectors/mongodb/find.js');
 const mongoUpdate = require('../../connectors/mongodb/update.js');
 const Converter = require('./utils/Converter.js');
 
-const Log4n = require('../../utils/log4n.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, id, token, newAccount) {
     const logger = serverLogger.child({
         source: '/models/account/patch.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     return new Promise((resolve, reject) => {
