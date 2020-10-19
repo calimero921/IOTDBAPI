@@ -1,4 +1,19 @@
-const setAccount = require('../../models/account/set.js');
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
+const setAccount = require('../../models/account/post.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
@@ -17,6 +32,7 @@ module.exports = function (request, response) {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
+    if(!context.authorizedClient) context.authorizedClient='guest';
     const logger = serverLogger.child({
         source: '/controllers/account/post.js',
         httpRequestId: context.httpRequestId,

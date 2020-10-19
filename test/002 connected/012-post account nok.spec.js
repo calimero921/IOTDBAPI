@@ -1,9 +1,26 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
+'use strict';
+
+const {describe, it} = require('mocha');
+const {assert, expect} = require('chai');
+const superAgent = require('superagent');
+
 const testsUtils = require('../000-SDK/testsUtils');
 const TestsUtilsAccounts = require('../000-SDK/testsUtilsAccounts');
-const chai = require('chai');
-const assert = require('chai').assert;
-const expect = require('chai').expect;
-const superAgent = require('superagent');
 
 let testsUtilsAccounts = new TestsUtilsAccounts();
 
@@ -22,19 +39,39 @@ const mock1 = {
     token: null
 };
 
-let accountMock2;
 const mock2 = {
     id: testsUtilsAccounts.defineRandomId(),
     firstname: "test012",
     lastname: "mock2",
     email: "test012.mock2@iotdb.com",
+    admin: null,
+    active: null,
+    session_id: null,
+    creation_date: null,
+    current_connexion_date: null,
+    last_connexion_date: null,
+    token: null
 };
 
-describe.skip('012 - post /account nok', () => {
+describe('012 - post /account nok', () => {
+    before(done => {
+        let promiseArray = [];
+        promiseArray.push(testsUtilsAccounts.create(testsUtilsAccounts.getPost(mock1)));
+
+        Promise.all(promiseArray)
+            .then(responses => {
+                accountMock1 = responses[0];
+                done();
+            })
+            .catch(errors => {
+                console.log("errors : %j", errors);
+                done(errors);
+            });
+    });
+
     after(done => {
         let promiseArray = [];
         if (accountMock1) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock1.id, accountMock1.token));
-        if (accountMock2) promiseArray.push(testsUtilsAccounts.deleteIfExists(accountMock2.id, accountMock2.token));
         Promise.all(promiseArray)
             .then(responses => {
                 done();
@@ -45,7 +82,7 @@ describe.skip('012 - post /account nok', () => {
             });
     });
 
-    it(`create ${mock1.id} account default basic`, done => {
+    it(`conflict while attempting to create ${mock1.id} account again`, done => {
         try {
             let sentBody = testsUtilsAccounts.getPost(mock1);
             console.log('sentBody: %j', sentBody);
@@ -56,21 +93,8 @@ describe.skip('012 - post /account nok', () => {
                 .key(testsUtils.httpsClientOptions().key)
                 .send(sentBody)
                 .end((error, response) => {
-                    assert.equal(error, null);
-                    expect(response).to.have.property('status', 201);
-                    expect(response.body).to.have.property('id');
-                    expect(response.body).to.have.property('lastname', sentBody.lastname);
-                    expect(response.body).to.have.property('firstname', sentBody.firstname);
-                    expect(response.body).to.have.property('email', sentBody.email);
-                    expect(response.body).to.have.property('admin', false);
-                    expect(response.body).to.have.property('active', true);
-                    expect(response.body).to.have.property('session_id');
-                    expect(response.body).to.have.property('creation_date');
-                    expect(response.body).to.have.property('current_connexion_date');
-                    expect(response.body).to.have.property('last_connexion_date');
-                    expect(response.body).to.have.property('token');
-                    accountMock1 = response.body;
-                    console.log('accountMock1: %j', accountMock1);
+                    expect(error).to.have.property('status',409);
+                    expect(response).to.have.property('status',409);
                     done();
                 });
         } catch (exception) {
@@ -80,9 +104,9 @@ describe.skip('012 - post /account nok', () => {
         }
     });
 
-    it(`create ${mock2.id} account default advance`, done => {
+    it(`error creating empty account`, done => {
         try {
-            let sentBody = testsUtilsAccounts.getPost(mock2);
+            let sentBody = {};
             superAgent
                 .post(`${testsUtils.getServerUrlVersion()}/account`)
                 .ca(testsUtils.httpsClientOptions().ca)
@@ -90,21 +114,77 @@ describe.skip('012 - post /account nok', () => {
                 .key(testsUtils.httpsClientOptions().key)
                 .send(sentBody)
                 .end((error, response) => {
-                    assert.equal(error, null);
-                    expect(response).to.have.property('status', 201);
-                    expect(response.body).to.have.property('id');
-                    expect(response.body).to.have.property('lastname', sentBody.lastname);
-                    expect(response.body).to.have.property('firstname', sentBody.firstname);
-                    expect(response.body).to.have.property('email', sentBody.email);
-                    expect(response.body).to.have.property('admin', sentBody.admin);
-                    expect(response.body).to.have.property('active', sentBody.active);
-                    expect(response.body).to.have.property('session_id', sentBody.session_id);
-                    expect(response.body).to.have.property('creation_date');
-                    expect(response.body).to.have.property('current_connexion_date');
-                    expect(response.body).to.have.property('last_connexion_date');
-                    expect(response.body).to.have.property('token');
-                    accountMock2 = response.body;
-                    console.log('accountMock2: %j', accountMock2);
+                    expect(error).to.have.property('status',400);
+                    expect(response).to.have.property('status',400);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
+    it(`error creating account firstname missing`, done => {
+        try {
+            let sentBody = testsUtilsAccounts.getPost(mock2);
+            delete sentBody.firstname;
+            console.log('sentBody: %j', sentBody);
+            superAgent
+                .post(`${testsUtils.getServerUrlVersion()}/account`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .send(sentBody)
+                .end((error, response) => {
+                    expect(error).to.have.property('status',400);
+                    expect(response).to.have.property('status',400);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
+    it(`error creating account lastname missing`, done => {
+        try {
+            let sentBody = testsUtilsAccounts.getPost(mock2);
+            delete sentBody.lastname;
+            console.log('sentBody: %j', sentBody);
+            superAgent
+                .post(`${testsUtils.getServerUrlVersion()}/account`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .send(sentBody)
+                .end((error, response) => {
+                    expect(error).to.have.property('status',400);
+                    expect(response).to.have.property('status',400);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
+    it(`error creating account email missing`, done => {
+        try {
+            let sentBody = testsUtilsAccounts.getPost(mock2);
+            delete sentBody.email;
+            console.log('sentBody: %j', sentBody);
+            superAgent
+                .post(`${testsUtils.getServerUrlVersion()}/account`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .send(sentBody)
+                .end((error, response) => {
+                    expect(error).to.have.property('status',400);
+                    expect(response).to.have.property('status',400);
                     done();
                 });
         } catch (exception) {

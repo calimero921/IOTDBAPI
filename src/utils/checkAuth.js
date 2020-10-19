@@ -6,7 +6,7 @@ const responseError = require('../utils/responseError.js')
 
 module.exports = function (request, response, next) {
     let context = {
-        httpRequestId: 'authorization',
+        httpRequestId: request.httpRequestId,
         authorizedClient: 'internal'
     }
     const logger = serverLogger.child({

@@ -1,3 +1,18 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const getDevice = require('../../models/device/get.js');
 const patchDevice = require('../../models/device/patch.js');
 const setEvent = require('../../models/event/set.js');
@@ -18,14 +33,19 @@ const globalPrefix = '/routes/api/event/post.js';
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: globalPrefix,
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
+        logger.debug('userInfo: %j', userInfo);
 
         if (request.body) {
             //lecture des données postées

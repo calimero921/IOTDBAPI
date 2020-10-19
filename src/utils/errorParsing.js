@@ -1,75 +1,112 @@
-const serverLogger = require('./ServerLogger.js');
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
 
-module.exports = function (context, error, reset) {
-    const logger = serverLogger.child({
-        source: '/utils/errorParsing.js',
-        httpRequestId: context.httpRequestId,
-        authorizedClient: context.authorizedClient
-    });
+'use strict';
 
-    if(!reset) reset = false;
-    if(reset && error.status_message) delete error.status_message;
-
-    logger.debug('error: %j', error);
+module.exports = function (context, error) {
     let result = {};
-
-    if (!error) {
-        result.status_code = 500;
-    } else {
+    if (error) {
+        // get status code from provided error
         if (error.status_code) {
-            logger.debug('already formated');
-            result = error;
+            result.status_code = error.status_code;
         } else {
             result.status_code = 500;
-            if (error.errmsg) {
-                logger.debug('prefix 500, errmsg');
-                result.status_message = error.errmsg;
-            } else {
-                if (error.stack) {
-                    logger.debug('prefix 500, stack');
-                    result.status_message = error.stack;
-                } else {
-                    logger.debug('prefix 500, message');
-                    result.status_message = error;
-                }
-            }
         }
-    }
 
-    if (!result.status_message) {
-        let message;
-        switch (result.status_code) {
+        // format status message from provided error
+        if (typeof error === 'string') {
+            result.status_message = error;
+        } else {
+            Object.keys(error).forEach(attribute => {
+                switch (attribute) {
+                    case 'status_code':
+                        // already formated code
+                        result.status_code = error[attribute];
+                        break;
+                    case 'status_message':
+                        // already formated message
+                        result.status_message = error[attribute];
+                        break;
+                    case 'errmsg':
+                        // ldap message
+                        result.status_message = error[attribute];
+                        break;
+                    case 'stack':
+                        // exception message
+                        result.status_message = error[attribute];
+                        break;
+                    case 'message':
+                        // validation message
+                        result.status_code = 400;
+                        result.status_message = error[attribute];
+                        break;
+                    default:
+                        // unmanaged attribute
+                        if (!result.status_message) result.status_message = error[attribute];
+                        break;
+                }
+            });
+        }
+    } else {
+        result.status_code = 500;
+    }
+    if (!result.status_message) result.status_message = getGeneriqueMessage(result.status_code);
+    return result;
+};
+
+function getGeneriqueMessage(status_code) {
+    let message;
+    if (status_code) {
+        switch (status_code) {
+            case 200:
+                message = 'Ok';
+                break;
+            case 201:
+                message = 'Created';
+                break;
+            case 204:
+                message = 'No content';
+                break;
             case 400:
-                message = "Bad Request";
+                message = 'Bad Request';
                 break;
             case 401:
-                message = "Unauthorized";
+                message = 'Unauthorized';
                 break;
             case 403:
-                message = "Forbidden";
+                message = 'Forbidden';
                 break;
             case 404:
-                message = "Not Found";
+                message = 'Not Found';
                 break;
             case 405:
-                message = "Method Not Allowed";
+                message = 'Method Not Allowed';
                 break;
             case 408:
-                message = "Request Timeout";
+                message = 'Request Timeout';
                 break;
             case 409:
-                message = "Conflict";
+                message = 'Conflict';
                 break;
             case 500:
-                message = "Internal Server Error";
+                message = 'Internal Server Error';
                 break;
             default:
                 message = 'Unknown error';
                 break;
         }
-        result.status_message = message;
+    } else {
+        message = 'Unknown error';
     }
-
-    logger.debug('error out: %j', result);
-    return result;
-};
+    return message;
+}

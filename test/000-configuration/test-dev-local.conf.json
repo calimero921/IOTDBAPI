@@ -13,10 +13,10 @@
     "PROTOCOL": "https",
     "HOSTNAME": "localhost",
     "PORT": "3443",
-    "HTTPSCA": "ca-dev-crt.pem",
-    "HTTPSPRIVATEKEY": "server-key.pem",
-    "HTTPSCERTIFICATE": "server-crt.pem",
+    "HTTPSCA": "keystore/ca-dev-crt.pem",
+    "HTTPSPRIVATEKEY": "keystore/server-key.pem",
+    "HTTPSCERTIFICATE": "keystore/server-crt.pem",
     "HTTPSAUTHORIZATION": true,
-    "HTTPSAUTHORIZATIONLIST": [{"name": "postman", "cn": "client.localhost"}]
+    "HTTPSAUTHORIZATIONLIST": [{"name": "noreg", "cn": "client.localhost"}]
   }
 }

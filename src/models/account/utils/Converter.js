@@ -1,3 +1,18 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const Validator = require('./Validator.js');
 
 const serverLogger = require('../../../utils/ServerLogger.js');
@@ -53,10 +68,7 @@ class Converter {
                     })
                     .catch(error => {
                         logger.debug('error: %j', error);
-                        reject(errorParsing(this.context, {
-                            status_code: 500,
-                            status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
-                        }));
+                        reject(error);
                     });
             } catch (exception) {
                 logger.debug('exception: %s', exception.stack);

@@ -1,8 +1,24 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const path = require('path');
 const fs = require('fs');
 const Ajv = require('ajv');
 
 const serverLogger = require('../../utils/ServerLogger.js');
+const errorParsing=require('../../utils/errorParsing.js')
 
 const globalPrefix = '/models/utils/validator';
 
@@ -68,13 +84,14 @@ class Validator {
                         logger.debug('object: %j', object);
                         resolve(object);
                     })
-                    .catch(error => {
+                    .catch(validationError => {
+                        let error = errorParsing(this.context, validationError);
                         logger.error('error: %j', error);
                         reject(error);
                     })
             } catch (exception) {
                 logger.error('exception: %s', exception.stack);
-                reject(exception);
+                reject(errorParsing(this.context,exception));
             }
         })
     }
@@ -97,13 +114,14 @@ class Validator {
                         logger.debug('object: %j', object);
                         resolve(object);
                     })
-                    .catch(error => {
+                    .catch(validationError => {
+                        let error = errorParsing(this.context, validationError);
                         logger.error('error: %j', error);
                         reject(error);
                     })
             } catch (exception) {
                 logger.error('exception: %s', exception.stack);
-                reject(exception);
+                reject(errorParsing(this.context,exception));
             }
         })
     }

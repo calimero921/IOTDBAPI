@@ -1,3 +1,18 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const moment = require('moment');
 
 const mongoInsert = require('../../connectors/mongodb/insert.js');
@@ -10,7 +25,7 @@ const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, account) {
     const logger = serverLogger.child({
-        source: '/models/account/set.js',
+        source: '/models/account/post.js',
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

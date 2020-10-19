@@ -1,3 +1,18 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const checkAuth = require('../utils/checkAuth.js')
 const configuration = require('../config/Configuration.js');
 const serverLogger = require('../utils/ServerLogger.js');
@@ -58,9 +73,9 @@ module.exports = function (server) {
     server.patch('/' + configuration.server.api_version + '/device/:id', checkAuth, devicePatch);
     server.delete('/' + configuration.server.api_version + '/device/:id', checkAuth, deviceDelete);
 
-    server.get('/' + configuration.server.api_version + '/event/:id', measureGetById);
-    server.post('/' + configuration.server.api_version + '/event', measurePost);
-    server.delete('/' + configuration.server.api_version + '/event/:id', measureDelete);
+    server.get('/' + configuration.server.api_version + '/event/:id', checkAuth, measureGetById);
+    server.post('/' + configuration.server.api_version + '/event', checkAuth, measurePost);
+    server.delete('/' + configuration.server.api_version + '/event/:id', checkAuth, measureDelete);
 
     logger.debug('done');
 };

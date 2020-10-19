@@ -59,8 +59,11 @@ logger.info('HTTPS server setup');
 let httpsServer = {};
 if ((configuration.server.httpsCa) && (configuration.server.httpsPrivateKey) && (configuration.server.httpsCertificate)) {
     let caKeyPath = path.join(serverPath, configuration.server.httpsCa);
+    logger.debug('caKeyPath %s', caKeyPath);
     let privateKeyPath = path.join(serverPath, configuration.server.httpsPrivateKey);
+    logger.debug('privateKeyPath %s', privateKeyPath);
     let certificatePath = path.join(serverPath, configuration.server.httpsCertificate);
+    logger.debug('certificatePath %s', certificatePath);
 
     if ((fs.existsSync(privateKeyPath)) && (fs.existsSync(certificatePath))) {
         let httpsOptions = {

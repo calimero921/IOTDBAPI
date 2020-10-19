@@ -1,3 +1,18 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2020 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
 const deleteAccount = require('../../models/account/delete.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
@@ -47,7 +62,7 @@ module.exports = function (request, response) {
                             } else {
                                 logger.debug('deleted accounts: %j', deletedAccount);
                                 logger.info('account deleted for id %s', deletedAccount.id);
-                                response.status(200).send(deletedAccount);
+                                response.status(204).send(deletedAccount);
                             }
                         } else {
                             let error = errorParsing(context, {status_code: 404, status_message: 'no account found'});
