@@ -1,7 +1,7 @@
 const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, collectionName, query, parameters, overtake) {
     const logger = serverLogger.child({
@@ -42,7 +42,7 @@ module.exports = function (context, collectionName, query, parameters, overtake)
                     logger.debug('queryResults: %j', queryResults);
                     if (Array.isArray(queryResults)) {
                         if (queryResults.length === 0) {
-                            let error = errorparsing(context, {status_code: 404, status_message: 'not found'});
+                            let error = errorParsing(context, {status_code: 404, status_message: 'not found'});
                             if (overtake) {
                                 logger.debug('error: %j', error);
                                 resolve(error);
@@ -54,7 +54,7 @@ module.exports = function (context, collectionName, query, parameters, overtake)
                             resolve(queryResults);
                         }
                     } else {
-                        let error = errorparsing(context, {status_code: 404, status_message: 'not found'});
+                        let error = errorParsing(context, {status_code: 404, status_message: 'not found'});
                         if (overtake) {
                             logger.debug('error: %j', error);
                             resolve(error);
@@ -66,11 +66,11 @@ module.exports = function (context, collectionName, query, parameters, overtake)
                 })
                 .catch(error => {
                     logger.error('error: %j', error);
-                    reject(errorparsing(context, mongoDBConnector.getError(context, error)));
+                    reject(errorParsing(context, mongoDBConnector.getError(context, error)));
                 })
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

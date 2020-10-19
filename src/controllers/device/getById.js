@@ -1,6 +1,5 @@
 const getDevice = require('../../models/device/get.js');
 
-const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
@@ -17,14 +16,18 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/controllers/device/getById.js',
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
@@ -43,6 +46,7 @@ module.exports = function (request, response) {
                             responseError(context, devices, response, logger);
                         } else {
                             logger.debug('devices: %j', devices);
+                            logger.info('devices %s found', devices[0].device_id);
                             response.status(200).send(devices[0]);
                         }
                     } else {

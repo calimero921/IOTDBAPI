@@ -1,7 +1,7 @@
 const Log4n = require('../../utils/log4n.js');
 const mongoInsert = require('../../connectors/mongodb/insert.js');
 const Converter = require('./utils/Converter.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, event) {
     const log4n = new Log4n(context, '/models/event/set');
@@ -13,7 +13,7 @@ module.exports = function (context, event) {
             log4n.debug('storing device');
             const converter = new Converter(context);
             if (typeof event === 'undefined') {
-                reject(errorparsing({status_code: 400, status_message: 'Missing parameter'}));
+                reject(errorParsing({status_code: 400, status_message: 'Missing parameter'}));
                 log4n.log('done - missing parameter');
             } else {
                 log4n.debug('preparing datas');
@@ -27,7 +27,7 @@ module.exports = function (context, event) {
                         // console.log('datas: ', datas);
                         if (typeof datas === 'undefined') {
                             log4n.debug('done - no data');
-                            return (errorparsing(context, 'No datas'));
+                            return (errorParsing(context, 'No datas'));
                         } else {
                             return converter.db2json(datas[0]);
                         }
@@ -35,7 +35,7 @@ module.exports = function (context, event) {
                     .then(datas => {
                         // log4n.object(datas, 'datas');
                         if (typeof datas === 'undefined') {
-                            reject(errorparsing(context, 'No datas'));
+                            reject(errorParsing(context, 'No datas'));
                             log4n.debug('done - no data');
                         } else {
                             if (typeof datas.status_code === "undefined") {
@@ -49,13 +49,13 @@ module.exports = function (context, event) {
                     })
                     .catch(error => {
                         log4n.object(error, 'error');
-                        reject(errorparsing(context, error));
+                        reject(errorParsing(context, error));
                         log4n.debug('done - promise catch');
                     });
             }
         } catch (error) {
             log4n.object(error, 'error');
-            reject(errorparsing(context, error));
+            reject(errorParsing(context, error));
             log4n.debug('done - global catch');
         }
     });

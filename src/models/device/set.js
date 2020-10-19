@@ -2,7 +2,7 @@ const mongoInsert = require('../../connectors/mongodb/insert.js');
 const Converter = require('./utils/Converter.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device) {
     const logger = serverLogger.child({
@@ -16,7 +16,7 @@ module.exports = function (context, device) {
             logger.debug('device: %j', device);
             const converter = new Converter(context);
             if (typeof device === 'undefined') {
-                let error = errorparsing({status_code: 400, status_message: 'Missing parameter'});
+                let error = errorParsing({status_code: 400, status_message: 'Missing parameter'});
                 logger.error('error: %j', error);
                 reject(error);
             } else {
@@ -30,7 +30,7 @@ module.exports = function (context, device) {
                         if (datas) {
                             return converter.db2json(datas[0]);
                         } else {
-                            let error = errorparsing(context, 'No datas inserted');
+                            let error = errorParsing(context, 'No datas inserted');
                             logger.error('error: %j', error);
                             return (error);
                         }
@@ -44,7 +44,7 @@ module.exports = function (context, device) {
                                 resolve(datas);
                             }
                         } else {
-                            let error = errorparsing(context, 'No datas converted');
+                            let error = errorParsing(context, 'No datas converted');
                             logger.error('error: %j', error);
                             reject(error);
                         }
@@ -56,7 +56,7 @@ module.exports = function (context, device) {
             }
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

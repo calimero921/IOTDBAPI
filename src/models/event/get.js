@@ -1,7 +1,7 @@
 const Log4n = require('../../utils/log4n.js');
 const mongoFind = require('../../connectors/mongodb/find.js');
 const Converter = require('./utils/Converter.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
     const log4n = new Log4n(context, '/models/event/get');
@@ -26,10 +26,10 @@ module.exports = function (context, query, offset, limit, overtake) {
                     resolve(datas);
                 } else {
                     if (overtake) {
-                        resolve(errorparsing(context, {status_code: 404}));
+                        resolve(errorParsing(context, {status_code: 404}));
                         log4n.debug('done - no result but ok');
                     } else {
-                        reject(errorparsing(context, {status_code: 404}));
+                        reject(errorParsing(context, {status_code: 404}));
                         log4n.debug('done - not found');
                     }
                 }
@@ -37,7 +37,7 @@ module.exports = function (context, query, offset, limit, overtake) {
             .catch(error => {
                 log4n.debug('done - global catch');
                 log4n.object(error, 'error');
-                reject(errorparsing(context, error));
+                reject(errorParsing(context, error));
             });
     });
 };

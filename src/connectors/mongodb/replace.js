@@ -1,7 +1,7 @@
 const mongoDBConnector = require('../../utils/MongoDB/MongoDBConnector.js');
 
 const serverLogger = require('../../utils/serverLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, collectionName, query, parameter) {
     const logger = serverLogger.child({
@@ -28,17 +28,17 @@ module.exports = function (context, collectionName, query, parameter) {
                             if (datas.value) {
                                 resolve(datas.value);
                             } else {
-                                let error = errorparsing(context, 'No response');
+                                let error = errorParsing(context, 'No response');
                                 logger.debug('error: %j', error);
                                 reject(error);
                             }
                         } else {
-                            let error = errorparsing(context, 'Response error');
+                            let error = errorParsing(context, 'Response error');
                             logger.debug('error: %j', error);
                             reject(error);
                         }
                     } else {
-                        let error = errorparsing(context, 'No data');
+                        let error = errorParsing(context, 'No data');
                         logger.debug('error: %j', error);
                         reject(error);
                     }
@@ -50,7 +50,7 @@ module.exports = function (context, collectionName, query, parameter) {
                 })
         } catch (exception) {
             console.log('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

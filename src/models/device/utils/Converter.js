@@ -4,7 +4,7 @@ const Generator = require('../../utils/Generator.js');
 const Validator = require('./Validator.js');
 
 const serverLogger = require('../../../utils/ServerLogger.js');
-const errorparsing = require('../../../utils/errorParsing.js');
+const errorParsing = require('../../../utils/errorParsing.js');
 
 const globalPrefix = '/models/device/converter';
 
@@ -93,14 +93,14 @@ class Converter {
                     })
                     .catch(error => {
                         logger.debug('error: %j', error);
-                        reject(errorparsing(this.context, {
+                        reject(errorParsing(this.context, {
                             status_code: 500,
                             status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                     });
             } catch (exception) {
                 logger.error('exception: %s', exception.stack);
-                reject(errorparsing(this.context, exception));
+                reject(errorParsing(this.context, exception));
             }
         });
     }
@@ -140,14 +140,14 @@ class Converter {
                     })
                     .catch(error => {
                         logger.debug('error: %j', error);
-                        reject(errorparsing(this.context, {
+                        reject(errorParsing(this.context, {
                             status_code: 500,
                             status_message: error.message + " (" + error.errors[0].dataPath + " " + error.errors[0].message + ")"
                         }));
                     });
             } catch (exception) {
                 logger.error('exception: %s', exception.stack);
-                reject(errorparsing(this.context, exception));
+                reject(errorParsing(this.context, exception));
             }
         });
     }

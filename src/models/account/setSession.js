@@ -4,7 +4,7 @@ const patchAccount = require('./patch.js');
 const getAccount = require('./get.js');
 
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 let globalPrefix = '/models/account/setSession.js';
 
@@ -41,7 +41,7 @@ module.exports = function (context, id, token, session_id) {
                                 resolve(patchedAccount);
                             }
                         } else {
-                            let error = errorparsing(context, 'no data');
+                            let error = errorParsing(context, 'no data');
                             logger.error('error: %j', error);
                             reject(error);
                         }
@@ -51,13 +51,13 @@ module.exports = function (context, id, token, session_id) {
                         reject(error);
                     });
             } else {
-                let error = errorparsing(context, {status_code: 400, status_message: 'missing parameter'});
+                let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
                 logger.error('error: %j', error);
                 reject(error);
             }
         } catch (exception) {
             logger.error( 'exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

@@ -4,7 +4,7 @@ const setEvent = require('../../models/event/set.js');
 
 const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 const globalPrefix = '/routes/api/event/post.js';
@@ -48,7 +48,7 @@ module.exports = function (request, response) {
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            return errorparsing(context, 'Device not found');
+                            return errorParsing(context, 'Device not found');
                         }
                     })
                     .then(event => {
@@ -62,7 +62,7 @@ module.exports = function (request, response) {
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            return errorparsing(context, 'No event');
+                            return errorParsing(context, 'No event');
                         }
                     })
                     .then(datas => {
@@ -75,7 +75,7 @@ module.exports = function (request, response) {
                             }
                         } else {
                             //aucune données recue du processus d'enregistrement
-                            return errorparsing(context,{status_code: 500, status_message: 'No datas'});
+                            return errorParsing(context,{status_code: 500, status_message: 'No datas'});
                         }
                     })
                     .then(datas => {
@@ -101,12 +101,12 @@ module.exports = function (request, response) {
                         responseError(context, error, response, logger);
                     });
             } else {
-                return errorparsing(context,{status_code: 403});
+                return errorParsing(context,{status_code: 403});
             }
 
         } else {
             //aucune donnée postée
-            return errorparsing(context,{status_code: 400});
+            return errorParsing(context,{status_code: 400});
         }
     } catch (exception) {
         logger.error(exception.stack);
@@ -143,7 +143,7 @@ function updateDevice(context, device, measure) {
             resolve(device);
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 }

@@ -1,6 +1,5 @@
 const deviceGet = require('../../models/device/get.js');
 
-const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
@@ -21,14 +20,18 @@ const globalPrefix = '/controllers/device/exists.js';
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: globalPrefix,
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %sj', userInfo);
 
         let manufacturer = request.params.manufacturer;
@@ -42,26 +45,27 @@ module.exports = function (request, response) {
 
         //traitement de recherche dans la base
         if (manufacturer && model && serial && secret) {
-            //traitement de recherche dans la base
-            let query = {manufacturer: manufacturer, model: model, serial: serial, secret: secret};
-            deviceGet(context, query, 0, 0, false)
-                .then(datas => {
-                    if (datas) {
-                        if (datas.status_code) {
-                            logger.error('error: %j', datas);
-                            responseError(context, datas, response, logger);
+            let filter = {manufacturer: manufacturer, model: model, serial: serial, secret: secret};
+            deviceGet(context, filter, 0, 0, false)
+                .then(devices => {
+                    if (devices) {
+                        if (devices.status_code) {
+                            logger.error('error: %j', devices);
+                            responseError(context, devices, response, logger);
                         } else {
-                            logger.debug('datas: %j', datas);
+                            logger.debug('devices: %j', devices);
                             let results = [];
-                            for (let idx = 0; idx < datas.length; idx++) {
-                                if (datas.hasOwnProperty(idx)) {
-                                    if (userInfo.admin || (datas[idx].user_id) === userInfo.id) {
-                                        results.push(datas[idx]);
+                            for (let idx = 0; idx < devices.length; idx++) {
+                                if (devices.hasOwnProperty(idx)) {
+                                    if (userInfo.admin || (devices[idx].user_id) === userInfo.id) {
+                                        results.push(devices[idx]);
                                     }
                                 }
                             }
                             logger.debug('results: %j', results);
                             if (results.length > 0) {
+                                logger.debug('devices: %j', devices);
+                                logger.info('device %s %s %s exists', results[0].manufacturer, results[0].model, results[0].serial);
                                 response.status(200).send({device_id: results[0].device_id});
                             } else {
                                 let error = errorParsing(context, {status_code: 403, status_message: 'User not admin nor owner of device'});

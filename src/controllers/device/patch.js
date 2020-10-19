@@ -1,7 +1,6 @@
 const deviceGet = require('../../models/device/get.js');
 const devicePatch = require('../../models/device/patch.js');
 
-const checkAuth = require('../../utils/checkAuth.js');
 const serverLogger = require('../../utils/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
@@ -19,14 +18,18 @@ const responseError = require('../../utils/responseError.js');
  * @security Bearer
  */
 module.exports = function (request, response) {
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: '/routes/api/device/devicePatch.js',
-        httpRequestId: request.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
-    let context = {httpRequestId: request.httpRequestId};
 
     try {
-        let userInfo = checkAuth(context, request, response);
+        let userInfo = request.userinfo;
         logger.debug('userInfo: %sj', userInfo);
 
         let device_id = request.params.id;
@@ -72,7 +75,7 @@ module.exports = function (request, response) {
                             response.status(200).send(result);
                         }
                     } else {
-                        let error = errorparsing(context, 'No result');
+                        let error = errorParsing(context, 'No result');
                         logger.error('error: %j', error);
                         responseError(context, error, response, logger);
                     }
@@ -82,7 +85,7 @@ module.exports = function (request, response) {
                     responseError(context, error, response, logger);
                 });
         } else {
-            let error = errorparsing(context, {status_code: 400, status_message: 'Missing parameters'});
+            let error = errorParsing(context, {status_code: 400, status_message: 'Missing parameters'});
             logger.error('error: %j', error);
             responseError(context, error, response, logger);
         }

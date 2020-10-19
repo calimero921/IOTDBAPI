@@ -51,12 +51,12 @@ module.exports = function (server) {
     server.patch('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountPatch);
     server.delete('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountDelete);
 
-    server.get('/' + configuration.server.api_version + '/device/:id', deviceGetById);
-    server.get('/' + configuration.server.api_version + '/device/user/:id', deviceGetByUser);
-    server.get('/' + configuration.server.api_version + '/device/exists/:manufacturer/:model/:serial/:secret', deviceExists);
-    server.post('/' + configuration.server.api_version + '/device', devicePost);
-    server.patch('/' + configuration.server.api_version + '/device/:id', devicePatch);
-    server.delete('/' + configuration.server.api_version + '/device/:id', deviceDelete);
+    server.get('/' + configuration.server.api_version + '/device/:id', checkAuth, deviceGetById);
+    server.get('/' + configuration.server.api_version + '/device/user/:id', checkAuth, deviceGetByUser);
+    server.get('/' + configuration.server.api_version + '/device/exists/:manufacturer/:model/:serial/:secret', checkAuth, deviceExists);
+    server.post('/' + configuration.server.api_version + '/device', checkAuth, devicePost);
+    server.patch('/' + configuration.server.api_version + '/device/:id', checkAuth, devicePatch);
+    server.delete('/' + configuration.server.api_version + '/device/:id', checkAuth, deviceDelete);
 
     server.get('/' + configuration.server.api_version + '/event/:id', measureGetById);
     server.post('/' + configuration.server.api_version + '/event', measurePost);

@@ -20,10 +20,14 @@ const globalPrefix = '/controllers/device/delete.js';
  * @security Bearer
  */
 module.exports = function (request, response) {
-    let context = {httpRequestId: request.httpRequestId};
+    let context = {
+        httpRequestId: request.httpRequestId,
+        authorizedClient: request.authorizedClient
+    };
     const logger = serverLogger.child({
         source: globalPrefix,
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     try {
@@ -73,7 +77,8 @@ module.exports = function (request, response) {
 function accessControl(context, userInfo, device_id) {
     const logger = serverLogger.child({
         source: globalPrefix + ":accessControl",
-        httpRequestId: context.httpRequestId
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
     });
 
     return new Promise((resolve, reject) => {

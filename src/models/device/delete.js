@@ -2,7 +2,7 @@ const mongoDelete = require('../../connectors/mongodb/delete.js');
 
 const Log4n = require('../../utils/log4n.js');
 const serverLogger = require('../../utils/ServerLogger.js');
-const errorparsing = require('../../utils/errorParsing.js');
+const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id) {
     const logger = serverLogger.child({
@@ -28,7 +28,7 @@ module.exports = function (context, device_id) {
                                 resolve(datas);
                             }
                         } else {
-                            let error = errorparsing(context, 'No result');
+                            let error = errorParsing(context, 'No result');
                             logger.error('error: %j', error);
                             reject(error);
                         }
@@ -38,13 +38,13 @@ module.exports = function (context, device_id) {
                         reject(error);
                     });
             } else {
-                let error = errorparsing(context, {status_code: 400, status_message: 'Missing device ID'});
+                let error = errorParsing(context, {status_code: 400, status_message: 'Missing device ID'});
                 logger.error('error: %j', error);
                 reject(error);
             }
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };

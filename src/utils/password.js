@@ -1,5 +1,5 @@
 const serverLogger = require('./serverLogger.js');
-const errorparsing = require('./errorparsing.js');
+const errorParsing = require('./errorParsing.js');
 
 module.exports = function (context) {
     const logger = serverLogger.child({
@@ -22,7 +22,7 @@ module.exports = function (context) {
             resolve(value);
         } catch (exception) {
             logger.error('exception: %s', exception.stack);
-            reject(errorparsing(context, exception));
+            reject(errorParsing(context, exception));
         }
     });
 };
