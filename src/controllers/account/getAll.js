@@ -60,20 +60,9 @@ module.exports = function (request, response) {
         //traitement de recherche dans la base
         getAccount(context, filter, skip, limit, false)
             .then(accounts => {
-                if (accounts) {
-                    if (accounts.status_code) {
-                        logger.error('error: %j', error);
-                        responseError(context, accounts, response, logger);
-                    } else {
-                        logger.debug('account(s): %j', accounts);
-                        logger.info('account(s) found for %s', filter?filter.id:'all');
-                        response.status(200).send(accounts);
-                    }
-                } else {
-                    let error = errorParsing(context, {status_code: 404, status_message: 'no account found'});
-                    logger.debug('error: %j', error);
-                    responseError(context, error, response, logger);
-                }
+                logger.debug('account(s): %j', accounts);
+                logger.info('account(s) found for %s', filter ? filter.id : 'all');
+                response.status(200).send(accounts);
             })
             .catch(error => {
                 logger.debug('error: %j', error);

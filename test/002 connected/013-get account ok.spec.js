@@ -61,6 +61,26 @@ describe('013 - get account ok', () => {
             });
     });
 
+    it(`return all accounts`, done => {
+        try {
+            superAgent
+                .get(`${testsUtils.getServerUrlVersion()}/account?skip=0@limit=0}`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .end((error, response) => {
+                    assert.equal(error, null);
+                    console.log('response.body: %j', response.body)
+                    expect(response).to.have.property('status', 200);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
     it(`return ${mock1.id} account by id`, done => {
         try {
             superAgent

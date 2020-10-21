@@ -30,7 +30,28 @@ const mock1 = {
     session_id: testsUtilsAccounts.defineRandomSessionId()
 };
 
+let empty = '';
+
 describe('014 - get account nok', () => {
+    it(`return 404 error when id is empty`, done => {
+        try {
+            superAgent
+                .get(`${testsUtils.getServerUrlVersion()}/account/id/${empty}`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .end((error, response) => {
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
     it(`return 404 error when ${mock1.id} user is not found`, done => {
         try {
             superAgent
@@ -39,8 +60,27 @@ describe('014 - get account nok', () => {
                 .cert(testsUtils.httpsClientOptions().cert)
                 .key(testsUtils.httpsClientOptions().key)
                 .end((error, response) => {
-                    expect(error).to.have.property('status',404);
-                    expect(response).to.have.property('status',404);
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
+    it(`return 404 error when email is empty`, done => {
+        try {
+            superAgent
+                .get(`${testsUtils.getServerUrlVersion()}/account/email/${empty}`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .end((error, response) => {
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
                     done();
                 });
         } catch (exception) {
@@ -58,8 +98,27 @@ describe('014 - get account nok', () => {
                 .cert(testsUtils.httpsClientOptions().cert)
                 .key(testsUtils.httpsClientOptions().key)
                 .end((error, response) => {
-                    expect(error).to.have.property('status',404);
-                    expect(response).to.have.property('status',404);
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
+                    done();
+                });
+        } catch (exception) {
+            console.log('exception: %s', exception.stack);
+            assert.ok(false);
+            done();
+        }
+    });
+
+    it(`return 404 error when session is empty`, done => {
+        try {
+            superAgent
+                .get(`${testsUtils.getServerUrlVersion()}/account/session/${empty}`)
+                .ca(testsUtils.httpsClientOptions().ca)
+                .cert(testsUtils.httpsClientOptions().cert)
+                .key(testsUtils.httpsClientOptions().key)
+                .end((error, response) => {
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
                     done();
                 });
         } catch (exception) {
@@ -77,8 +136,8 @@ describe('014 - get account nok', () => {
                 .cert(testsUtils.httpsClientOptions().cert)
                 .key(testsUtils.httpsClientOptions().key)
                 .end((error, response) => {
-                    expect(error).to.have.property('status',404);
-                    expect(response).to.have.property('status',404);
+                    expect(error).to.have.property('status', 404);
+                    expect(response).to.have.property('status', 404);
                     done();
                 });
         } catch (exception) {

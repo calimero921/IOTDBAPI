@@ -50,41 +50,23 @@ module.exports = function (request, response) {
         let token = request.params.token;
         logger.debug('token: %s', token);
 
-        //traitement de suppression dans la base
-        if (id && token) {
-            if (userInfo.admin || (id === userInfo.id)) {
-                deleteAccount(context, id, token)
-                    .then(deletedAccount => {
-                        if (deletedAccount) {
-                            if (deletedAccount.status_code) {
-                                logger.error('error: %j', error);
-                                responseError(context, deletedAccount, response, logger);
-                            } else {
-                                logger.debug('deleted accounts: %j', deletedAccount);
-                                logger.info('account deleted for id %s', deletedAccount.id);
-                                response.status(204).send(deletedAccount);
-                            }
-                        } else {
-                            let error = errorParsing(context, {status_code: 404, status_message: 'no account found'});
-                            logger.debug('error: %j', error);
-                            responseError(context, error, response, logger);
-                        }
-                    })
-                    .catch(error => {
-                        logger.debug('error: %j', error);
-                        responseError(context, error, response, logger);
-                    });
-            } else {
-                let error = errorParsing(context, {
-                    status_code: 403,
-                    status_message: 'user must be admin or account owner for this action'
+        if (userInfo.admin || (id === userInfo.id)) {
+            deleteAccount(context, id, token)
+                .then(deletedAccount => {
+                    logger.debug('deleted accounts: %j', deletedAccount);
+                    logger.info('account deleted for id %s', deletedAccount.id);
+                    response.status(204).send(deletedAccount);
+                })
+                .catch(error => {
+                    logger.debug('error: %j', error);
+                    responseError(context, error, response, logger);
                 });
-                logger.error('error : %j', error);
-                responseError(context, error, response, logger);
-            }
         } else {
-            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameters'});
-            logger.debug('error: %j', error);
+            let error = errorParsing(context, {
+                status_code: 403,
+                status_message: 'user must be admin or account owner for this action'
+            });
+            logger.error('error : %j', error);
             responseError(context, error, response, logger);
         }
     } catch (exception) {

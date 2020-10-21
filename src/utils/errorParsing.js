@@ -37,10 +37,6 @@ module.exports = function (context, error) {
                         // already formated message
                         result.status_message = error[attribute];
                         break;
-                    case 'errmsg':
-                        // ldap message
-                        result.status_message = error[attribute];
-                        break;
                     case 'stack':
                         // exception message
                         result.status_message = error[attribute];

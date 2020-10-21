@@ -52,10 +52,11 @@ module.exports = function (request, response) {
         logger.debug('id: %s', id);
         let token = request.params.token;
         logger.debug('token: %s', token);
-        let requestBody = request.body;
+        let requestBody;
+        if (Object.keys(request.body).length > 0) requestBody = request.body;
         logger.debug('requestBody: %j', requestBody);
 
-        if (id && token && requestBody) {
+        if (requestBody) {
             if (userInfo.admin || (id === userInfo.id)) {
                 if (requestBody.id) delete requestBody.id;
                 if (requestBody.token) delete requestBody.token;

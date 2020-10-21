@@ -55,9 +55,9 @@ module.exports = function (context, collectionName, query, parameters, overtake)
                 })
                 .then(queryResults => {
                     logger.debug('queryResults: %j', queryResults);
+                    let error = errorParsing(context, {status_code: 404, status_message: 'not found'});
                     if (Array.isArray(queryResults)) {
                         if (queryResults.length === 0) {
-                            let error = errorParsing(context, {status_code: 404, status_message: 'not found'});
                             if (overtake) {
                                 logger.debug('error: %j', error);
                                 resolve(error);
@@ -69,7 +69,6 @@ module.exports = function (context, collectionName, query, parameters, overtake)
                             resolve(queryResults);
                         }
                     } else {
-                        let error = errorParsing(context, {status_code: 404, status_message: 'not found'});
                         if (overtake) {
                             logger.debug('error: %j', error);
                             resolve(error);
