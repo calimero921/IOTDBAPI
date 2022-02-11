@@ -20,7 +20,7 @@
 		"start": "node src/server.js"
 	},
 	"dependencies": {
-		"ajv": "^6.11.0",
+		"ajv": "^6.12.3",
 		"ajv-async": "^1.0.1",
 		"body-parser": "^1.19.0",
 		"cookie-parser": "^1.4.4",
