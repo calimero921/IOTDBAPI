@@ -27,7 +27,7 @@
 		"express": "^4.17.1",
 		"express-session": "^1.17.0",
 		"express-swagger-generator": "^1.1.17",
-		"jose": "^1.21.0",
+		"jose": "^1.28.2",
 		"moment": "^2.24.0",
 		"mongodb": "^3.5.2",
 		"openid-client": "^3.12.0",
