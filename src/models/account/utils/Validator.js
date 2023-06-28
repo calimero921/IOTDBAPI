@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -13,12 +13,12 @@
 
 'use strict';
 
-const Validator = require('../../utils/Validator.js');
+const Validator = require('../../utils/Validator.old.js');
 
-const accountJsonSchema = 'account/utils/accountjs.json';
-const accountMongoSchema = 'account/utils/accountdb.json';
+const accountJsonSchema = 'account/utils/AccountJsonSchema.json';
+const accountMongoSchema = 'account/utils/AccountDBSchema.json';
 
-const serverLogger = require('../../../utils/ServerLogger.js');
+const serverLogger = require('../../../Libraries/ServerLogger/ServerLogger.js');
 
 const globalPrefix = '/models/account/utils/validator';
 
@@ -27,7 +27,7 @@ class AccountValidator  extends Validator {
         super(context, accountJsonSchema, accountMongoSchema);
 
         this.context = context;
-        let logger = serverLogger.child({
+        let logger = logger.child({
             source: globalPrefix + ':constructor:',
             httpRequestId: context.httpRequestId,
             authorizedClient: context.authorizedClient

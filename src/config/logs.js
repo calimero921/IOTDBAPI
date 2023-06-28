@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -15,6 +15,10 @@
 
 module.exports = {
     logLevel: 'debug',
+    obfuscation: {
+        method: 'starred',
+        size: 8
+    },
     transport: {
         console: {
             active: true

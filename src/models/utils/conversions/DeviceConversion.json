@@ -1,0 +1,148 @@
+{
+    "fields": [
+        {
+            "dbName": "device_id",
+            "jsonName": "device_id",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "key",
+            "jsonName": "key",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "user_id",
+            "jsonName": "user_id",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "manufacturer",
+            "jsonName": "manufacturer",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "model",
+            "jsonName": "model",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "secret",
+            "jsonName": "secret",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "name",
+            "jsonName": "name",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "creation_date",
+            "jsonName": "creation_date",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "class",
+            "jsonName": "class",
+            "type": "integer",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "software_version",
+            "jsonName": "software_version",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "local_ip",
+            "jsonName": "local_ip",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "capabilities",
+            "jsonName": "capabilities",
+            "type": "array",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "last_connexion_date",
+            "jsonName": "last_connexion_date",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "name",
+            "jsonName": "name",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "type",
+            "jsonName": "type",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "publish",
+            "jsonName": "publish",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "subscribe",
+            "jsonName": "subscribe",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "last_value",
+            "jsonName": "last_value",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        }
+    ]
+}

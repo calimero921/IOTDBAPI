@@ -1,0 +1,92 @@
+{
+   "fields": [
+        {
+            "dbName": "id",
+            "jsonName": "id",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "firstname",
+            "jsonName": "firstname",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "lastname",
+            "jsonName": "lastname",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "email",
+            "jsonName": "email",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+       {
+           "dbName": "admin",
+           "jsonName": "admin",
+           "type": "boolean",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "active",
+           "jsonName": "active",
+           "type": "boolean",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "session_id",
+           "jsonName": "session_id",
+           "type": "string",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "creation_date",
+           "jsonName": "creation_date",
+           "type": "integer",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "current_connexion_date",
+           "jsonName": "current_connexion_date",
+           "type": "integer",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "last_connexion_date",
+           "jsonName": "last_connexion_date",
+           "type": "integer",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       },
+       {
+           "dbName": "token",
+           "jsonName": "token",
+           "type": "string",
+           "logDisplay": true,
+           "db2json": true,
+           "json2db": true
+       }
+    ]
+}

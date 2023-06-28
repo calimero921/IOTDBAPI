@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -13,27 +13,27 @@
 
 'use strict';
 
-const mongoFind = require('../../connectors/mongodb/find.js');
-const mongoUpdate = require('../../connectors/mongodb/update.js');
+const mongoFind = require('../../Libraries/MongoDB/api/find.js');
+const mongoUpdate = require('../../Libraries/MongoDB/api/update.js');
 const Converter = require('./utils/Converter.js');
 
-const Log4n = require('../../utils/log4n.js');
+const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id, new_device) {
+    const logger = serverLogger.child({
+        source: '/models/device/patch.js',
+        httpRequestId: context.httpRequestId
+    });
+
     //traitement de recherche dans la base
     return new Promise((resolve, reject) => {
         try {
-            const log4n = new Log4n(context, '/models/device/patch');
-            // log4n.object(context,'context');
-            // log4n.object(device_id,'device_id');
-            // log4n.object(new_device,'new_device');
-
             if (typeof device_id === 'undefined' || typeof new_device === 'undefined') {
                 reject(errorParsing(context, {status_code: 400}));
-                log4n.debug('done - missing paramater')
+                logger.debug('done - missing paramater')
             } else {
-                log4n.debug('preparing datas');
+                logger.debug('preparing datas');
 
                 let update_date;
                 let converter = new Converter(context);
@@ -57,7 +57,7 @@ module.exports = function (context, device_id, new_device) {
                         }
                     })
                     .then(datas => {
-                        // log4n.object(datas,'datas');
+                        // logger.object(datas,'datas');
                         if (typeof datas === 'undefined') {
                             return errorParsing(context, {status_code: 500});
                         } else {
@@ -93,10 +93,10 @@ module.exports = function (context, device_id, new_device) {
                                     }
                                 }
                                 update_date.last_connexion_date = datas.last_connexion_date;
-                                // log4n.object(update_date, 'update_date');
+                                // logger.object(update_date, 'update_date');
 
                                 let updateQuery = {device_id: device_id};
-                                // log4n.object(updateQuery, 'updateQuery');
+                                // logger.object(updateQuery, 'updateQuery');
                                 return mongoUpdate(context, converter, 'device', updateQuery, update_date);
                             } else {
                                 return datas;
@@ -107,22 +107,22 @@ module.exports = function (context, device_id, new_device) {
                     .then(datas => {
                         if (typeof datas.status_code === 'undefined') {
                             resolve(datas);
-                            log4n.debug('done - ok');
+                            logger.debug('done - ok');
                         } else {
                             reject(errorParsing(context, datas));
-                            log4n.debug('done - error')
+                            logger.debug('done - error')
                         }
                     })
                     .catch(error => {
-                        log4n.object(error, 'error');
+                        logger.object(error, 'error');
                         reject(errorParsing(context, error));
-                        log4n.debug('done - global catch')
+                        logger.debug('done - global catch')
                     });
             }
         } catch (error) {
-            log4n.object(error, 'error');
+            logger.object(error, 'error');
             reject(errorParsing(context, error));
-            log4n.debug('done - global catch');
+            logger.debug('done - global catch');
         }
     });
 };

@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -13,9 +13,9 @@
 
 'use strict';
 
-const mongoDelete = require('../../connectors/mongodb/delete.js');
+const mongoDelete = require('../../Libraries/MongoDB/api/delete.js');
 
-const serverLogger = require('../../utils/ServerLogger.js');
+const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, id, token) {

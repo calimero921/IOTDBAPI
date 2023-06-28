@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -23,25 +23,16 @@ module.exports = {
     status: true,
     swaggerDefinition: {
         info: {
-            description: serverConfig.description,
-            title: serverConfig.name,
-            version: serverConfig.swagger,
+            description: '',
+            title: '',
+            version: '',
         },
-        host: serverConfig.hostname + ':' + serverConfig.port,
-        basePath: '/' + serverConfig.api_version,
+        host: '',
+        basePath: '/',
         produces: [
-            "application/json",
-            "application/xml"
+            'application/json',
+            'application/xml'
         ],
-        schemes: ['https'],
-        // securityDefinitions: {
-        //     Bearer: {
-        //         type: 'apiKey',
-        //         in: 'header',
-        //         name: 'Authorization',
-        //         description: ""
-        //     }
-        // },
         contact: {
             name: packageJSON.author.name,
             email: packageJSON.author.email

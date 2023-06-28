@@ -8,11 +8,11 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const express = require('express');
 
-const serverPath = path.join(process.cwd(), 'src');
-
 const configuration = require('./config/Configuration.js');
-const serverLogger = require('./utils/ServerLogger.js');
+const serverLogger = require('./Libraries/ServerLogger/ServerLogger.js');
+const oidcConnector = require('./Libraries/OpenIDConnect/OpenIDConnectServer.js')
 
+serverLogger.initialize(configuration.logs);
 const logger = serverLogger.child({
     source: '/server.js',
     httpRequestId: 'initialize',
@@ -20,10 +20,15 @@ const logger = serverLogger.child({
 });
 logger.info('IOTDB API server is starting ...');
 logger.debug('configuration: %j', configuration);
+
+const serverPath = path.join(process.cwd(), 'src');
 logger.debug('serverPath: %s', serverPath);
 
 // const session = require('express-session');
 let server = express();
+
+logger.info('Initialise OIDC Connector');
+oidcConnector.initialize(configuration.openIdConnect, logger, server);
 
 logger.info('Express swagger generator setup');
 if (configuration.swagger) {
@@ -57,20 +62,34 @@ server.set('port', port);
  */
 logger.info('HTTPS server setup');
 let httpsServer = {};
-if ((configuration.server.httpsCa) && (configuration.server.httpsPrivateKey) && (configuration.server.httpsCertificate)) {
-    let caKeyPath = path.join(serverPath, configuration.server.httpsCa);
-    logger.debug('caKeyPath %s', caKeyPath);
-    let privateKeyPath = path.join(serverPath, configuration.server.httpsPrivateKey);
-    logger.debug('privateKeyPath %s', privateKeyPath);
-    let certificatePath = path.join(serverPath, configuration.server.httpsCertificate);
-    logger.debug('certificatePath %s', certificatePath);
+if (configuration.server.httpsCa && configuration.server.httpsPrivateKey && configuration.server.httpsCertificate) {
+    let caKeyPath;
+    let privateKeyPath;
+    let certificatePath;
 
-    if ((fs.existsSync(privateKeyPath)) && (fs.existsSync(certificatePath))) {
-        let httpsOptions = {
+    if (configuration.server.httpsCa.startsWith('/')) {
+        caKeyPath = configuration.server.httpsCa;
+    } else {
+        caKeyPath = path.join(serverPath, configuration.server.httpsCa);
+    }
+    if (configuration.server.httpsPrivateKey.startsWith('/')) {
+        privateKeyPath = configuration.server.httpsPrivateKey;
+    } else {
+        privateKeyPath = path.join(serverPath, configuration.server.httpsPrivateKey);
+    }
+    if (configuration.server.httpsCertificate.startsWith('/')) {
+        certificatePath = configuration.server.httpsCertificate;
+    } else {
+        certificatePath = path.join(serverPath, configuration.server.httpsCertificate);
+    }
+
+    if (fs.existsSync(caKeyPath) && fs.existsSync(privateKeyPath) && fs.existsSync(certificatePath)) {
+        const httpsOptions = {
             ca: fs.readFileSync(caKeyPath),
             key: fs.readFileSync(privateKeyPath),
             cert: fs.readFileSync(certificatePath)
         };
+
         httpsServer = https.createServer(httpsOptions, server);
 
         /**
@@ -83,13 +102,14 @@ if ((configuration.server.httpsCa) && (configuration.server.httpsPrivateKey) && 
         httpsServer.on('stop', onStop);
         logger.info('HTTPS server started on port %s', port);
     } else {
-        logger.error('Connot find security keys, cannot start https server');
+        logger.error('Can\'t find security keys, can\'t start https server');
         process.exit(91);
     }
 } else {
     logger.error('Missing security keys, cannot start https server');
     process.exit(91);
 }
+
 module.exports = server;
 logger.debug('HTTPS server started on port ' + port);
 

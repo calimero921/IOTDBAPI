@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -13,19 +13,24 @@
 
 'use strict';
 
-const Log4n = require('../../utils/log4n.js');
-const mongoFind = require('../../connectors/mongodb/find.js');
+const mongoFind = require('../../Libraries/MongoDB/api/find.js');
 const Converter = require('./utils/Converter.js');
+
+const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, query, offset, limit, overtake) {
-    const log4n = new Log4n(context, '/models/event/get');
-    log4n.object(query, 'query');
-    log4n.object(offset, 'offset');
-    log4n.object(limit, 'limit');
-    log4n.object(overtake, 'overtake');
+    const logger = serverLogger.child({
+        source: '/models/event/get.js',
+        httpRequestId: context.httpRequestId
+    });
 
-    if (typeof sort === 'undefined') sort = {};
+    logger.object(query, 'query');
+    logger.object(offset, 'offset');
+    logger.object(limit, 'limit');
+    logger.object(overtake, 'overtake');
+
+    // if (typeof sort === 'undefined') sort = {};
     if (typeof overtake === 'undefined') overtake = false;
 
     //traitement de recherche dans la base
@@ -36,22 +41,22 @@ module.exports = function (context, query, offset, limit, overtake) {
         if (typeof offset !== 'undefined') parameter.offset = offset;
         mongoFind(context, converter,'event', query, parameter, overtake)
             .then(datas => {
-                // log4n.object(datas, 'datas');
+                // logger.object(datas, 'datas');
                 if (datas.length > 0) {
                     resolve(datas);
                 } else {
                     if (overtake) {
                         resolve(errorParsing(context, {status_code: 404}));
-                        log4n.debug('done - no result but ok');
+                        logger.debug('done - no result but ok');
                     } else {
                         reject(errorParsing(context, {status_code: 404}));
-                        log4n.debug('done - not found');
+                        logger.debug('done - not found');
                     }
                 }
             })
             .catch(error => {
-                log4n.debug('done - global catch');
-                log4n.object(error, 'error');
+                logger.debug('done - global catch');
+                logger.object(error, 'error');
                 reject(errorParsing(context, error));
             });
     });

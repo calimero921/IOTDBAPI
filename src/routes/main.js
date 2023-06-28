@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -13,9 +13,9 @@
 
 'use strict';
 
-const checkAuth = require('../utils/checkAuth.js')
+const oidcConnector = require('../Libraries/OpenIDConnect/OpenIDConnectServer.js')
 const configuration = require('../config/Configuration.js');
-const serverLogger = require('../utils/ServerLogger.js');
+const serverLogger = require('../Libraries/ServerLogger/ServerLogger.js');
 
 const status = require('../controllers/status.js');
 
@@ -56,26 +56,26 @@ module.exports = function (server) {
         next();
     });
 
-    server.get('/status', checkAuth, status);
+    server.get('/status', oidcConnector.protect('openid'), status);
 
-    server.get('/' + configuration.server.api_version + '/account', checkAuth, accountGet);
-    server.get('/' + configuration.server.api_version + '/account/id/:id', checkAuth, accountGetByID);
-    server.get('/' + configuration.server.api_version + '/account/email/:email', checkAuth, accountGetByEmail);
-    server.get('/' + configuration.server.api_version + '/account/session/:session_id', checkAuth, accountGetBySession);
+    server.get('/' + configuration.server.api_version + '/account', oidcConnector.protect('openid'), accountGet);
+    server.get('/' + configuration.server.api_version + '/account/id/:id', oidcConnector.protect('openid'), accountGetByID);
+    server.get('/' + configuration.server.api_version + '/account/email/:email', oidcConnector.protect('openid'), accountGetByEmail);
+    server.get('/' + configuration.server.api_version + '/account/session/:session_id', oidcConnector.protect('openid'), accountGetBySession);
     server.post('/' + configuration.server.api_version + '/account', accountPost);
-    server.patch('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountPatch);
-    server.delete('/' + configuration.server.api_version + '/account/:id/:token', checkAuth, accountDelete);
+    server.patch('/' + configuration.server.api_version + '/account/:id/:token', oidcConnector.protect('openid'), accountPatch);
+    server.delete('/' + configuration.server.api_version + '/account/:id/:token', oidcConnector.protect('openid'), accountDelete);
 
-    server.get('/' + configuration.server.api_version + '/device/:id', checkAuth, deviceGetById);
-    server.get('/' + configuration.server.api_version + '/device/user/:id', checkAuth, deviceGetByUser);
-    server.get('/' + configuration.server.api_version + '/device/exists/:manufacturer/:model/:serial/:secret', checkAuth, deviceExists);
-    server.post('/' + configuration.server.api_version + '/device', checkAuth, devicePost);
-    server.patch('/' + configuration.server.api_version + '/device/:id', checkAuth, devicePatch);
-    server.delete('/' + configuration.server.api_version + '/device/:id', checkAuth, deviceDelete);
+    server.get('/' + configuration.server.api_version + '/device/:id', oidcConnector.protect('openid'), deviceGetById);
+    server.get('/' + configuration.server.api_version + '/device/user/:id', oidcConnector.protect('openid'), deviceGetByUser);
+    server.get('/' + configuration.server.api_version + '/device/exists/:manufacturer/:model/:serial/:secret', oidcConnector.protect('openid'), deviceExists);
+    server.post('/' + configuration.server.api_version + '/device', oidcConnector.protect('openid'), devicePost);
+    server.patch('/' + configuration.server.api_version + '/device/:id', oidcConnector.protect('openid'), devicePatch);
+    server.delete('/' + configuration.server.api_version + '/device/:id', oidcConnector.protect('openid'), deviceDelete);
 
-    server.get('/' + configuration.server.api_version + '/event/:id', checkAuth, measureGetById);
-    server.post('/' + configuration.server.api_version + '/event', checkAuth, measurePost);
-    server.delete('/' + configuration.server.api_version + '/event/:id', checkAuth, measureDelete);
+    server.get('/' + configuration.server.api_version + '/event/:id', oidcConnector.protect('openid'), measureGetById);
+    server.post('/' + configuration.server.api_version + '/event', oidcConnector.protect('openid'), measurePost);
+    server.delete('/' + configuration.server.api_version + '/event/:id', oidcConnector.protect('openid'), measureDelete);
 
     logger.debug('done');
 };

@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -15,12 +15,12 @@
 
 const moment = require('moment');
 
-const mongoInsert = require('../../connectors/mongodb/insert.js');
-const mongoFind = require('../../connectors/mongodb/find.js');
-const Converter = require('./utils/Converter.js');
+const mongoInsert = require('../../Libraries/MongoDB/api/insert.js');
+const mongoFind = require('../../Libraries/MongoDB/api/find.js');
+const Converter = require('../utils/Converter.js');
 const Generator = require('../utils/Generator.js');
 
-const serverLogger = require('../../utils/ServerLogger.js');
+const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, account) {
@@ -37,7 +37,7 @@ module.exports = function (context, account) {
                 let query = {};
                 const generator = new Generator(context);
                 const converter = new Converter(context);
-                converter.json2db(account)
+                converter.json2db(account, converter.accountSchema)
                     .then(convertedAccount => {
                         logger.debug('convertedAccount: %j', convertedAccount);
                         let timestamp = parseInt(moment().format('x'));
@@ -75,7 +75,7 @@ module.exports = function (context, account) {
                         if (insertedAccount.status_code) {
                             return insertedAccount;
                         } else {
-                            return converter.db2json(insertedAccount[0]);
+                            return converter.db2json(insertedAccount[0], converter.accountSchema);
                         }
                     })
                     .then(finalAccount => {

@@ -1,7 +1,7 @@
 /**
  * IOTDB API
  *
- * Copyright (C) 2019 - 2020 EDSoft
+ * Copyright (C) 2019 - 2023 EDSoft
  *
  * This software is confidential and proprietary information of EDSoft.
  * You shall not disclose such Confidential Information and shall use it only in
@@ -14,14 +14,14 @@
 'use strict';
 
 module.exports = {
-    url: 'mongodb://admin:admin@localhost:27017/admin?connectTimeoutMS=30000',
-    login: 'admin',
-    passwd: 'admin',
-    host: 'localhost',
-    port: 27017,
-    adminDbName: 'admin',
-    connectTimeoutMS: 30000,
-    dbName: 'iotdb',
+    url: '',
+    login: '',
+    passwd: '',
+    host: '',
+    port: 0,
+    adminDbName: '',
+    connectTimeoutMS: 0,
+    dbName: '',
     options: {
         useNewUrlParser: true,
         useUnifiedTopology: true

@@ -1,0 +1,48 @@
+{
+    "classes": [
+        "top",
+        "posixGroup"
+    ],
+    "fields": [
+        {
+            "dbName": "device_id",
+            "jsonName": "device_id",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "event_date",
+            "jsonName": "event_date",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "capabilities",
+            "jsonName": "capabilities",
+            "type": "array",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "name",
+            "jsonName": "name",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
+            "dbName": "value",
+            "jsonName": "value",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        }
+    ]
+}
