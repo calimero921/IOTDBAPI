@@ -16,8 +16,8 @@
 const deviceGet = require('../../models/device/get.js');
 const measureGet = require('../../models/event/get.js');
 
-const checkAuth = require('../../Libraries/OpenIDConnect/OpenIDConnectServer.js');
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const checkAuth = require('server-logger');;
+const {serverLogger} = require('server-logger');
 const responseError = require('../../utils/responseError.js');
 
 /**

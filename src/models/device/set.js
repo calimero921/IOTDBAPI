@@ -16,7 +16,7 @@
 const mongoInsert = require('../../Libraries/MongoDB/api/insert.js');
 const Converter = require('./utils/Converter.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device) {

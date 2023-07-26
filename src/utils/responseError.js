@@ -13,7 +13,7 @@
 
 'use strict';
 
-const serverLogger = require('../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('./errorParsing.js');
 
 module.exports = function (context, content, response, sourcelogger) {

@@ -13,9 +13,9 @@
 
 'use strict';
 
-const oidcConnector = require('../Libraries/OpenIDConnect/OpenIDConnectServer.js')
 const configuration = require('../config/Configuration.js');
-const serverLogger = require('../Libraries/ServerLogger/ServerLogger.js');
+const oidcConnector = require('oidc-connector/server');
+const {serverLogger} = require('server-logger');
 
 const status = require('../controllers/status.js');
 

@@ -19,7 +19,7 @@ const Ajv = require('ajv');
 const Moment = require('moment');
 const Validator = require('./Validator.js');
 
-const serverLogger = require('../../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');;
 const errorParsing = require('../../../utils/errorParsing.js');
 
 const globalPrefix = '/models/device/converter';

@@ -15,7 +15,7 @@
 
 const getDevice = require('../../models/device/get.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 

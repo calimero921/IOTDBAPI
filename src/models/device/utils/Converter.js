@@ -18,7 +18,7 @@ const Moment = require('moment');
 const Generator = require('../../utils/Generator.js');
 const Validator = require('./Validator.js');
 
-const serverLogger = require('../../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');;
 const errorParsing = require('../../../utils/errorParsing.js');
 
 const globalPrefix = '/models/device/converter';

@@ -16,7 +16,7 @@
 const mongoDBConnector = require('../MongoDBConnector.js');
 const mongoFind = require('./find.js')
 
-const serverLogger = require('../../ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../../utils/errorParsing.js');
 
 module.exports = function (context, collectionName, query) {

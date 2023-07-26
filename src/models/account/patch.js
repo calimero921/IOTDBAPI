@@ -15,14 +15,16 @@
 
 const mongoFind = require('../../Libraries/MongoDB/api/find.js');
 const mongoUpdate = require('../../Libraries/MongoDB/api/update.js');
-const Converter = require('./utils/Converter.js');
+const Converter = require('../utils/Converter.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
+
+const globalPrefix='/models/account/patch.js';
 
 module.exports = function (context, id, token, newAccount) {
     const logger = serverLogger.child({
-        source: '/models/account/patch.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });
@@ -38,7 +40,7 @@ module.exports = function (context, id, token, newAccount) {
                 let filter = {id: id, token: token};
                 let parameters = {offset: 0, limit: 0};
                 let updateAccount = {};
-                converter.json2db(newAccount)
+                converter.json2db(newAccount, converter.accountSchema)
                     .then(convertedAccount => {
                         logger.debug('convertedAccount: %j', convertedAccount);
                         if (convertedAccount.status_code) {
@@ -65,7 +67,7 @@ module.exports = function (context, id, token, newAccount) {
                         if (updatedAccount.status_code) {
                             return updatedAccount;
                         } else {
-                            return converter.db2json(updatedAccount);
+                            return converter.db2json(updatedAccount, converter.accountSchema);
                         }
                     })
                     .then(convertedUpdatedAccount => {
@@ -92,3 +94,18 @@ module.exports = function (context, id, token, newAccount) {
         }
     })
 };
+
+function updateFields(context, orginal, update) {
+    const logger = serverLogger.child({
+        source: globalPrefix + 'updateFields',
+        httpRequestId: context.httpRequestId,
+        authorizedClient: context.authorizedClient
+    });
+
+    try{
+
+    } catch(exception) {
+        logger.error('exception: %s', exception.stack);
+        return errorParsing(context, exception);
+    }
+}

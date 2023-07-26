@@ -14,7 +14,7 @@
 'use strict';
 
 const configuration = require('../config/Configuration.js');
-const serverLogger = require('../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const responseError = require('../utils/responseError.js');
 
 /**

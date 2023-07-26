@@ -38,7 +38,9 @@
     "openid-client": "^5.4.2",
     "uuid": "^9.0.0",
     "winston": "^3.3.3",
-    "winston-daily-rotate-file": "^4.5.0"
+    "winston-daily-rotate-file": "^4.5.0",
+    "server-logger": "../../Libraries/lib-server-logger",
+    "oidc-connector": "../../Libraries/lib-oidc-connector"
   },
   "engines": {
     "node": ">=20.3.1",

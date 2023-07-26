@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const deleteAccount = require('../../models/account/delete.js');
-
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route DELETE /account/{id}/{token}
@@ -30,6 +22,15 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const deleteAccount = require('../../models/account/delete.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
@@ -42,15 +43,16 @@ module.exports = function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        // let userInfo = request.userinfo;
+        // logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
         logger.debug('id: %s', id);
+
         let token = request.params.token;
         logger.debug('token: %s', token);
 
-        if (userInfo.admin || (id === userInfo.id)) {
+        // if (userInfo.admin || (id === userInfo.id)) {
             deleteAccount(context, id, token)
                 .then(deletedAccount => {
                     logger.debug('deleted accounts: %j', deletedAccount);
@@ -61,14 +63,14 @@ module.exports = function (request, response) {
                     logger.debug('error: %j', error);
                     responseError(context, error, response, logger);
                 });
-        } else {
-            let error = errorParsing(context, {
-                status_code: 403,
-                status_message: 'user must be admin or account owner for this action'
-            });
-            logger.error('error : %j', error);
-            responseError(context, error, response, logger);
-        }
+        // } else {
+        //     let error = errorParsing(context, {
+        //         status_code: 403,
+        //         status_message: 'user must be admin or account owner for this action'
+        //     });
+        //     logger.error('error : %j', error);
+        //     responseError(context, error, response, logger);
+        // }
     } catch (exception) {
         logger.debug('exception: %s', exception.stack);
         responseError(context, exception, response, logger);

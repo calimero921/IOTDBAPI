@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const getAccount = require('../../models/account/get.js');
-
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route GET /account
@@ -30,6 +22,15 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const getAccount = require('../../models/account/get.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
@@ -42,12 +43,12 @@ module.exports = function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        // let userInfo = request.userinfo;
+        // logger.debug('userInfo: %j', userInfo);
 
-        let filter;
-        if (!userInfo.admin) filter = {id: userInfo.id};
-        logger.debug('filter: %j', filter);
+        let filter={};
+        // if (!userInfo.admin) filter = {id: userInfo.id};
+        // logger.debug('filter: %j', filter);
 
         let skip = request.query.skip;
         if (!skip) skip = 0;

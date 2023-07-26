@@ -20,7 +20,7 @@ const moment = require('moment');
 const crypto = require('crypto');
 
 const configuration = require('../../config/Configuration.js');
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 
 const globalPrefix = '/models/utils/Translator.js';
 
@@ -81,68 +81,19 @@ class Translator {
             case 'false':
             case 'FALSE':
             case false:
-                result = 'FALSE';
+                result = false;
                 break;
             case 'true':
             case 'TRUE':
             case true:
             default:
-                result = 'TRUE';
+                result = true;
                 break;
         }
         logger.debug('result: %j', result);
         return result;
     }
 
-    toLdapCN(value) {
-        const logger = serverLogger.child({
-            source: globalPrefix + ':fromLdapCN',
-            httpRequestId: this.context.httpRequestId,
-            authorizedClient: this.context.authorizedClient
-        });
-
-        logger.debug('value: %j', value);
-        let result;
-
-        if (value === null) {
-            result = null;
-        } else {
-            if (value) {
-                const ldapPath = value.split(',');
-                if (ldapPath.length > 1) {
-                    const keyVal = ldapPath[0].split('=');
-                    if ((keyVal.length === 2) && (keyVal[0] === 'cn')) {
-                        result = keyVal[1];
-                    }
-                }
-            }
-        }
-
-        logger.debug('result: %j', result);
-        return result;
-    }
-
-    fromLdapCN(value) {
-        const logger = serverLogger.child({
-            source: globalPrefix + ':toLdapCN',
-            httpRequestId: this.context.httpRequestId,
-            authorizedClient: this.context.authorizedClient
-        });
-
-        logger.debug('value: %j', value);
-        let result;
-
-        if (value === null) {
-            result = null;
-        } else {
-            if (value) {
-                result = `cn=${value},${configuration.ldap.basedn.userOu}`;
-            }
-        }
-
-        logger.debug('result: %j', result);
-        return result;
-    }
 
     toInteger(value) {
         const logger = serverLogger.child({
@@ -177,7 +128,7 @@ class Translator {
             result = null;
         } else {
             if (value) {
-                result = value.toString();
+                result = parseInt(value);
             }
         }
 

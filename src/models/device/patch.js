@@ -17,7 +17,7 @@ const mongoFind = require('../../Libraries/MongoDB/api/find.js');
 const mongoUpdate = require('../../Libraries/MongoDB/api/update.js');
 const Converter = require('./utils/Converter.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id, new_device) {

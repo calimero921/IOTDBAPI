@@ -16,7 +16,7 @@
 const mongoFind = require('../../Libraries/MongoDB/api/find.js');
 const Converter = require('./utils/Converter.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, filter, skip, limit, overtake) {

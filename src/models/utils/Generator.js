@@ -15,7 +15,7 @@
 
 const uuid = require('uuid');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 
 const globalPrefix = '/models/Generator.js';
 

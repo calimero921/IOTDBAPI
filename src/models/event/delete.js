@@ -15,7 +15,7 @@
 
 const mongoDelete = require('../../Libraries/MongoDB/api/deleteall.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, device_id) {

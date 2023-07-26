@@ -22,7 +22,7 @@ const fs = require('fs');
 const Validator = require('./Validator.js');
 const Translate = require('./Translator.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 const accountSchema = 'Account';

@@ -9,8 +9,8 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 
 const configuration = require('./config/Configuration.js');
-const serverLogger = require('./Libraries/ServerLogger/ServerLogger.js');
-const oidcConnector = require('./Libraries/OpenIDConnect/OpenIDConnectServer.js')
+const {serverLogger} = require('server-logger');
+const oidcConnector = require('oidc-connector/server');
 
 serverLogger.initialize(configuration.logs);
 const logger = serverLogger.child({
@@ -61,6 +61,9 @@ server.set('port', port);
  * Create HTTPS server.
  */
 logger.info('HTTPS server setup');
+logger.debug('httpsCa: %j', configuration.server.httpsCa);
+logger.debug('httpsCa: %j', configuration.server.httpsPrivateKey);
+logger.debug('httpsCa: %j', configuration.server.httpsCertificate);
 let httpsServer = {};
 if (configuration.server.httpsCa && configuration.server.httpsPrivateKey && configuration.server.httpsCertificate) {
     let caKeyPath;
@@ -72,16 +75,21 @@ if (configuration.server.httpsCa && configuration.server.httpsPrivateKey && conf
     } else {
         caKeyPath = path.join(serverPath, configuration.server.httpsCa);
     }
+    logger.debug('caKeyPath: %j', caKeyPath);
+
     if (configuration.server.httpsPrivateKey.startsWith('/')) {
         privateKeyPath = configuration.server.httpsPrivateKey;
     } else {
         privateKeyPath = path.join(serverPath, configuration.server.httpsPrivateKey);
     }
+    logger.debug('privateKeyPath: %j', privateKeyPath);
+
     if (configuration.server.httpsCertificate.startsWith('/')) {
         certificatePath = configuration.server.httpsCertificate;
     } else {
         certificatePath = path.join(serverPath, configuration.server.httpsCertificate);
     }
+    logger.debug('certificatePath: %j', certificatePath);
 
     if (fs.existsSync(caKeyPath) && fs.existsSync(privateKeyPath) && fs.existsSync(certificatePath)) {
         const httpsOptions = {
@@ -89,6 +97,7 @@ if (configuration.server.httpsCa && configuration.server.httpsPrivateKey && conf
             key: fs.readFileSync(privateKeyPath),
             cert: fs.readFileSync(certificatePath)
         };
+        logger.debug('httpsOptions: %o', httpsOptions);
 
         httpsServer = https.createServer(httpsOptions, server);
 

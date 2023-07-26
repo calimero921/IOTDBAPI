@@ -14,9 +14,9 @@
 'use strict';
 
 const mongoFind = require('../../Libraries/MongoDB/api/find.js');
-const Converter = require('./utils/Converter.js');
+const Converter = require('../utils/Converter.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, filter, skip, limit, overtake) {
@@ -46,74 +46,65 @@ module.exports = function (context, filter, skip, limit, overtake) {
                 .then(accounts => {
                     if (accounts) {
                         if (accounts.status_code) {
-                            if (overtake) {
-                                logger.debug('accounts: %j', accounts);
-                                resolve(accounts);
-                            } else {
-                                logger.error('error: %j', error);
-                                reject(accounts);
-                            }
+                            return (accounts);
                         } else {
                             if (Array.isArray(accounts)) {
                                 let promises = [];
                                 const converter = new Converter(context);
                                 for (let idx = 0; idx < accounts.length; idx++) {
-                                    promises.push(converter.db2json(accounts[idx]));
+                                    promises.push(converter.db2json(accounts[idx], converter.accountSchema));
                                 }
                                 if (promises.length > 0) {
-                                    Promise.all(promises)
-                                        .then(result => {
-                                            logger.debug('result: %j', result);
-                                            if (result.length > 0) {
-                                                resolve(result);
-                                            } else {
-                                                let error = errorParsing(context, {
-                                                    status_code: 404,
-                                                    status_message: 'no correct record found'
-                                                });
-                                                logger.error('error: %j', error);
-                                                reject(error);
-                                            }
-                                        })
-                                        .catch(error => {
-                                            logger.debug('error: %j', error);
-                                            reject(context, error);
-                                        });
+                                    return Promise.all(promises)
                                 } else {
-                                    let error = errorParsing(context, {
+                                    return errorParsing(context, {
                                         status_code: 404,
                                         status_message: 'no account found'
                                     })
-                                    if (overtake) {
-                                        logger.debug('error: %j', error);
-                                        resolve(error);
-                                    } else {
-                                    logger.error('error: %j', error);
-                                        reject(error);
-                                    }
                                 }
                             } else {
-                                let error = errorParsing(context, {
+                                return errorParsing(context, {
                                     status_code: 404,
                                     status_message: 'no account found'
                                 })
-                                if (overtake) {
-                                    logger.debug('error: %j', error);
-                                    resolve(error);
-                                } else {
-                                    logger.error('error: %j', error);
-                                    reject(error);
-                                }
                             }
                         }
                     } else {
-                        let error = errorParsing(context, {status_code: 404, status_message: 'no account found'})
+                        return errorParsing(context, {status_code: 404, status_message: 'no account found'})
+                    }
+                })
+                .then(result => {
+                    if (result) {
+                        if (result.status_code) {
+                            if (overtake) {
+                                logger.debug('error: %j', result);
+                                return (result);
+                            } else {
+                                logger.error('error: %j', result);
+                                return (result);
+                            }
+                        } else {
+                            logger.debug('result: %j', result);
+                            if (result.length > 0) {
+                                resolve(result);
+                            } else {
+                                let error = errorParsing(context, {
+                                    status_code: 404,
+                                    status_message: 'no correct record found'
+                                });
+                                logger.error('error: %j', error);
+                                reject(error);
+                            }
+
+                        }
+                    } else {
+                        let error = errorParsing(context, {status_code: 4004, status_message: 'no result'})
                         if (overtake) {
                             logger.debug('error: %j', error);
-                            resolve(error);
+                            return (error);
                         } else {
                             logger.error('error: %j', error);
-                            reject(error);
+                            return (error);
                         }
                     }
                 })

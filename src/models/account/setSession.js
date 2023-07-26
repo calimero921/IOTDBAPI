@@ -18,7 +18,7 @@ const moment = require('moment');
 const patchAccount = require('./patch.js');
 const getAccount = require('./get.js');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 let globalPrefix = '/models/account/setSession.js';

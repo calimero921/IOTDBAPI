@@ -23,7 +23,8 @@ module.exports = {
     issuer: '',
     audience: '',
     routes: {
-        status: "/realms/master/.well-known/openid-configuration",
-        wellknown: "/realms/master/.well-known/openid-configuration"
+        "mainPath": "/realms/master",
+        status: "/.well-known/openid-configuration",
+        wellknown: "/.well-known/openid-configuration"
     }
 };

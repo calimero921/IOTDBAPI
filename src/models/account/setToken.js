@@ -19,7 +19,7 @@ const getAccount = require('./get.js');
 const patchAccount = require('./patch.js');
 
 const Generator = require('../utils/Generator.js');
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 let globalPrefix = '/models/account/setToken.js';

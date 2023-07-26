@@ -18,7 +18,7 @@ const Validator = require('../../utils/Validator.old.js');
 const deviceJsonSchema = 'event/utils/EventJsonSchema.json';
 const deviceMongoSchema = 'event/utils/EventDBSchema.json';
 
-const serverLogger = require('../../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');;
 
 const globalPrefix = '/models/event/utils/validator';
 

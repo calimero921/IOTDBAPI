@@ -18,7 +18,7 @@ const fs = require('fs');
 const Ajv = require('ajv').default;
 const addFormats = require('ajv-formats');
 
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 const globalPrefix = '/models/utils/Validator.js';

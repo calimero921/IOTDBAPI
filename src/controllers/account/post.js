@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const setAccount = require('../../models/account/post.js');
-
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route POST /account
@@ -27,6 +19,15 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Account.model} 201 - User info
  * @returns {Error} default - Unexpected error
  */
+
+'use strict';
+
+const setAccount = require('../../models/account/post.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,

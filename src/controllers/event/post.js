@@ -17,8 +17,8 @@ const getDevice = require('../../models/device/get.js');
 const patchDevice = require('../../models/device/patch.js');
 const setEvent = require('../../models/event/set.js');
 
-const checkAuth = require('../../Libraries/OpenIDConnect/OpenIDConnectServer.js');
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
+const checkAuth = require('server-logger');;
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 

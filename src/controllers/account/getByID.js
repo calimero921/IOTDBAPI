@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const getAccount = require('../../models/account/get.js');
-
-const serverLogger = require('../../Libraries/ServerLogger/ServerLogger.js');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route GET /account/id/{id}
@@ -29,6 +21,15 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const getAccount = require('../../models/account/get.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
@@ -41,15 +42,13 @@ module.exports = function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
-
         let id = request.params.id;
         logger.debug('id: %s', id);
 
         let filter = {id: id};
         logger.debug('filter: %s', filter);
-        if (userInfo.admin || id === userInfo.id) {
+
+        // if (userInfo.admin || id === userInfo.id) {
             //traitement de recherche dans la base
             getAccount(context, filter, 0, 0, false)
                 .then(accounts => {
@@ -61,11 +60,11 @@ module.exports = function (request, response) {
                     logger.debug('error: %j', error);
                     responseError(context, error, response, logger);
                 });
-        } else {
-            let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
-            logger.debug('error: %j', error);
-            responseError(context, error, response, logger);
-        }
+        // } else {
+        //     let error = errorParsing(context, {status_code: 400, status_message: 'missing parameter'});
+        //     logger.debug('error: %j', error);
+        //     responseError(context, error, response, logger);
+        // }
     } catch (exception) {
         logger.error('exception: %s', exception.stack);
         responseError(context, exception, response, logger);

@@ -16,7 +16,7 @@
 const {MongoClient} = require('mongodb');
 
 const configuration = require('../../config/Configuration.js');
-const serverLogger = require('../ServerLogger/ServerLogger.js');
+const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
 const globalPrefix = '/utils/MongoDB/MongoDBConnector.js';
