@@ -16,6 +16,5 @@
       }
     },
     "store_date": {"type": "integer"}
-  },
-  "required": ["device_id", "event_date", "store_date", "capabilities"]
+  }
 }

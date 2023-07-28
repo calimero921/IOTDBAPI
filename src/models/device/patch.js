@@ -15,7 +15,7 @@
 
 const mongoFind = require('../../Libraries/MongoDB/api/find.js');
 const mongoUpdate = require('../../Libraries/MongoDB/api/update.js');
-const Converter = require('./utils/Converter.js');
+const Converter = require('../utils/Converter.js');
 
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
@@ -39,7 +39,7 @@ module.exports = function (context, device_id, new_device) {
                 let converter = new Converter(context);
                 let findQuery = {device_id: device_id};
                 let parameter = {limit: 0, offset: 0};
-                mongoFind(context, converter, 'device', findQuery, parameter, false)
+                mongoFind(context, 'device', findQuery, parameter, false)
                     .then(datas => {
                         if (typeof datas === 'undefined') {
                             return errorParsing(context, {status_code: 500});
@@ -47,7 +47,7 @@ module.exports = function (context, device_id, new_device) {
                             if (typeof datas.status_code === 'undefined') {
                                 if (datas.length > 0) {
                                     update_date = datas[0];
-                                    return converter.json2db(new_device);
+                                    return converter.json2db(new_device, converter.deviceSchema);
                                 } else {
                                     return errorParsing(context, {status_code: 404});
                                 }
@@ -97,7 +97,7 @@ module.exports = function (context, device_id, new_device) {
 
                                 let updateQuery = {device_id: device_id};
                                 // logger.object(updateQuery, 'updateQuery');
-                                return mongoUpdate(context, converter, 'device', updateQuery, update_date);
+                                return mongoUpdate(context, 'device', updateQuery, update_date);
                             } else {
                                 return datas;
                             }

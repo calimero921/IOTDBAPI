@@ -11,15 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const deviceSet = require('../../models/device/set.js');
-const deviceGet = require('../../models/device/get.js');
-
-const {serverLogger} = require('server-logger');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route POST /v0/device
@@ -29,6 +20,16 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const deviceSet = require('../../models/device/post.js');
+const deviceGet = require('../../models/device/get.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
@@ -49,7 +50,7 @@ module.exports = function (request, response) {
             let postData = request.body;
             logger.debug('postData: %j', postData);
 
-            if (userInfo.admin || userInfo.id === postData.user_id) {
+            // if (userInfo.admin || userInfo.id === postData.user_id) {
                 let query = {
                     manufacturer: postData.manufacturer,
                     model: postData.model,
@@ -99,11 +100,11 @@ module.exports = function (request, response) {
                         logger.error('error: %j', error);
                         responseError(context, error, response, logger);
                     });
-            } else {
-                let error = errorParsing(context, {status_code: 403, status_message: 'User not admin nor owner of device'});
-                logger.error('error: %j', error);
-                responseError(context, error, response, logger);
-            }
+            // } else {
+            //     let error = errorParsing(context, {status_code: 403, status_message: 'User not admin nor owner of device'});
+            //     logger.error('error: %j', error);
+            //     responseError(context, error, response, logger);
+            // }
         } else {
             //aucune donnée postée
             let error = errorParsing(context, {status_code: 400, status_message: 'Missing body'});

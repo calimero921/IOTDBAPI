@@ -21,7 +21,7 @@ const errorParsing = require('../../utils/errorParsing.js');
 
 module.exports = function (context, event) {
     const logger = serverLogger.child({
-        source: '/models/event/set.js',
+        source: '/models/event/post.js',
         httpRequestId: context.httpRequestId
     });
 

@@ -25,7 +25,7 @@ const globalPrefix = '/models/utils/validator';
 class ValidatorOld {
     constructor(context, jsonSchema, mongoSchema) {
         this.context = context;
-        let logger = logger.child({
+        const logger = serverLogger.child({
             source: globalPrefix + ':constructor:',
             httpRequestId: context.httpRequestId,
             authorizedClient: context.authorizedClient

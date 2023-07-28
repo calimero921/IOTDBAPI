@@ -10,10 +10,11 @@
     "serial": {"type": "string"},
     "secret": {"type": "string"},
     "name": {"type": "string"},
-    "creation_date": {"type": "integer"},
     "class": {"type": "string"},
     "software_version": {"type": "string"},
     "local_ip": {"type": "string"},
+    "creation_date": {"type": "integer"},
+    "last_connexion_date": {"type": "integer"},
     "capabilities": {
       "type": "array",
       "items": {
@@ -27,7 +28,6 @@
         },
         "required": ["name"]
       }
-    },
-    "last_connexion_date": {"type": "integer"}
+    }
   }
 }

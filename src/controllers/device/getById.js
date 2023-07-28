@@ -51,7 +51,7 @@ module.exports = function (request, response) {
         //traitement de recherche dans la base
         if (id) {
             let filter = {device_id: id};
-            if (!userInfo.admin) filter.user_id = userInfo.id;
+            // if (!userInfo.admin) filter.user_id = userInfo.id;
             logger.debug('filter: %s', filter);
             getDevice(context, filter, 0, 0, false)
                 .then(devices => {

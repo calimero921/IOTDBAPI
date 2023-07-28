@@ -14,28 +14,37 @@
 'use strict';
 
 const mongoInsert = require('../../Libraries/MongoDB/api/insert.js');
-const Converter = require('./utils/Converter.js');
+const Converter = require('../utils/Converter.js');
+const Generator = require('../utils/Generator.js');
 
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
+const moment = require("moment/moment");
+
+const globalPrefix = '/models/device/post.js';
 
 module.exports = function (context, device) {
     const logger = serverLogger.child({
-        source: '/models/device/set.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId
     });
 
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug('device: %j', device);
+            const generator = new Generator(context);
             const converter = new Converter(context);
+            logger.debug('device: %j', device);
             if (typeof device === 'undefined') {
                 let error = errorParsing({status_code: 400, status_message: 'Missing parameter'});
                 logger.error('error: %j', error);
                 reject(error);
             } else {
-                converter.json2db(device)
+                let timestamp = parseInt(moment().format('x'));
+                device.device_id = generator.idgen();
+                device.creation_date = timestamp;
+                device.last_connexion_date = timestamp;
+                converter.json2db(device, converter.deviceSchema)
                     .then(query => {
                         logger.debug('query: %j', query);
                         return mongoInsert(context, 'device', query);
@@ -43,7 +52,7 @@ module.exports = function (context, device) {
                     .then(datas => {
                         logger.debug('datas: %j', datas);
                         if (datas) {
-                            return converter.db2json(datas[0]);
+                            return converter.db2json(datas[0], converter.deviceSchema);
                         } else {
                             let error = errorParsing(context, 'No datas inserted');
                             logger.error('error: %j', error);

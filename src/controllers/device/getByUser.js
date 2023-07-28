@@ -58,7 +58,7 @@ module.exports = function (request, response) {
 
         //traitement de recherche dans la base
         if (id) {
-            if (userInfo.admin || id === userInfo.id) {
+            // if (userInfo.admin || id === userInfo.id) {
                 let filter = {user_id: id};
                 deviceGet(context, filter, skip, limit, false)
                     .then(devices => {
@@ -80,14 +80,14 @@ module.exports = function (request, response) {
                         logger.error('error: %j', error);
                         responseError(context, error, response, logger);
                     });
-            } else {
-                let error = errorParsing(context, {
-                    status_code: 403,
-                    status_message: 'User must be admin or search for his own device'
-                });
-                logger.error('error: %j', error);
-                responseError(context, error, response, logger);
-            }
+            // } else {
+            //     let error = errorParsing(context, {
+            //         status_code: 403,
+            //         status_message: 'User must be admin or search for his own device'
+            //     });
+            //     logger.error('error: %j', error);
+            //     responseError(context, error, response, logger);
+            // }
         } else {
             let error = errorParsing(context, {status_code: 400, status_message: 'missing ID'});
             logger.error('error: %j', error);

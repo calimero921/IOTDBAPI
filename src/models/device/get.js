@@ -14,7 +14,7 @@
 'use strict';
 
 const mongoFind = require('../../Libraries/MongoDB/api/find.js');
-const Converter = require('./utils/Converter.js');
+const Converter = require('../utils/Converter.js');
 
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
@@ -57,7 +57,7 @@ module.exports = function (context, filter, skip, limit, overtake) {
                                 let promises = [];
                                 const converter = new Converter(context);
                                 for (let idx = 0; idx < devices.length; idx++) {
-                                    promises.push(converter.db2json(devices[idx]));
+                                    promises.push(converter.db2json(devices[idx], converter.deviceSchema));
                                 }
                                 if (promises.length > 0) {
                                     Promise.all(promises)

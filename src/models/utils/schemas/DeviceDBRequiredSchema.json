@@ -1,0 +1,12 @@
+{
+    "required": [
+        "device_id",
+        "user_id",
+        "manufacturer",
+        "model",
+        "serial",
+        "secret",
+        "creation_date",
+        "last_connexion_date"
+    ]
+}
