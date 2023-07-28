@@ -79,14 +79,6 @@
            "logDisplay": true,
            "db2json": true,
            "json2db": true
-       },
-       {
-           "dbName": "token",
-           "jsonName": "token",
-           "type": "string",
-           "logDisplay": true,
-           "db2json": true,
-           "json2db": true
        }
     ]
 }

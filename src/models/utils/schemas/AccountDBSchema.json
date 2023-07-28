@@ -11,7 +11,6 @@
     "session_id": {"type": "string"},
     "creation_date": {"type": "integer"},
     "current_connexion_date": {"type": "integer"},
-    "last_connexion_date": {"type": "integer"},
-    "token": {"type": "string"}
+    "last_connexion_date": {"type": "integer"}
   }
 }

@@ -53,7 +53,7 @@ module.exports = function (request, response) {
         logger.debug('token: %s', token);
 
         // if (userInfo.admin || (id === userInfo.id)) {
-            deleteAccount(context, id, token)
+            deleteAccount(context, id)
                 .then(deletedAccount => {
                     logger.debug('deleted accounts: %j', deletedAccount);
                     logger.info('account deleted for id %s', deletedAccount.id);

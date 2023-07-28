@@ -18,7 +18,7 @@ const mongoDelete = require('../../Libraries/MongoDB/api/delete.js');
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
-module.exports = function (context, id, token) {
+module.exports = function (context, id) {
     const logger = serverLogger.child({
         source: '/models/account/delete.js',
         httpRequestId: context.httpRequestId,
@@ -29,9 +29,8 @@ module.exports = function (context, id, token) {
     return new Promise((resolve, reject) => {
         try {
             logger.debug(id, 'id');
-            logger.debug(token, 'token');
             if (id) {
-                let query = {id: id, token: token};
+                let query = {id: id};
                 mongoDelete(context, 'account', query)
                     .then(deletedAccount => {
                         if (deletedAccount.status_code) {

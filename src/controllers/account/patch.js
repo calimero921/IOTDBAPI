@@ -65,26 +65,31 @@ module.exports = function (request, response) {
             // if (newAccount.token) delete newAccount.token;
             // logger.debug('newAccount: %j', newAccount);
 
-            getAccount(context, {id: id, token:token}, 0, 0, false)
+            getAccount(context, {id: id}, 0, 0, false)
                 .then(originalAccounts => {
                     logger.debug('originalAccounts: %j', originalAccounts);
-                    if (isArray(originalAccounts)) {
-                        if (originalAccounts.length > 0) {
-                            // let updateAccount = originalAccounts[0];
+                    if (originalAccounts.status_code) {
+                        return (originalAccounts)
+                    } else {
+                        let updateAccount;
+                        if (Array.isArray(originalAccounts)) {
+                            logger.debug("originalAccounts is an array");
+                            if (originalAccounts.length > 0) {
+                                updateAccount = originalAccounts[0];
+                            }
+                        } else {
+                            updateAccount = originalAccounts;
+                        }
+                        if (updateAccount) {
                             // for (let key in updateAccount) {
                             //     logger.debug('key: %s', key);
                             //     updateAccount[key] = updateAccount[key];
                             // }
                             // logger.debug('updateAccount: %j', updateAccount);
-                            return patchAccount(context, id, token, updateAccount)
+                            return patchAccount(context, id, updateAccount)
                         } else {
-                            return {status_code: 404};
-                        }
-                    } else {
-                        if (originalAccounts.status_code) {
-                            return (originalAccounts)
-                        } else {
-                            return {status_code: 404};
+                            logger.debug("originalAccounts is not an array");
+                            return responseError(context, {status_code: 404});
                         }
                     }
                 })

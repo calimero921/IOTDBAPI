@@ -1,3 +1,3 @@
 {
-  "required": ["id", "firstname", "lastname", "email", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date", "token"]
+  "required": ["id", "firstname", "lastname", "email", "admin", "active", "session_id", "creation_date", "current_connexion_date", "last_connexion_date"]
 }

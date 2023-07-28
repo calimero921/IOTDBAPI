@@ -20,9 +20,9 @@ const Converter = require('../utils/Converter.js');
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
-const globalPrefix='/models/account/patch.js';
+const globalPrefix = '/models/account/patch.js';
 
-module.exports = function (context, id, token, newAccount) {
+module.exports = function (context, id, newAccount) {
     const logger = serverLogger.child({
         source: globalPrefix,
         httpRequestId: context.httpRequestId,
@@ -32,12 +32,11 @@ module.exports = function (context, id, token, newAccount) {
     return new Promise((resolve, reject) => {
         try {
             logger.debug('id: %s', id);
-            logger.debug('token: %s', token);
             logger.debug('newAccount: %j', newAccount);
 
-            if (id && token && newAccount) {
+            if (id && newAccount) {
                 let converter = new Converter(context);
-                let filter = {id: id, token: token};
+                let filter = {id: id};
                 let parameters = {offset: 0, limit: 0};
                 let updateAccount = {};
                 converter.json2db(newAccount, converter.accountSchema)
@@ -95,17 +94,17 @@ module.exports = function (context, id, token, newAccount) {
     })
 };
 
-function updateFields(context, orginal, update) {
-    const logger = serverLogger.child({
-        source: globalPrefix + 'updateFields',
-        httpRequestId: context.httpRequestId,
-        authorizedClient: context.authorizedClient
-    });
-
-    try{
-
-    } catch(exception) {
-        logger.error('exception: %s', exception.stack);
-        return errorParsing(context, exception);
-    }
-}
+// function updateFields(context, orginal, update) {
+//     const logger = serverLogger.child({
+//         source: globalPrefix + 'updateFields',
+//         httpRequestId: context.httpRequestId,
+//         authorizedClient: context.authorizedClient
+//     });
+//
+//     try {
+//
+//     } catch (exception) {
+//         logger.error('exception: %s', exception.stack);
+//         return errorParsing(context, exception);
+//     }
+// }

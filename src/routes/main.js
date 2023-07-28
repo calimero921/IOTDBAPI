@@ -59,12 +59,12 @@ module.exports = function (server) {
     server.get('/status', oidcConnector.protect('openid'), status);
 
     server.get('/' + configuration.server.api_version + '/account', oidcConnector.protect('openid'), accountGet);
-    server.get('/' + configuration.server.api_version + '/account/id/:id', oidcConnector.protect('openid'), accountGetByID);
+    server.get('/' + configuration.server.api_version + '/account/:id', oidcConnector.protect('openid'), accountGetByID);
     server.get('/' + configuration.server.api_version + '/account/email/:email', oidcConnector.protect('openid'), accountGetByEmail);
     server.get('/' + configuration.server.api_version + '/account/session/:session_id', oidcConnector.protect('openid'), accountGetBySession);
     server.post('/' + configuration.server.api_version + '/account', accountPost);
-    server.patch('/' + configuration.server.api_version + '/account/:id/:token', oidcConnector.protect('openid'), accountPatch);
-    server.delete('/' + configuration.server.api_version + '/account/:id/:token', oidcConnector.protect('openid'), accountDelete);
+    server.patch('/' + configuration.server.api_version + '/account/:id', oidcConnector.protect('openid'), accountPatch);
+    server.delete('/' + configuration.server.api_version + '/account/:id', oidcConnector.protect('openid'), accountDelete);
 
     server.get('/' + configuration.server.api_version + '/device/:id', oidcConnector.protect('openid'), deviceGetById);
     server.get('/' + configuration.server.api_version + '/device/user/:id', oidcConnector.protect('openid'), deviceGetByUser);

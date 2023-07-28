@@ -23,7 +23,6 @@
  * @property {number} creation_date - User creation date timestamp
  * @property {number} current_connexion_date - User current connection date timestamp
  * @property {number} last_connexion_date - User last connection date timestamp
- * @property {string} token - User token to validate next action
  */
 
 /**
@@ -58,7 +57,6 @@
  * @property {string} publish.required - Capability MQTT publish topic
  * @property {string} subscribe - Capability MQTT subscribe topic
  */
-
 
 /**
  * @typedef CapabilityLite

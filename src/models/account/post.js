@@ -49,7 +49,6 @@ module.exports = function (context, account) {
                         query.last_connexion_date = timestamp;
                         query.creation_date = timestamp;
                         query.session_id = convertedAccount.session_id ? convertedAccount.session_id : "no session";
-                        query.token = generator.keygen();
                         logger.debug('query: %j', query);
 
                         let filter = {$or: [{email: query.email}]};
