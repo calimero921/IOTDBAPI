@@ -30,13 +30,15 @@ const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
+const globalPrefix = '/controllers/account/detById.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
     const logger = serverLogger.child({
-        source: '/controllers/account/getById.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

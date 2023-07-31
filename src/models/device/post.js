@@ -41,12 +41,12 @@ module.exports = function (context, device) {
                 reject(error);
             } else {
                 let timestamp = parseInt(moment().format('x'));
-                device.device_id = generator.idgen();
-                device.creation_date = timestamp;
-                device.last_connexion_date = timestamp;
                 converter.json2db(device, converter.deviceSchema)
                     .then(query => {
                         logger.debug('query: %j', query);
+                        query.device_id = generator.idgen();
+                        query.creation_date = timestamp;
+                        query.last_connexion_date = timestamp;
                         return mongoInsert(context, 'device', query);
                     })
                     .then(datas => {

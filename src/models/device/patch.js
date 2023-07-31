@@ -20,9 +20,11 @@ const Converter = require('../utils/Converter.js');
 const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 
+const globalPrefix = '/models/device/patch.js';
+
 module.exports = function (context, device_id, new_device) {
     const logger = serverLogger.child({
-        source: '/models/device/patch.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId
     });
 

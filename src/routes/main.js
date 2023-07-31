@@ -20,7 +20,7 @@ const {serverLogger} = require('server-logger');
 const status = require('../controllers/status.js');
 
 const accountGet = require('../controllers/account/getAll.js');
-const accountGetByID = require('../controllers/account/getByID.js');
+const accountGetByID = require('../controllers/account/detById.js');
 const accountGetByEmail = require('../controllers/account/getByEmail.js');
 const accountGetBySession = require('../controllers/account/getBySession.js');
 const accountPost = require('../controllers/account/post.js');

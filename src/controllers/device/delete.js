@@ -11,18 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const getDevice = require('../../models/device/get.js');
-const deleteDevice = require('../../models/device/delete.js');
-
-const checkAuth = require('server-logger');;
-const {serverLogger} = require('server-logger');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
-const globalPrefix = '/controllers/device/delete.js';
-
 /**
  * This function comment is parsed by doctrine
  * @route DELETE /v0/device/{id}
@@ -34,6 +22,19 @@ const globalPrefix = '/controllers/device/delete.js';
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const getDevice = require('../../models/device/get.js');
+const deleteDevice = require('../../models/device/delete.js');
+
+const checkAuth = require('server-logger');;
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controllers/de ice/delete.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,

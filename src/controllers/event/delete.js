@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const remove = require('../../models/event/delete.js');
-
-const checkAuth = require('server-logger');;
-const {serverLogger} = require('server-logger');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route DELETE /v0/event/{device_id}
@@ -30,13 +22,24 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const remove = require('../../models/event/delete.js');
+
+const checkAuth = require('server-logger');;
+const {serverLogger} = require('server-logger');
+const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controllers/event/delete.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
     const logger = serverLogger.child({
-        source: '/controllers/event/delete.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

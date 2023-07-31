@@ -31,13 +31,15 @@ const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
+const globalPrefix = '/controllers/account/getBySession.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
     const logger = serverLogger.child({
-        source: '/controllers/account/getBySession.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

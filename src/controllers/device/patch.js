@@ -11,15 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const deviceGet = require('../../models/device/get.js');
-const devicePatch = require('../../models/device/patch.js');
-
-const {serverLogger} = require('server-logger');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route PATCH /v0/device/{id}
@@ -32,13 +23,25 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const deviceGet = require('../../models/device/get.js');
+const devicePatch = require('../../models/device/patch.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controller/device/patch.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
     const logger = serverLogger.child({
-        source: '/routes/api/device/devicePatch.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });
@@ -56,28 +59,45 @@ module.exports = function (request, response) {
             deviceGet(context, {device_id: device_id}, 0, 0, false)
                 .then(oldDevices => {
                     logger.debug('oldDevices: %j', oldDevices);
-                    if (oldDevices) {
-                        if (oldDevices.status_code) {
-                            return oldDevices;
-                        } else {
-                            if (userInfo.admin || (oldDevices.user_id === userInfo.id)) {
+                    if (oldDevices.status_code) {
+                        return oldDevices;
+                    } else {
+                        if (oldDevices) {
+                            // if (userInfo.admin || (oldDevices.user_id === userInfo.id)) {
+                            let originalDevice;
+                            if (Array.isArray(oldDevices)) {
                                 if (oldDevices.length > 0) {
-                                    return devicePatch(context, oldDevices[0].device_id, newData);
-                                } else {
-                                    let error = errorParsing(context, {status_code: 404,status_message:'No device found'});
-                                    logger.error('error: %j', error);
-                                    return error;
+                                    originalDevice = oldDevices[0];
                                 }
                             } else {
-                                let error = errorParsing(context, {status_code: 403, status_message:'User not admin nor owner of device'});
+                                originalDevice = oldDevices;
+                            }
+                            if (originalDevice) {
+                                return devicePatch(context, originalDevice.device_id, newData);
+                            } else {
+                                let error = errorParsing(context, {
+                                    status_code: 404,
+                                    status_message: 'No device found'
+                                });
                                 logger.error('error: %j', error);
                                 return error;
                             }
+                            // } else {
+                            //     let error = errorParsing(context, {
+                            //         status_code: 403,
+                            //         status_message: 'User not admin nor owner of device'
+                            //     });
+                            //     logger.error('error: %j', error);
+                            //     return error;
+                            // }
+                        } else {
+                            let error = errorParsing(context, {
+                                status_code: 404,
+                                status_message: 'No device found'
+                            });
+                            logger.error('error: %j', error);
+                            return error;
                         }
-                    } else {
-                        let error = errorParsing(context, 'No device found');
-                        logger.error('error: %j', error);
-                        return error;
                     }
                 })
                 .then(result => {

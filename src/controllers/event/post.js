@@ -11,7 +11,17 @@
  * @author Calimero921
  */
 
-'use strict';
+/**
+ * This function comment is parsed by doctrine
+ * @route POST /v0/measure
+ * @group Measure - Operations about measure
+ * @param {Measure.model} measure.body.required - Device details
+ * @returns {Measure.model} 201 - Device info
+ * @returns {Error} default - Unexpected error
+ * @security Bearer
+ */
+
+ 'use strict';
 
 const getDevice = require('../../models/device/get.js');
 const patchDevice = require('../../models/device/patch.js');
@@ -23,15 +33,7 @@ const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
 const globalPrefix = '/routes/api/event/post.js';
-/**
- * This function comment is parsed by doctrine
- * @route POST /v0/measure
- * @group Measure - Operations about measure
- * @param {Measure.model} measure.body.required - Device details
- * @returns {Measure.model} 201 - Device info
- * @returns {Error} default - Unexpected error
- * @security Bearer
- */
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,

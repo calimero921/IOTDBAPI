@@ -28,6 +28,8 @@ const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
+const globalPrefix = '/controllers/account/post.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
@@ -35,7 +37,7 @@ module.exports = function (request, response) {
     };
     if(!context.authorizedClient) context.authorizedClient='guest';
     const logger = serverLogger.child({
-        source: '/controllers/account/post.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

@@ -11,14 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const deviceGet = require('../../models/device/get.js');
-
-const {serverLogger} = require('server-logger');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
 /**
  * This function comment is parsed by doctrine
  * @route GET /device/user/{id}
@@ -32,13 +24,24 @@ const responseError = require('../../utils/responseError.js');
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+'use strict';
+
+const deviceGet = require('../../models/device/get.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controllers/device/getByUser.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
         authorizedClient: request.authorizedClient
     };
     const logger = serverLogger.child({
-        source: '/controllers/device/getByUser.js',
+        source: globalPrefix,
         httpRequestId: context.httpRequestId,
         authorizedClient: context.authorizedClient
     });

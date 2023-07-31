@@ -31,6 +31,8 @@ const {serverLogger} = require('server-logger');
 const errorParsing = require('../../utils/errorParsing.js');
 const responseError = require('../../utils/responseError.js');
 
+const globalPrefix = '/controllers/account/getAll.js';
+
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,

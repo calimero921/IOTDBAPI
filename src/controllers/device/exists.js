@@ -11,15 +11,6 @@
  * @author Calimero921
  */
 
-'use strict';
-
-const deviceGet = require('../../models/device/get.js');
-
-const {serverLogger} = require('server-logger');
-const errorParsing = require('../../utils/errorParsing.js');
-const responseError = require('../../utils/responseError.js');
-
-const globalPrefix = '/controllers/device/exists.js';
 /**
  * This function comment is parsed by doctrine
  * @route GET /v0/device/exists/{manufacturer}/{model}/{serial}/{secret}
@@ -34,6 +25,16 @@ const globalPrefix = '/controllers/device/exists.js';
  * @returns {Error} default - Unexpected error
  * @security Bearer
  */
+
+ 'use strict';
+
+const deviceGet = require('../../models/device/get.js');
+
+const {serverLogger} = require('server-logger');
+const errorParsing = require('../../utils/errorParsing.js');
+const responseError = require('../../utils/responseError.js');
+
+const globalPrefix = '/controllers/device/exists.js';
 module.exports = function (request, response) {
     let context = {
         httpRequestId: request.httpRequestId,
