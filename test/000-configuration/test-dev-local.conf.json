@@ -1,22 +1,52 @@
 {
   "env": {
-    "LOGLEVEL": "debug",
-    "LOGDIR": "/opt/application/iam",
-    "LOGTRANSPORT": ["console"],
-    "MONGODBLOGIN": "admin",
-    "MONGODBPASSWD": "admin",
-    "MONGODBHOST":  "localhost",
-    "MONGODBPORT":  "27017",
-    "MONGODBADMDB": "admin",
-    "MONGODBTIMEOUT": "30000",
-    "MONGODBNAME": "iotdb",
-    "PROTOCOL": "https",
-    "HOSTNAME": "localhost",
-    "PORT": "3443",
     "HTTPSCA": "keystore/ca-dev-crt.pem",
     "HTTPSPRIVATEKEY": "keystore/server-key.pem",
     "HTTPSCERTIFICATE": "keystore/server-crt.pem",
     "HTTPSAUTHORIZATION": true,
-    "HTTPSAUTHORIZATIONLIST": [{"name": "noreg", "cn": "client.localhost"}]
+    "HTTPSAUTHORIZATIONLIST": [
+      {
+        "name": "noreg",
+        "cn": "client.localhost"
+      }
+    ],
+    "LOGLEVEL": "debug",
+    "LOGDIR": "/var/log/iotdb",
+    "LOGTRANSPORT": [
+      "console"
+    ],
+    "MONGODBLOGIN": "iotdbapi",
+    "MONGODBPASSWD": "password",
+    "MONGODBHOST": "localhost",
+    "MONGODBPORT": "27017",
+    "MONGODBADMDB": "iotdb",
+    "MONGODBTIMEOUT": "30000",
+    "MONGODBNAME": "iotdb",
+    "OIDCHOSTNAME": "localhost",
+    "OIDCPORT": 8443,
+    "OIDCPROTOCOL": "https",
+    "SERVERHOSTNAME": "localhost",
+    "SERVERPORT": 3443,
+    "SERVERPROTOCOL": "https"
+  },
+  "server": {
+    "active": true
+  },
+  "certs": {
+    "client": {
+      "ca": "ca-dev-crt.pem",
+      "key": "client-dev-key.pem",
+      "crt": "client-dev-crt.pem"
+    },
+    "hacker": {
+      "ca": "ca-dev-crt.pem",
+      "key": "client-hacker-key.pem",
+      "crt": "client-hacker-crt.pem"
+    },
+    "fake": {
+      "ca": "ca-fake-crt.pem",
+      "key": "client-fake-key.pem",
+      "crt": "client-fake-crt.pem"
+    }
   }
 }

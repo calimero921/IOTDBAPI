@@ -17,8 +17,8 @@ const {describe, it} = require('mocha');
 const {assert, expect} = require('chai');
 const superAgent = require('superagent');
 
-const testsUtils = require('../000-SDK/testsUtils');
-const TestsUtilsAccounts = require('../000-SDK/testsUtilsAccounts');
+const testsUtils = require('../000-SDK/testsUtils.mjs');
+const TestsUtilsAccounts = require('../000-SDK/testsUtilsAccounts.mjs');
 
 let testsUtilsAccounts = new TestsUtilsAccounts();
 

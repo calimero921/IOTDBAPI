@@ -1,0 +1,130 @@
+/**
+ * IOTDB API
+ *
+ * Copyright (C) 2019 - 2023 EDSoft
+ *
+ * This software is confidential and proprietary information of EDSoft.
+ * You shall not disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the agreement you entered into.
+ * Unauthorized copying of this file, via any medium is strictly prohibited.
+ *
+ * @author Calimero921
+ */
+
+'use strict';
+
+import serverLogger from 'lib-server-logger';
+import errorParsing from '../../utils/errorParsing.mjs';
+
+import mongoFind from '../../Libraries/MongoDB/find.mjs';
+import mongoUpdate from '../../Libraries/MongoDB/update.mjs';
+import Converter from '../utils/Converter.mjs';
+
+const globalPrefix = '/models/device/patch.mjs';
+
+export default function (context, device_id, new_device) {
+    const logger = serverLogger.child({
+        source: globalPrefix,
+        httpRequestId: context.httpRequestId
+    });
+
+    //traitement de recherche dans la base
+    return new Promise((resolve, reject) => {
+        try {
+            if (typeof device_id === 'undefined' || typeof new_device === 'undefined') {
+                reject(errorParsing(context, {status_code: 400}));
+                logger.debug('done - missing paramater')
+            } else {
+                logger.debug('preparing datas');
+
+                let update_date;
+                let converter = new Converter(context);
+                let findQuery = {device_id: device_id};
+                let parameter = {limit: 0, offset: 0};
+                mongoFind(context, 'device', findQuery, parameter, false)
+                    .then(datas => {
+                        if (typeof datas === 'undefined') {
+                            return errorParsing(context, {status_code: 500});
+                        } else {
+                            if (typeof datas.status_code === 'undefined') {
+                                if (datas.length > 0) {
+                                    update_date = datas[0];
+                                    return converter.json2db(new_device, converter.deviceSchema);
+                                } else {
+                                    return errorParsing(context, {status_code: 404});
+                                }
+                            } else {
+                                return datas;
+                            }
+                        }
+                    })
+                    .then(datas => {
+                        // logger.object(datas,'datas');
+                        if (typeof datas === 'undefined') {
+                            return errorParsing(context, {status_code: 500});
+                        } else {
+                            if (typeof datas.status_code === 'undefined') {
+                                //supprime les champs id, user_id, manufacturer, model, secrial et secret
+                                //des données pouvant être mise à jour au cas ou on usurperait le device
+                                if (typeof datas.key !== 'undefined') {
+                                    update_date.key = datas.key;
+                                }
+                                if (typeof datas.name !== 'undefined') {
+                                    update_date.name = datas.name;
+                                }
+                                if (typeof datas.class !== 'undefined') {
+                                    update_date.class = datas.class;
+                                }
+                                if (typeof datas.software_version !== 'undefined') {
+                                    update_date.software_version = datas.software_version;
+                                }
+                                if (typeof datas.local_ip !== 'undefined') {
+                                    update_date.local_ip = datas.local_ip;
+                                }
+                                for (let idx1 in update_date.capabilities) {
+                                    if (update_date.capabilities.hasOwnProperty(idx1)) {
+                                        for (let idx2 in datas.capabilities) {
+                                            if (datas.capabilities.hasOwnProperty(idx2)) {
+                                                if (update_date.capabilities[idx1].name === datas.capabilities[idx2].name) {
+                                                    if (typeof datas.capabilities[idx2].last_value !== 'undefined') {
+                                                        update_date.capabilities[idx1].last_value = datas.capabilities[idx2].last_value;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                update_date.last_connexion_date = datas.last_connexion_date;
+                                // logger.object(update_date, 'update_date');
+
+                                let updateQuery = {device_id: device_id};
+                                // logger.object(updateQuery, 'updateQuery');
+                                return mongoUpdate(context, 'device', updateQuery, update_date);
+                            } else {
+                                return datas;
+                            }
+                        }
+
+                    })
+                    .then(datas => {
+                        if (typeof datas.status_code === 'undefined') {
+                            resolve(datas);
+                            logger.debug('done - ok');
+                        } else {
+                            reject(errorParsing(context, datas));
+                            logger.debug('done - error')
+                        }
+                    })
+                    .catch(error => {
+                        logger.object(error, 'error');
+                        reject(errorParsing(context, error));
+                        logger.debug('done - global catch')
+                    });
+            }
+        } catch (error) {
+            logger.object(error, 'error');
+            reject(errorParsing(context, error));
+            logger.debug('done - global catch');
+        }
+    });
+};

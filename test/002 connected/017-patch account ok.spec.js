@@ -17,8 +17,8 @@ const assert = require('chai').assert;
 const expect = require('chai').expect;
 const superAgent = require('superagent');
 
-const testsUtils = require('../000-SDK/testsUtils');
-const TestsUtilsAccounts = require('../000-SDK/testsUtilsAccounts');
+const testsUtils = require('../000-SDK/testsUtils.mjs');
+const TestsUtilsAccounts = require('../000-SDK/testsUtilsAccounts.mjs');
 
 let testsUtilsAccounts = new TestsUtilsAccounts();
 

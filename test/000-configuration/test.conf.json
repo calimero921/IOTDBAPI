@@ -1,0 +1,68 @@
+{
+    "logs": {
+        "logLevel": "severe",
+        "transport": {
+            "console": {
+                "active": true
+            },
+            "file": {
+                "active": false,
+                "dailyLogs": {
+                    "dirname": "/logs",
+                    "filename": "OIDC-%DATE%.log",
+                    "datePattern": "YYYY-MM-DD",
+                    "zippedArchive": true,
+                    "maxSize": "20m",
+                    "maxFiles": "14d"
+                }
+            },
+            "syslog": {
+                "active": false
+            }
+        }
+    },
+    "mongodb": {
+        "url": "mongodb:iotdbapi:password@localhost:8443",
+        "login": "iotdbapi",
+        "passwd": "password",
+        "host": "localhost",
+        "port": 8443,
+        "adminDbName": "iotdb",
+        "connectTimeoutMS": 0,
+        "dbName": "iotdb",
+        "options": {
+            "useNewUrlParser": true,
+            "useUnifiedTopology": true
+        }
+    },
+    "oidc": {
+        "status": true,
+        "name": "OpenIDConnect",
+        "description": "Open ID Connect",
+        "protocol": "https",
+        "hostname": "localhost",
+        "port": "8443",
+        "audience": "https://localhos:3000",
+        "grant_type": "client_credentials",
+        "client_id": "8ade58e6933df69832be6c35f297d9b5",
+        "client_secret": "EFKQabGKshrYAJ7W5e176IGwQzf2LWlV",
+        "scopes_list": [
+            "openid",
+            "diod:iam:users:v1:writeonly",
+            "diod:iam:users:v1:readonly",
+            "diod:iam:posix-users:v1:writeonly",
+            "diod:iam:posix-users:v1:readonly",
+            "diod:iam:posix-groups:v1:writeonly",
+            "diod:iam:posix-groups:v1:readonly",
+            "diod:iam:machines:v1:writeonly",
+            "diod:iam:users:v1:dataset1",
+            "diod:iam:users:v1:dataset2",
+            "diod:iam:users:v1:dataset3"
+        ],
+        "redirect_uri": "https://localhost:3000/authorized",
+        "routes": {
+            "status": "/realms/DEV/.well-known/openid-configuration",
+            "wellknown": "/realms/DEV/.well-known/openid-configuration"
+        }
+    }
+}

@@ -19,7 +19,7 @@ const {describe, it} = require('mocha');
 const {assert, expect} = require('chai');
 const superAgent = require('superagent');
 
-const testsUtils = require('../000-SDK/testsUtils');
+const testsUtils = require('../000-SDK/testsUtils.mjs');
 
 describe('002 - get /status not ok', () => {
     it('return server status', done => {

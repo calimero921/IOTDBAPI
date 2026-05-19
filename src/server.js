@@ -1,20 +1,31 @@
 /**
- * Module dependencies.
- */
-const https = require('https');
-const fs = require('fs');
-const path = require('path');
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const express = require('express');
+* IOTDB API
+*
+* Copyright (C) 2019 - 2023 EDSoft
+*
+* This software is confidential and proprietary information of EDSoft.
+* You shall not disclose such Confidential Information and shall use it only in
+* accordance with the terms of the agreement you entered into.
+* Unauthorized copying of this file, via any medium is strictly prohibited.
+*
+* @author Calimero921
+*/
 
-const configuration = require('./config/Configuration.js');
-const {serverLogger} = require('server-logger');
-const oidcConnector = require('oidc-connector/server');
+import https from 'https';
+import fs from 'fs';
+import path from 'path';
+import bodyParser from 'body-parser';
+import cookieParser from 'cookie-parser';
+import express from 'express';
+
+import serverLogger from 'lib-server-logger';
+import oidcConnector from 'lib-oidc-connector/server';
+import mongoDBConnector from 'lib-mongodb-connector';
+import configuration from './config/Configuration.mjs';
 
 serverLogger.initialize(configuration.logs);
 const logger = serverLogger.child({
-    source: '/server.js',
+    source: '/server.mjs',
     httpRequestId: 'initialize',
     authorizedClient: 'internal'
 });
@@ -30,12 +41,19 @@ let server = express();
 logger.info('Initialise OIDC Connector');
 oidcConnector.initialize(configuration.openIdConnect, logger, server);
 
+logger.info('Initialise MongoDB Connector');
+mongoDBConnector.initialize(configuration.mongodb, logger);
+
+/*
 logger.info('Express swagger generator setup');
+
 if (configuration.swagger) {
-    const expressSwagger = require('express-swagger-generator')(server);
+    import {expressSwagger} from 'express-swagger-generator';
+    expressSwagger(server);
     let swaggerOptions = configuration.swagger;
     expressSwagger(swaggerOptions);
 }
+*/
 
 // uncomment after placing your favicon in /public
 logger.debug('Engine setup');
@@ -49,7 +67,8 @@ server.use(bodyParser.urlencoded({extended: false}));
 
 logger.debug('Express server setup');
 server.set('trust proxy', 1);
-require('./routes/main.js')(server);
+import route from './routes/main.mjs';
+route(server);
 
 /**
  * Get port from environment and store in Express.
@@ -119,7 +138,7 @@ if (configuration.server.httpsCa && configuration.server.httpsPrivateKey && conf
     process.exit(91);
 }
 
-module.exports = server;
+export default server;
 logger.debug('HTTPS server started on port ' + port);
 
 /**
