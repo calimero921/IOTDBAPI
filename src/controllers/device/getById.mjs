@@ -45,15 +45,15 @@ export default function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        //let userInfo = request.userinfo;
+        //logger.debug('userInfo: %j', userInfo);
 
         let id = request.params.id;
         logger.debug('device id', id);
 
         //traitement de recherche dans la base
         if (id) {
-            let filter = {device_id: id};
+            let filter = {id: id};
             // if (!userInfo.admin) filter.user_id = userInfo.id;
             logger.debug('filter: %s', filter);
             getDevice(context, filter, 0, 0, false)
@@ -64,7 +64,7 @@ export default function (request, response) {
                             responseError(context, devices, response, logger);
                         } else {
                             logger.debug('devices: %j', devices);
-                            logger.info('devices %s found', devices[0].device_id);
+                            logger.info('devices %s found', devices[0].id);
                             response.status(200).send(devices[0]);
                         }
                     } else {

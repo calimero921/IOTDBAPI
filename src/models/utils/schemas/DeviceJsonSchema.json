@@ -2,7 +2,7 @@
   "$async": true,
   "type": "object",
   "properties": {
-    "device_id": {"type": "string", "format": "uuid"},
+    "id": {"type": "string", "format": "uuid"},
     "key": {"type": "string"},
     "user_id": {"type": "string", "format": "uuid"},
     "manufacturer": {"type": "string"},
@@ -14,7 +14,7 @@
     "software_version": {"type": "string"},
     "local_ip": {"type": "string"},
     "creation_date": {"type": "integer"},
-    "last_connexion_date": {"type": "integer"},
+    "last_connexion_date": {"type": "integer", "nullable": true},
     "capabilities": {
       "type": "array",
       "items": {

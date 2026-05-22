@@ -28,7 +28,7 @@ export default function (context, event) {
     //traitement d'enregistrement dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug('storing device');
+            logger.debug('storing event');
             const converter = new Converter(context);
             if (typeof event === 'undefined') {
                 reject(errorParsing({status_code: 400, status_message: 'Missing parameter'}));
@@ -38,7 +38,7 @@ export default function (context, event) {
                 converter.json2db(event, converter.eventSchema)
                     .then(query => {
                         //ajout des informations générées par le serveur
-                        logger.object(query, 'query');
+                        logger.debug('query: %s', query);
                         return mongoInsert(context, 'event', query);
                     })
                     .then(datas => {
@@ -51,7 +51,7 @@ export default function (context, event) {
                         }
                     })
                     .then(datas => {
-                        // logger.object(datas, 'datas');
+                        //logger.debug('datas: %s', datas);
                         if (typeof datas === 'undefined') {
                             reject(errorParsing(context, 'No datas'));
                             logger.debug('done - no data');
@@ -66,15 +66,13 @@ export default function (context, event) {
                         }
                     })
                     .catch(error => {
-                        logger.object(error, 'error');
-                        reject(errorParsing(context, error));
-                        logger.debug('done - promise catch');
+                        logger.error('error: %j', error);
+                        reject(error);
                     });
             }
         } catch (error) {
-            logger.object(error, 'error');
-            reject(errorParsing(context, error));
-            logger.debug('done - global catch');
+            logger.error('error: %j', error);
+            reject(error);
         }
     });
 };

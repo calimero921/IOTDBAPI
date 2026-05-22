@@ -28,7 +28,7 @@ export default function (context, id) {
     //traitement de suppression dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug(id, 'id');
+            logger.debug('id: %s', id);
             if (id) {
                 let query = {id: id};
                 mongoDelete(context, 'account', query)

@@ -25,10 +25,10 @@ export default function (context, query, offset, limit, overtake) {
         httpRequestId: context.httpRequestId
     });
 
-    logger.object(query, 'query');
-    logger.object(offset, 'offset');
-    logger.object(limit, 'limit');
-    logger.object(overtake, 'overtake');
+    logger.debug('query: %s', query);
+    logger.debug('offset: %s', offset);
+    logger.debug('limit: %s', limit);
+    logger.debug('overtake: %s', overtake);
 
     // if (typeof sort === 'undefined') sort = {};
     if (typeof overtake === 'undefined') overtake = false;
@@ -105,9 +105,8 @@ export default function (context, query, offset, limit, overtake) {
                 }
             })
             .catch(error => {
-                logger.debug('done - global catch');
-                logger.object(error, 'error');
-                reject(errorParsing(context, error));
+                logger.error('error: %j', error);
+                reject(error);
             });
     });
 };

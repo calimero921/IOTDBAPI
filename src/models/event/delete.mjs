@@ -18,7 +18,7 @@ import errorParsing from '../../utils/errorParsing.mjs';
 
 import mongoDelete from '../../Libraries/MongoDB/deleteall.mjs';
 
-export default function (context, device_id) {
+export default function (context, id) {
     const logger = serverLogger.child({
         source: '/models/device/delete.mjs',
         httpRequestId: context.httpRequestId
@@ -27,14 +27,14 @@ export default function (context, device_id) {
     //traitement de suppression dans la base
     return new Promise((resolve, reject) => {
         let query = {};
-        if (typeof device_id === 'undefined') {
+        if (typeof id === 'undefined') {
             reject(errorParsing(context, {status_code: 400}));
             logger.debug('done - missing paramater');
         } else {
-            query.device_id = device_id;
+            query.device_id = id;
             mongoDelete(context, 'event', query)
                 .then(datas => {
-                    // logger.object(datas, 'datas');
+                    //logger.debug('datas: %s', datas);
                     if (typeof datas === 'undefined') {
                         reject(errorParsing(context, {status_code: 500}));
                         logger.debug('done - no reult');
@@ -49,9 +49,8 @@ export default function (context, device_id) {
                     }
                 })
                 .catch(error => {
-                    logger.object(error, 'error');
-                    reject(errorParsing(context, error));
-                    logger.debug('done - promise catch')
+                    logger.error('error: %j', error);
+                    reject(error);
                 });
         }
     });

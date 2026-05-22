@@ -44,8 +44,8 @@ export default function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        //let userInfo = request.userinfo;
+        //logger.debug('userInfo: %j', userInfo);
 
         logger.debug('id: %j', request.params.id);
         let device_id = request.params.id;

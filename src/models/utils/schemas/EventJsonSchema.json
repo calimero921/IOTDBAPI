@@ -3,7 +3,7 @@
   "type": "object",
   "properties": {
     "device_id": {"type": "string", "format": "uuid"},
-    "event_date": {"type": "integer"},
+    "event_date": {"type": "string"},
     "capabilities": {
       "type": "array",
       "items": {
@@ -15,6 +15,6 @@
         "required": ["name", "value"]
       }
     },
-    "store_date": {"type": "integer"}
+    "store_date": {"type": "string"}
   }
 }

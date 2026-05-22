@@ -1,5 +1,6 @@
 {
     "required": [
+        "id",
         "user_id",
         "manufacturer",
         "model",

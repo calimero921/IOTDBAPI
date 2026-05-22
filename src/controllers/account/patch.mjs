@@ -72,8 +72,6 @@ export default function (request, response) {
                 .then(originalAccounts => {
                     logger.debug('originalAccounts: %j', originalAccounts);
                     if (originalAccounts.status_code) {
-                        //erreur lors de la lecture
-                        //ex. aucune correspondance dans la base
                         return (originalAccounts)
                     } else {
                         //une ou plusieurs correspondance trouve
@@ -100,6 +98,10 @@ export default function (request, response) {
                             return patchAccount(context, id, updateAccount)
                         } else {
                             //erreur, pas de document à mettre à jour
+                            let error = errorParsing(context, {
+                                status_code: 404,
+                                status_message: 'No account found'
+                            });
                             logger.debug("originalAccounts is not an array");
                             return responseError(context, {status_code: 404});
                         }

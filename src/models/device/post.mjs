@@ -40,13 +40,13 @@ export default function (context, device) {
                 logger.error('error: %j', error);
                 reject(error);
             } else {
-                let timestamp = parseInt(moment().format('x'));
+                device.id = generator.idgen();
                 converter.json2db(device, converter.deviceSchema)
                     .then(query => {
-                        logger.debug('query: %j', query);
-                        query.device_id = generator.idgen();
+                        let timestamp = parseInt(moment().format('x'));
                         query.creation_date = timestamp;
                         query.last_connexion_date = timestamp;
+                        logger.debug('query: %j', query);
                         return mongoInsert(context, 'device', query);
                     })
                     .then(datas => {

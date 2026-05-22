@@ -27,7 +27,7 @@
 
 /**
  * @typedef Device
- * @property {string} device_id
+ * @property {string} id
  * @property {string} key.required - Device security key
  * @property {string} user_id.required - Device owner id
  * @property {string} manufacturer.required - Device manufacturer

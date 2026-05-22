@@ -21,6 +21,14 @@
             "json2db": true
         },
         {
+            "dbName": "store_date",
+            "jsonName": "store_date",
+            "type": "string",
+            "logDisplay": true,
+            "db2json": true,
+            "json2db": true
+        },
+        {
             "dbName": "capabilities",
             "jsonName": "capabilities",
             "type": "array",

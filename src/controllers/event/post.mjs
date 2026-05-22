@@ -23,6 +23,7 @@
 
  'use strict';
 
+ import moment from "moment";
 import serverLogger from 'lib-server-logger';
 import errorParsing from '../../utils/errorParsing.mjs';
 import responseError from '../../utils/responseError.mjs';
@@ -31,7 +32,7 @@ import getDevice from '../../models/device/get.mjs';
 import patchDevice from '../../models/device/patch.mjs';
 import setEvent from '../../models/event/post.mjs';
 
-const globalPrefix = '/routes/api/event/post.mjs';
+const globalPrefix = '/controllers/event/post.mjs';
 
 export default function (request, response) {
     let context = {
@@ -45,18 +46,23 @@ export default function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        //let userInfo = request.userinfo;
+        //logger.debug('userInfo: %j', userInfo);
 
         if (request.body) {
             //lecture des données postées
             let postData = request.body;
             logger.debug('postData: %j', postData);
+
+            postData.store_date = moment().format('YYYY-MM-DD HH:hh:ss');
+            if (typeof postData.event_date === "undefined") postData.event_date = postData.store_date;
+            logger.debug('postData with dates: %j', postData);
+
             let device;
 
             //lecture des données postées
-            if (userInfo.admin || userInfo.id === postData.user_id) {
-                let query = {device_id: postData.device_id};
+            //if (userInfo.admin || userInfo.id === postData.user_id) {
+                let query = {id: postData.device_id};
                 getDevice(context, query, 0, 0, true)
                     .then(devices => {
                         logger.debug('Device: %j', devices);
@@ -121,10 +127,9 @@ export default function (request, response) {
                         logger.debug('error: %j', error);
                         responseError(context, error, response, logger);
                     });
-            } else {
-                return errorParsing(context,{status_code: 403});
-            }
-
+            //} else {
+            //    return errorParsing(context,{status_code: 403});
+            //}
         } else {
             //aucune donnée postée
             return errorParsing(context,{status_code: 400});

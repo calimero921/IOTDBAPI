@@ -27,8 +27,8 @@ import serverLogger from 'lib-server-logger';
 import errorParsing from '../../utils/errorParsing.mjs';
 import responseError from '../../utils/responseError.mjs';
 
-import deviceSet from '../../models/device/post.mjs';
-import deviceGet from '../../models/device/get.mjs';
+import setDevice from '../../models/device/post.mjs';
+import getDevice from '../../models/device/get.mjs';
 
 const globalPrefix = '/controllers/device/post.mjs';
 
@@ -44,8 +44,8 @@ export default function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        //let userInfo = request.userinfo;
+        //logger.debug('userInfo: %j', userInfo);
 
         if (request.body) {
             //lecture des données postées
@@ -59,14 +59,14 @@ export default function (request, response) {
                     serial: postData.serial,
                     secret: postData.secret
                 };
-                deviceGet(context, query, 0, 0, true)
+                getDevice(context, query, 0, 0, true)
                     .then(datas => {
                         logger.debug('datas: %j', datas);
                         if (datas) {
                             if (datas.status_code) {
                                 if (datas.status_code === 404) {
-                                    if (!postData.user_id) postData.user_id = userInfo.id;
-                                    return deviceSet(context, postData);
+                                    //if (!postData.user_id) postData.user_id = userInfo.id;
+                                    return setDevice(context, postData);
                                 } else {
                                     return datas;
                                 }

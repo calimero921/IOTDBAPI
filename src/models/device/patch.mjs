@@ -22,7 +22,7 @@ import Converter from '../utils/Converter.mjs';
 
 const globalPrefix = '/models/device/patch.mjs';
 
-export default function (context, device_id, new_device) {
+export default function (context, id, new_device) {
     const logger = serverLogger.child({
         source: globalPrefix,
         httpRequestId: context.httpRequestId
@@ -31,7 +31,7 @@ export default function (context, device_id, new_device) {
     //traitement de recherche dans la base
     return new Promise((resolve, reject) => {
         try {
-            if (typeof device_id === 'undefined' || typeof new_device === 'undefined') {
+            if (typeof id === 'undefined' || typeof new_device === 'undefined') {
                 reject(errorParsing(context, {status_code: 400}));
                 logger.debug('done - missing paramater')
             } else {
@@ -39,7 +39,7 @@ export default function (context, device_id, new_device) {
 
                 let update_date;
                 let converter = new Converter(context);
-                let findQuery = {device_id: device_id};
+                let findQuery = {id: id};
                 let parameter = {limit: 0, offset: 0};
                 mongoFind(context, 'device', findQuery, parameter, false)
                     .then(datas => {
@@ -49,7 +49,7 @@ export default function (context, device_id, new_device) {
                             if (typeof datas.status_code === 'undefined') {
                                 if (datas.length > 0) {
                                     update_date = datas[0];
-                                    return converter.json2db(new_device, converter.deviceSchema);
+                                    return converter.json2db(new_device, converter.deviceSchema,true);
                                 } else {
                                     return errorParsing(context, {status_code: 404});
                                 }
@@ -59,7 +59,7 @@ export default function (context, device_id, new_device) {
                         }
                     })
                     .then(datas => {
-                        // logger.object(datas,'datas');
+                        //logger.debug('datas: %s', datas);
                         if (typeof datas === 'undefined') {
                             return errorParsing(context, {status_code: 500});
                         } else {
@@ -95,10 +95,10 @@ export default function (context, device_id, new_device) {
                                     }
                                 }
                                 update_date.last_connexion_date = datas.last_connexion_date;
-                                // logger.object(update_date, 'update_date');
+                                //logger.debug('update_date: %j', update_date);
 
-                                let updateQuery = {device_id: device_id};
-                                // logger.object(updateQuery, 'updateQuery');
+                                let updateQuery = {id: id};
+                                //logger.debug('updateQuery: %s', updateQuery);
                                 return mongoUpdate(context, 'device', updateQuery, update_date);
                             } else {
                                 return datas;
@@ -116,13 +116,13 @@ export default function (context, device_id, new_device) {
                         }
                     })
                     .catch(error => {
-                        logger.object(error, 'error');
+                        logger.error('error: %j', error);
                         reject(errorParsing(context, error));
                         logger.debug('done - global catch')
                     });
             }
         } catch (error) {
-            logger.object(error, 'error');
+            logger.error('error: %j', error);
             reject(errorParsing(context, error));
             logger.debug('done - global catch');
         }

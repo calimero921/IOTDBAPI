@@ -72,21 +72,21 @@ export default function (request, response) {
                         } else {
                             logger.debug('devices: %j', devices);
                             let results = [];
-                            for (let idx = 0; idx < devices.length; idx++) {
-                                if (userInfo) {
-                                    logger.debug('userInfo: %j', userInfo);
+                            //if (userInfo) {
+                            //logger.debug('userInfo: %j', userInfo);
+                                for (let idx = 0; idx < devices.length; idx++) {
                                     if (devices.hasOwnProperty(idx)) {
-                                        if (userInfo.admin || (devices[idx].user_id) === userInfo.id) {
+                                        //if (userInfo.admin || (devices[idx].user_id) === userInfo.id) {
                                             results.push(devices[idx]);
-                                        }
+                                        //}
                                     }
                                 }
-                            }
+                            //}
                             logger.debug('results: %j', results);
                             if (results.length > 0) {
                                 logger.debug('results: %j', results);
                                 logger.info('results %s %s %s exists', results[0].manufacturer, results[0].model, results[0].serial);
-                                response.status(200).send({device_id: results[0].device_id});
+                                response.status(200).send({id: results[0].id});
                             } else {
                                 let error = errorParsing(context, {status_code: 404, status_message: 'no device found'});
                                 logger.error('error: %j', error);

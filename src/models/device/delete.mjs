@@ -18,7 +18,7 @@ import errorParsing from '../../utils/errorParsing.mjs';
 
 import mongoDelete from '../../Libraries/MongoDB/delete.mjs';
 
-export default function (context, device_id) {
+export default function (context, id) {
     const logger = serverLogger.child({
         source: '/models/device/delete.mjs',
         httpRequestId: context.httpRequestId
@@ -27,10 +27,10 @@ export default function (context, device_id) {
     //traitement de suppression dans la base
     return new Promise((resolve, reject) => {
         try {
-            logger.debug('device_id: %s', device_id);
+            logger.debug('device id: %s', id);
             let query = {};
-            if (device_id) {
-                query.device_id = device_id;
+            if (id) {
+                query.id = id;
                 mongoDelete(context, 'device', query)
                     .then(datas => {
                         logger.debug('datas: %j', datas);

@@ -28,8 +28,8 @@
 import serverLogger from 'lib-server-logger';
 import responseError from '../../utils/responseError.mjs';
 
-import deviceGet from '../../models/device/get.mjs';
-import measureGet from '../../models/event/get.mjs';
+import getDevice from '../../models/device/get.mjs';
+import getEvent from '../../models/event/get.mjs';
 
 const globalPrefix = '/controllers/event/getById.mjs';
 
@@ -45,36 +45,37 @@ export default function (request, response) {
     });
 
     try {
-        let userInfo = request.userinfo;
-        logger.debug('userInfo: %j', userInfo);
+        //let userInfo = request.userinfo;
+        //logger.debug('userInfo: %j', userInfo);
 
         logger.debug('id: %j', request.params.id);
         let device_id = request.params.id;
 
         //traitement de recherche dans la base
-        if (typeof device_id === 'undefined') {
-            let query = {device_id: device_id};
+        if (device_id) {
+            let deviceQuery = {id: device_id};
             //traitement de recherche dans la base
-            deviceGet(context, query, 0, 0)
+            getDevice(context, deviceQuery, 0, 0)
                 .then(device => {
                     if (device) {
                         if (device.status_code) {
                             return device;
                         } else {
-                            return measureGet(context, query, 0, 100);
+                            let eventQuery = {device_id: device_id};
+                            return getEvent(context, eventQuery, 0, 100);
                         }
                     } else {
                         return {status_code: 404};
                     }
                 })
-                .then(measure => {
-                    if (measure) {
-                        if (measure.status_code) {
-                            logger.error('error: %j', measure);
-                            responseError(context, measure, response, logger);
+                .then(event => {
+                    if (event) {
+                        if (event.status_code) {
+                            logger.error('error: %j', event);
+                            responseError(context, event, response, logger);
                         } else {
-                            logger.debug('measure: %j', measure);
-                            response.status(200).send(measure);
+                            logger.debug('measure: %j', event);
+                            response.status(200).send(event);
                         }
                     } else {
                         logger.error('error: measure not found');

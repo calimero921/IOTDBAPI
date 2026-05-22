@@ -1,8 +1,8 @@
 {
     "fields": [
         {
-            "dbName": "device_id",
-            "jsonName": "device_id",
+            "dbName": "id",
+            "jsonName": "id",
             "type": "string",
             "logDisplay": true,
             "db2json": true,
